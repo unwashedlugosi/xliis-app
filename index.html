@@ -155,9 +155,13 @@
     letter-spacing: 3px;
     margin-bottom: 16px;
     text-transform: uppercase;
+    position: relative;
+    padding-left: 18px;
   }
   .section-label::before {
-    content: '> ';
+    content: '>';
+    position: absolute;
+    left: 0;
   }
 
   /* ─── ABOUT ─── */
@@ -330,7 +334,7 @@
   <div class="about">
     <div class="section-label">About</div>
     <p>There are thousands of Grateful Dead soundboard recordings on the Internet Archive. That's incredible — and a little overwhelming.</p>
-    <p>XLIIs is a fun way to explore them. Four curated tape cases, each focused on a different era, with write-ups that give you historical context for every show. The cases rotate every three months, so there's always a reason to dig into a period you might have overlooked.</p>
+    <p>XLIIs organizes them the way people used to organize tapes — in cases. Four at a time, each focused on a different era, with write-ups that give you historical context for every show. The cases rotate every three months, so there's always a reason to dig into a period you might have overlooked.</p>
     <p>No account. No ads. Just pick a case and press play.</p>
   </div>
 
@@ -344,15 +348,15 @@
       </div>
       <div class="case-item">
         <div class="case-name">Wall of Sound</div>
-        <div class="case-desc">1974 tour — the legendary sound system era</div>
+        <div class="case-desc">1974 — the legendary 600-speaker PA era</div>
       </div>
       <div class="case-item">
         <div class="case-name">Young Bettys</div>
-        <div class="case-desc">Early years — raw, exploratory, electric</div>
+        <div class="case-desc">1969–1973 — early Betty Cantor-Jackson soundboards</div>
       </div>
       <div class="case-item">
         <div class="case-name">New Animal</div>
-        <div class="case-desc">Late era — the band reinvented and revitalized</div>
+        <div class="case-desc">1979–1980 — the band reinvented with Brent Mydland</div>
       </div>
     </div>
   </div>
@@ -366,13 +370,12 @@
       <div class="step">Press play</div>
       <div class="step">Your position saves automatically — pick up where you left off</div>
     </div>
-    </div>
   </div>
 
   <!-- SUPPORT -->
   <div class="support" id="support">
     <div class="section-label">Support</div>
-    <p>Found a bug? Have a feature request? Just want to say hey?</p>
+    <p>Have a feature request? Found a bug?</p>
     <div class="email-box">
       <a href="mailto:hello@xliis.app">hello@xliis.app</a>
     </div>
