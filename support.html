@@ -4,38 +4,116 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>XLIIs — Support</title>
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
 <style>
-  body { font-family: -apple-system, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; line-height: 1.6; color: #333; }
-  h1 { font-size: 24px; }
-  h2 { font-size: 18px; margin-top: 24px; }
-  p { margin: 12px 0; }
-  a { color: #1a73e8; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0a14;
+    color: #33ff33;
+    font-family: 'VT323', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px);
+    pointer-events: none;
+    z-index: 1000;
+  }
+  .container {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 60px 24px 40px;
+  }
+  h1 {
+    font-size: 36px;
+    letter-spacing: 3px;
+    margin-bottom: 32px;
+    text-shadow: 0 0 12px rgba(51, 255, 51, 0.4);
+  }
+  .section-label {
+    font-size: 14px;
+    color: #1a6a1a;
+    letter-spacing: 3px;
+    margin-bottom: 16px;
+    margin-top: 40px;
+    text-transform: uppercase;
+    position: relative;
+    padding-left: 18px;
+  }
+  .section-label:first-of-type { margin-top: 0; }
+  .section-label::before {
+    content: '>';
+    position: absolute;
+    left: 0;
+  }
+  p {
+    font-size: 20px;
+    line-height: 1.6;
+    color: #22bb22;
+    margin-bottom: 16px;
+  }
+  .question {
+    font-size: 22px;
+    color: #33ff33;
+    margin-top: 24px;
+    margin-bottom: 8px;
+  }
+  a {
+    color: #33ff33;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(51, 255, 51, 0.3);
+  }
+  a:hover { border-bottom-color: #33ff33; }
+  .back {
+    display: inline-block;
+    margin-top: 40px;
+    font-size: 18px;
+    color: #1a6a1a;
+    border-bottom: none;
+  }
+  .back:hover { color: #33ff33; }
+  .back::before { content: '< '; }
+  @media (max-width: 480px) {
+    .container { padding: 40px 20px 32px; }
+    h1 { font-size: 28px; }
+  }
 </style>
 </head>
 <body>
-<h1>XLIIs — Support</h1>
+<div class="container">
 
-<h2>Getting Started</h2>
-<p>XLIIs streams freely available Grateful Dead live recordings from the Internet Archive. Pick a tape case, choose a show, and press play. It's that simple.</p>
+  <h1>XLIIs — Support</h1>
 
-<h2>FAQ</h2>
+  <div class="section-label">Getting Started</div>
+  <p>Pick a tape case. Choose a show. Press play. Your position saves automatically, so you can close the app and come back to exactly where you left off.</p>
 
-<p><strong>Is this free?</strong><br>
-Yes, completely free. No ads, no subscriptions, no in-app purchases.</p>
+  <div class="section-label">FAQ</div>
 
-<p><strong>Where does the music come from?</strong><br>
-All recordings are streamed from archive.org, where the Grateful Dead community has shared audience recordings for decades with the band's blessing.</p>
+  <p class="question">Is it free?</p>
+  <p>Completely. No ads, no subscriptions, no in-app purchases.</p>
 
-<p><strong>Can I pick up where I left off?</strong><br>
-Yes. Your playback position is saved automatically so you can resume right where you stopped.</p>
+  <p class="question">Where does the music come from?</p>
+  <p>All recordings are streamed from the Internet Archive, where the Grateful Dead community has shared soundboard recordings for decades with the band's blessing.</p>
 
-<p><strong>Why can't I hear anything?</strong><br>
-Make sure your phone isn't on silent mode and the volume is up. If you're on cellular, check that you have a data connection — the app streams audio and needs internet access.</p>
+  <p class="question">Why can't I hear anything?</p>
+  <p>Make sure your phone isn't on silent mode and the volume is up. The app streams audio, so you need an internet connection.</p>
 
-<p><strong>What are the four tape cases?</strong><br>
-Cornell and Company (1977 tour), Wall of Sound (1974 tour), Young Bettys (early years), and New Animal (late era). Each case contains a curated set of shows. The cases rotate every three months.</p>
+  <p class="question">What are the tape cases?</p>
+  <p>Cornell and Company (1977), Wall of Sound (1974), Young Bettys (1969-1973), and New Animal (1979-1980). Each case is a curated set of soundboard recordings from a specific era. The cases rotate every three months.</p>
 
-<h2>Contact</h2>
-<p>For questions, bug reports, or feature requests, email <a href="mailto:hello@xliis.app">hello@xliis.app</a>.</p>
+  <p class="question">What does "XLIIs" mean?</p>
+  <p>XLII is the Type II high-bias cassette tape that tapers used to record and trade live shows. The name is a nod to those tapes and the cases people carried them in.</p>
+
+  <div class="section-label">Contact</div>
+  <p>Have a feature request? Found a bug? Email <a href="mailto:hello@xliis.app">hello@xliis.app</a>.</p>
+
+  <a href="/" class="back">Back to XLIIs</a>
+
+</div>
 </body>
 </html>
