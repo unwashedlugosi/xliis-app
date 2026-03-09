@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>XLIIs — Grateful Dead Bootleg Tapes</title>
-<meta name="description" content="Curated Grateful Dead soundboard recordings in rotating collections. Historical write-ups for every show. Free.">
+<meta name="description" content="Four tape collections from four collectors. Grateful Dead soundboard recordings with historical write-ups for every show. Free.">
 <meta property="og:title" content="XLIIs — Grateful Dead Bootleg Tapes">
-<meta property="og:description" content="Curated Grateful Dead soundboard recordings in rotating collections. Free.">
+<meta property="og:description" content="Four tape collections from four collectors. Grateful Dead soundboard recordings. Free.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://xliis.app">
 <meta property="og:image" content="https://xliis.app/icon.png">
@@ -52,7 +52,7 @@
   body { animation: flicker 4s infinite; }
 
   .container {
-    max-width: 640px;
+    max-width: 680px;
     margin: 0 auto;
     padding: 60px 24px 40px;
   }
@@ -118,14 +118,6 @@
   .badge-link img {
     height: 54px;
   }
-  .badge-placeholder {
-    font-size: 20px;
-    color: #22aa22;
-    border: 1px solid rgba(51,255,51,0.2);
-    border-radius: 8px;
-    padding: 14px 24px;
-    display: inline-block;
-  }
 
   /* ─── STATS ─── */
   .stats {
@@ -164,42 +156,68 @@
     left: 0;
   }
 
-  /* ─── ABOUT ─── */
-  .about {
+  /* ─── INTRO ─── */
+  .intro {
     margin-bottom: 64px;
   }
-  .about p {
+  .intro p {
     font-size: 22px;
     line-height: 1.6;
     color: #22bb22;
     margin-bottom: 16px;
   }
-  .about p:last-child { margin-bottom: 0; }
+  .intro p:last-child { margin-bottom: 0; }
 
-  /* ─── TAPE CASES ─── */
-  .cases {
+  /* ─── COLLECTIONS ─── */
+  .collections {
     margin-bottom: 64px;
   }
-  .case-list {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
+  .collection {
+    border: 1px solid rgba(51, 255, 51, 0.12);
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 20px;
+    background: rgba(51, 255, 51, 0.015);
+    transition: border-color 0.3s;
   }
-  .case-item {
-    border: 1px solid rgba(51, 255, 51, 0.15);
-    border-radius: 8px;
-    padding: 16px;
-    background: rgba(51, 255, 51, 0.02);
+  .collection:hover {
+    border-color: rgba(51, 255, 51, 0.3);
   }
-  .case-name {
-    font-size: 20px;
+  .collection:last-child { margin-bottom: 0; }
+  .collection-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 6px;
+  }
+  .collection-name {
+    font-size: 26px;
     color: #33ff33;
-    margin-bottom: 4px;
+    text-shadow: 0 0 8px rgba(51, 255, 51, 0.2);
   }
-  .case-desc {
+  .collection-meta {
     font-size: 16px;
     color: #1a8a1a;
-    line-height: 1.4;
+    letter-spacing: 1px;
+  }
+  .collection-tagline {
+    font-size: 18px;
+    color: #22aa22;
+    margin-bottom: 12px;
+    font-style: italic;
+  }
+  .collection-desc {
+    font-size: 19px;
+    color: #1e9e1e;
+    line-height: 1.55;
+  }
+  .collector-note {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(51, 255, 51, 0.08);
+    font-size: 17px;
+    color: #1a7a1a;
+    line-height: 1.5;
   }
 
   /* ─── HOW IT WORKS ─── */
@@ -287,9 +305,12 @@
     .stats { gap: 8px; }
     .stat-num { font-size: 32px; }
     .stat-label { font-size: 14px; }
-    .about p, .step { font-size: 20px; }
-    .case-list { grid-template-columns: 1fr; }
-    .case-item { padding: 12px; }
+    .intro p, .step { font-size: 20px; }
+    .collection { padding: 18px; }
+    .collection-name { font-size: 22px; }
+    .collection-desc { font-size: 17px; }
+    .collector-note { font-size: 16px; }
+    .collection-header { flex-direction: column; gap: 2px; }
   }
 </style>
 </head>
@@ -313,12 +334,12 @@
   <!-- STATS -->
   <div class="stats">
     <div>
-      <div class="stat-num">FOUR</div>
-      <div class="stat-label">COLLECTIONS</div>
+      <div class="stat-num">171</div>
+      <div class="stat-label">SHOWS</div>
     </div>
     <div>
-      <div class="stat-num">NEW</div>
-      <div class="stat-label">EVERY 3 MONTHS</div>
+      <div class="stat-num">FOUR</div>
+      <div class="stat-label">ON LOAN</div>
     </div>
     <div>
       <div class="stat-num">FREE</div>
@@ -326,34 +347,55 @@
     </div>
   </div>
 
-  <!-- ABOUT -->
-  <div class="about">
-    <div class="section-label">About</div>
-    <p>There are thousands of Grateful Dead soundboard recordings on the Internet Archive. That's incredible — and a little overwhelming.</p>
-    <p>XLIIs organizes them into collections. Four at a time, each focused on a different era, with write-ups that give you historical context for every show. The collections rotate every three months, so there's always a reason to dig into a period you might have overlooked.</p>
-    <p>No account. No tracking. Just pick a collection and press play.</p>
+  <!-- INTRO -->
+  <div class="intro">
+    <div class="section-label">The Tapes</div>
+    <p>Every collection in XLIIs is on loan from a different collector — someone with a tape deck and an obsession who recorded everything, organized it their own way, and stored it for decades.</p>
+    <p>We're grateful to each of them for allowing us to feature their collection for a limited three-month run. The setlists are typed or handwritten in the collector's own style. The cases show their age. The tapes sound incredible.</p>
   </div>
 
   <!-- COLLECTIONS -->
-  <div class="cases">
-    <div class="section-label">Current Collections</div>
-    <div class="case-list">
-      <div class="case-item">
-        <div class="case-name">Cornell and Company</div>
-        <div class="case-desc">1977 — the year the band was perfect</div>
+  <div class="collections">
+    <div class="section-label">The Collections</div>
+
+    <div class="collection">
+      <div class="collection-header">
+        <div class="collection-name">Cornell and Company</div>
+        <div class="collection-meta">42 SHOWS / 1977</div>
       </div>
-      <div class="case-item">
-        <div class="case-name">Wall of Sound</div>
-        <div class="case-desc">1974 — the legendary 600-speaker PA era</div>
+      <div class="collection-tagline">The year the band was perfect</div>
+      <div class="collection-desc">Forty-two soundboard recordings from the greatest year in Grateful Dead history. The Spring tour, the Fall tour, the December Winterland run. Garcia's warm tone, Keith's jazz voicings, Betty Cantor-Jackson behind the board. Every night in '77 was the best night.</div>
+      <div class="collector-note">On loan from a private collector in upstate New York who taped and traded obsessively through the late '70s. His system was meticulous — every case labeled by hand, every setlist verified against his own notes from the shows he attended. We thank him for generously sharing this collection.</div>
+    </div>
+
+    <div class="collection">
+      <div class="collection-header">
+        <div class="collection-name">Wall of Sound</div>
+        <div class="collection-meta">37 SHOWS / 1974</div>
       </div>
-      <div class="case-item">
-        <div class="case-name">Young Bettys</div>
-        <div class="case-desc">1969–1973 — early Betty Cantor-Jackson soundboards</div>
+      <div class="collection-tagline">604 speakers, 26,000 watts, one impossible year</div>
+      <div class="collection-desc">The Wall of Sound was Owsley Stanley's masterpiece — a 40-foot PA system where every instrument had its own speaker column. It cost a fortune, required two complete rigs leapfrogging across the country, and produced the cleanest live sound anyone had ever heard. The band played themselves into exhaustion and broke up in October.</div>
+      <div class="collector-note">On loan from a Hungarian archivist in Budapest who spent decades acquiring American soundboard recordings through European tape-trading networks. His setlists were typed on a manual typewriter in Hungarian — the only language he used for cataloging. The cases are beat to hell from years of heavy use.</div>
+    </div>
+
+    <div class="collection">
+      <div class="collection-header">
+        <div class="collection-name">Young Bettys</div>
+        <div class="collection-meta">59 SHOWS / 1969–1973</div>
       </div>
-      <div class="case-item">
-        <div class="case-name">New Animal</div>
-        <div class="case-desc">1979–1980 — the band reinvented with Brent Mydland</div>
+      <div class="collection-tagline">Betty Cantor-Jackson's earliest recordings</div>
+      <div class="collection-desc">Betty Cantor started at the Fillmore West in 1967 and became the Dead's soundboard engineer by 1969. She recorded hundreds of shows on quarter-inch and half-inch tape — warm, immediate sound where you can hear fingers on strings. Her tapes disappeared into a storage locker, resurfaced at auction in 1986, and became the gold standard for live Dead.</div>
+      <div class="collector-note">On loan from a longtime Bay Area sound engineer who worked adjacent to the Dead's crew in the early '70s. She kept her collection in pristine condition — each tape in its original case, setlists handwritten in careful block letters.</div>
+    </div>
+
+    <div class="collection">
+      <div class="collection-header">
+        <div class="collection-name">New Animal</div>
+        <div class="collection-meta">33 SHOWS / 1979–1980</div>
       </div>
+      <div class="collection-tagline">Brent Mydland arrives and the Dead are reborn</div>
+      <div class="collection-desc">Keith and Donna left in February '79. Brent Mydland joined in April and brought his Hammond B-3, his synths, and a soulful edge the band hadn't had in years. Within months they were road-testing Althea, Feel Like a Stranger, and Alabama Getaway. Twenty months of rebirth — a band that had been drifting suddenly found a new reason to play.</div>
+      <div class="collector-note">On loan from an Estonian expat in Toronto who has been trading tapes by mail since the early '80s. His handwritten setlists — in Estonian, his native language — are stuffed into cases alongside pen-scratched notes, underlined favorites, and the occasional doodle. A collector who clearly loves every minute of it.</div>
     </div>
   </div>
 
@@ -363,8 +405,8 @@
     <div class="steps">
       <div class="step">Pick a collection</div>
       <div class="step">Choose a show — each one has a write-up with historical context</div>
-      <div class="step">Press play</div>
-      <div class="step">Your position saves automatically — pick up where you left off</div>
+      <div class="step">Turn your phone sideways to see the original J-card</div>
+      <div class="step">Press play — your position saves automatically</div>
     </div>
   </div>
 
@@ -383,8 +425,8 @@
     <a href="/support.html">FAQ</a>
     <a href="/contact.html">Contact</a>
     <div class="footer-note">
-      All soundboard recordings streamed from archive.org.<br>
-      The Grateful Dead&#8217;s taping policy made this possible.
+      All music streamed from archive.org.<br>
+      The Grateful Dead's taping policy made this possible.
     </div>
   </footer>
 
