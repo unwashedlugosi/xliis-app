@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>XLIIs — Mission Control</title>
+<title>XLIIs — Dev Console</title>
+<meta name="robots" content="noindex, nofollow">
 <link rel="icon" type="image/png" href="icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -13,12 +14,10 @@
     --green-dim: #1a8a1a;
     --green-faint: rgba(51, 255, 51, 0.08);
     --green-glow: rgba(51, 255, 51, 0.4);
-    --amber: #ffaa33;
-    --amber-dim: #8a6a1a;
-    --red: #ff4444;
     --bg: #0a0a14;
-    --panel-bg: rgba(51, 255, 51, 0.02);
-    --border: rgba(51, 255, 51, 0.15);
+    --amber: #ffaa33;
+    --red: #ff4444;
+    --cyan: #33ffee;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -29,7 +28,6 @@
     font-family: 'Share Tech Mono', 'VT323', monospace;
     min-height: 100vh;
     overflow-x: hidden;
-    font-size: 14px;
   }
 
   /* CRT scanlines */
@@ -37,74 +35,62 @@
     content: '';
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.12) 2px, rgba(0,0,0,0.12) 4px);
+    background: repeating-linear-gradient(
+      0deg, transparent, transparent 2px,
+      rgba(0, 0, 0, 0.12) 2px, rgba(0, 0, 0, 0.12) 4px
+    );
     pointer-events: none;
     z-index: 1000;
   }
 
-  /* Noise texture */
+  /* Phosphor glow on edges */
   body::after {
     content: '';
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.4) 100%);
     pointer-events: none;
     z-index: 999;
   }
 
+  .shell {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 24px 48px;
+  }
+
+  /* ─── HEADER ─── */
   .header {
-    padding: 16px 24px;
-    border-bottom: 1px solid var(--border);
+    margin-bottom: 32px;
+    border-bottom: 1px solid rgba(51, 255, 51, 0.15);
+    padding-bottom: 16px;
+  }
+  .header-row {
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: baseline;
     flex-wrap: wrap;
-    gap: 12px;
+    gap: 8px;
   }
-  .header-left {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-  .header-title {
+  .header h1 {
     font-family: 'VT323', monospace;
-    font-size: 28px;
+    font-size: 32px;
     letter-spacing: 3px;
     text-shadow: 0 0 12px var(--green-glow);
   }
-  .header-status {
-    font-size: 12px;
-    color: var(--green-dim);
-    letter-spacing: 1px;
-  }
-  .header-right {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-  .refresh-btn {
-    background: none;
-    border: 1px solid var(--border);
-    color: var(--green-dim);
-    font-family: inherit;
+  .header-meta {
     font-size: 13px;
-    padding: 6px 14px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
+    color: var(--green-dim);
     letter-spacing: 1px;
   }
-  .refresh-btn:hover {
-    border-color: var(--green);
-    color: var(--green);
-    box-shadow: 0 0 8px rgba(51,255,51,0.15);
-  }
-  .live-dot {
+  .status-dot {
+    display: inline-block;
     width: 8px;
     height: 8px;
-    background: var(--green);
     border-radius: 50%;
+    background: var(--green);
     box-shadow: 0 0 6px var(--green);
+    margin-right: 6px;
     animation: pulse-dot 2s ease-in-out infinite;
   }
   @keyframes pulse-dot {
@@ -112,517 +98,613 @@
     50% { opacity: 0.4; }
   }
 
-  .dashboard {
+  /* ─── STAT CARDS ─── */
+  .stats-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-    grid-template-rows: auto auto 1fr;
-    gap: 1px;
-    padding: 1px;
-    background: rgba(51,255,51,0.06);
-    min-height: calc(100vh - 62px);
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
   }
-
-  .panel {
-    background: var(--bg);
+  .stat-card {
+    border: 1px solid rgba(51, 255, 51, 0.12);
+    border-radius: 6px;
     padding: 16px;
+    background: var(--green-faint);
     position: relative;
     overflow: hidden;
+    animation: card-in 0.6s ease-out backwards;
   }
-  .panel-label {
-    font-size: 10px;
+  .stat-card:nth-child(1) { animation-delay: 0.1s; }
+  .stat-card:nth-child(2) { animation-delay: 0.2s; }
+  .stat-card:nth-child(3) { animation-delay: 0.3s; }
+  .stat-card:nth-child(4) { animation-delay: 0.4s; }
+  @keyframes card-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--green), transparent);
+    opacity: 0.4;
+  }
+  .stat-label {
+    font-size: 11px;
     color: var(--green-dim);
     letter-spacing: 2px;
     text-transform: uppercase;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .panel-label::before {
-    content: '■';
-    font-size: 6px;
-  }
-
-  /* ── STAT CARDS (top row) ── */
-  .stat-card {
-    grid-column: span 1;
+    margin-bottom: 6px;
   }
   .stat-value {
     font-family: 'VT323', monospace;
-    font-size: 48px;
+    font-size: 36px;
     line-height: 1;
-    text-shadow: 0 0 16px var(--green-glow);
-    margin-bottom: 4px;
+    text-shadow: 0 0 8px var(--green-glow);
   }
   .stat-sub {
     font-size: 12px;
     color: var(--green-dim);
+    margin-top: 4px;
   }
-  .stat-value.amber { color: var(--amber); text-shadow: 0 0 16px rgba(255,170,51,0.4); }
-  .stat-sub.amber { color: var(--amber-dim); }
 
-  /* ── COLLECTION BARS ── */
-  .collections-panel {
-    grid-column: span 2;
+  /* ─── TWO COLUMN LAYOUT ─── */
+  .columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
   }
-  .bar-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 8px;
+
+  /* ─── PANELS ─── */
+  .panel {
+    border: 1px solid rgba(51, 255, 51, 0.12);
+    border-radius: 6px;
+    background: var(--green-faint);
+    overflow: hidden;
+    animation: card-in 0.6s ease-out backwards;
+    animation-delay: 0.5s;
   }
-  .bar-label {
+  .panel-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(51, 255, 51, 0.1);
     font-size: 12px;
     color: var(--green-dim);
-    width: 140px;
-    text-align: right;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
+  .panel-body {
+    padding: 16px;
+  }
+
+  /* ─── COLLECTION BARS ─── */
+  .collection-bar {
+    margin-bottom: 12px;
+  }
+  .collection-bar:last-child { margin-bottom: 0; }
+  .bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+  .bar-label .name { color: var(--green); }
+  .bar-label .count { color: var(--green-dim); }
   .bar-track {
-    flex: 1;
-    height: 20px;
-    background: var(--green-faint);
+    height: 18px;
+    background: rgba(51, 255, 51, 0.04);
     border-radius: 2px;
-    position: relative;
     overflow: hidden;
+    position: relative;
   }
   .bar-fill {
     height: 100%;
-    background: linear-gradient(90deg, rgba(51,255,51,0.3), rgba(51,255,51,0.6));
+    background: linear-gradient(90deg, rgba(51, 255, 51, 0.25), rgba(51, 255, 51, 0.45));
     border-radius: 2px;
-    transition: width 0.6s ease;
-    box-shadow: inset 0 0 8px rgba(51,255,51,0.2);
-  }
-  .bar-count {
-    font-size: 13px;
-    width: 40px;
-    text-align: right;
-    color: var(--green);
-  }
-
-  /* ── ACTIVITY TIMELINE (sparkline) ── */
-  .timeline-panel {
-    grid-column: span 2;
-  }
-  .sparkline-container {
-    height: 120px;
-    display: flex;
-    align-items: flex-end;
-    gap: 2px;
-    padding-top: 8px;
-  }
-  .spark-bar {
-    flex: 1;
-    min-width: 4px;
-    background: linear-gradient(180deg, rgba(51,255,51,0.7), rgba(51,255,51,0.2));
-    border-radius: 1px 1px 0 0;
-    transition: height 0.4s ease;
+    transition: width 1s ease-out;
     position: relative;
   }
-  .spark-bar:hover {
-    background: linear-gradient(180deg, rgba(51,255,51,1), rgba(51,255,51,0.5));
-    box-shadow: 0 0 6px rgba(51,255,51,0.4);
-  }
-  .spark-bar:hover::after {
-    content: attr(data-tooltip);
+  .bar-fill::after {
+    content: '';
     position: absolute;
-    bottom: calc(100% + 6px);
-    left: 50%;
-    transform: translateX(-50%);
-    background: #1a1a2e;
-    border: 1px solid var(--border);
-    padding: 3px 8px;
-    font-size: 11px;
-    white-space: nowrap;
-    border-radius: 3px;
-    z-index: 10;
-  }
-  .timeline-labels {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 6px;
-    font-size: 10px;
-    color: rgba(51,255,51,0.3);
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--green);
+    box-shadow: 0 0 6px var(--green);
   }
 
-  /* ── TOP SHOWS ── */
-  .top-shows-panel {
-    grid-column: span 2;
+  /* ─── SPARKLINE ─── */
+  .sparkline-container {
+    height: 120px;
+    position: relative;
   }
+  .sparkline-canvas {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ─── TOP SHOWS ─── */
   .show-row {
     display: flex;
+    justify-content: space-between;
     align-items: baseline;
-    gap: 10px;
-    padding: 5px 0;
-    border-bottom: 1px solid rgba(51,255,51,0.04);
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(51, 255, 51, 0.05);
     font-size: 13px;
   }
+  .show-row:last-child { border-bottom: none; }
   .show-rank {
     color: var(--green-dim);
-    width: 20px;
-    text-align: right;
-    font-size: 11px;
+    width: 24px;
+    flex-shrink: 0;
   }
-  .show-id {
+  .show-name {
     flex: 1;
     color: var(--green);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    margin-right: 8px;
   }
   .show-plays {
     color: var(--green-dim);
-    font-size: 12px;
+    flex-shrink: 0;
   }
 
-  /* ── EVENT LOG ── */
-  .event-log-panel {
-    grid-column: span 2;
-  }
+  /* ─── EVENT LOG ─── */
   .event-log {
-    max-height: 400px;
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(51,255,51,0.2) transparent;
+    margin-bottom: 0;
   }
-  .event-log::-webkit-scrollbar { width: 4px; }
-  .event-log::-webkit-scrollbar-thumb { background: rgba(51,255,51,0.2); border-radius: 2px; }
-  .event-row {
-    display: flex;
-    gap: 10px;
-    padding: 4px 0;
-    border-bottom: 1px solid rgba(51,255,51,0.03);
+  .log-table {
+    width: 100%;
     font-size: 12px;
-    animation: fadeIn 0.3s ease;
   }
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-4px); }
-    to { opacity: 1; transform: translateY(0); }
+  .log-row {
+    display: grid;
+    grid-template-columns: 140px 100px 1fr 80px;
+    gap: 8px;
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(51, 255, 51, 0.04);
+    align-items: baseline;
   }
-  .event-time {
-    color: rgba(51,255,51,0.3);
-    white-space: nowrap;
-    font-size: 11px;
-    min-width: 70px;
-  }
-  .event-type {
-    padding: 1px 6px;
-    border-radius: 2px;
-    font-size: 10px;
-    letter-spacing: 0.5px;
-    white-space: nowrap;
-  }
-  .event-type.app_open { background: rgba(51,255,51,0.1); color: var(--green-dim); }
-  .event-type.show_play { background: rgba(255,170,51,0.12); color: var(--amber); }
-  .event-type.collection_switch { background: rgba(100,100,255,0.12); color: #8888ff; }
-  .event-detail {
-    color: rgba(51,255,51,0.5);
+  .log-row:last-child { border-bottom: none; }
+  .log-time { color: rgba(51, 255, 51, 0.35); }
+  .log-event { color: var(--green); }
+  .log-event.open { color: var(--cyan); }
+  .log-event.play { color: var(--amber); }
+  .log-event.switch { color: var(--green); }
+  .log-detail {
+    color: var(--green-dim);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+  .log-device {
+    color: rgba(51, 255, 51, 0.25);
+    text-align: right;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* ─── DEVICE PIE ─── */
+  .device-stats {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+  .device-ring {
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+  }
+  .device-legend {
     flex: 1;
   }
-
-  /* ── EMPTY STATE ── */
-  .empty-state {
-    color: var(--green-dim);
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
     font-size: 13px;
-    padding: 20px 0;
+  }
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .legend-dot.ios { background: var(--green); }
+  .legend-dot.web { background: var(--cyan); }
+  .legend-dot.unknown { background: var(--green-dim); }
+
+  /* ─── EMPTY STATE ─── */
+  .empty {
     text-align: center;
+    padding: 32px 16px;
+    color: var(--green-dim);
+    font-size: 14px;
+  }
+  .empty-icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+    opacity: 0.4;
+  }
+
+  /* ─── REFRESH BAR ─── */
+  .refresh-bar {
+    text-align: center;
+    padding: 16px;
+    font-size: 12px;
+    color: rgba(51, 255, 51, 0.25);
     letter-spacing: 1px;
   }
+  .refresh-bar span { cursor: pointer; }
+  .refresh-bar span:hover { color: var(--green); }
 
-  /* ── LOADING ── */
+  /* ─── LOADING ─── */
   .loading {
+    text-align: center;
+    padding: 40px;
+    font-size: 16px;
     color: var(--green-dim);
-    font-size: 13px;
-    animation: blink-load 1s step-end infinite;
   }
-  @keyframes blink-load {
+  @keyframes blink-cursor {
     0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
+    50% { opacity: 0; }
+  }
+  .cursor-blink {
+    display: inline-block;
+    width: 10px;
+    height: 16px;
+    background: var(--green);
+    vertical-align: middle;
+    animation: blink-cursor 1s step-end infinite;
+    margin-left: 4px;
   }
 
-  /* ── RESPONSIVE ── */
-  @media (max-width: 900px) {
-    .dashboard {
-      grid-template-columns: 1fr 1fr;
-    }
-    .stat-card { grid-column: span 1; }
-    .collections-panel,
-    .timeline-panel,
-    .top-shows-panel,
-    .event-log-panel { grid-column: span 2; }
-  }
-  @media (max-width: 500px) {
-    .dashboard { grid-template-columns: 1fr; }
-    .stat-card,
-    .collections-panel,
-    .timeline-panel,
-    .top-shows-panel,
-    .event-log-panel { grid-column: span 1; }
-    .stat-value { font-size: 36px; }
-    .header { padding: 12px 16px; }
-    .panel { padding: 12px; }
+  /* ─── MOBILE ─── */
+  @media (max-width: 700px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .columns { grid-template-columns: 1fr; }
+    .stat-value { font-size: 28px; }
+    .log-row { grid-template-columns: 90px 80px 1fr; }
+    .log-device { display: none; }
+    .shell { padding: 20px 16px 32px; }
   }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="header-left">
-    <div class="header-title">XLIIs MISSION CONTROL</div>
-    <div class="header-status" id="last-updated">LOADING...</div>
+<div class="shell">
+  <div class="header">
+    <div class="header-row">
+      <h1>XLIIs DEV CONSOLE</h1>
+      <div class="header-meta">
+        <span class="status-dot"></span>LIVE — AUTO-REFRESH 60s
+      </div>
+    </div>
   </div>
-  <div class="header-right">
-    <div class="live-dot"></div>
-    <button class="refresh-btn" onclick="loadAll()">REFRESH</button>
+
+  <div id="app">
+    <div class="loading">LOADING TELEMETRY<span class="cursor-blink"></span></div>
   </div>
 </div>
 
-<div class="dashboard">
-  <!-- Row 1: Stat cards -->
-  <div class="panel stat-card">
-    <div class="panel-label">Total Opens</div>
-    <div class="stat-value" id="total-opens">-</div>
-    <div class="stat-sub" id="unique-devices">- devices</div>
-  </div>
-  <div class="panel stat-card">
-    <div class="panel-label">Shows Played</div>
-    <div class="stat-value amber" id="total-plays">-</div>
-    <div class="stat-sub amber" id="unique-shows">- unique</div>
-  </div>
-  <div class="panel stat-card">
-    <div class="panel-label">Today</div>
-    <div class="stat-value" id="today-events">-</div>
-    <div class="stat-sub" id="today-label">events today</div>
-  </div>
-  <div class="panel stat-card">
-    <div class="panel-label">This Week</div>
-    <div class="stat-value" id="week-events">-</div>
-    <div class="stat-sub" id="week-devices">- devices</div>
-  </div>
-
-  <!-- Row 2: Collections + Timeline -->
-  <div class="panel collections-panel">
-    <div class="panel-label">Collection Popularity</div>
-    <div id="collection-bars"><div class="loading">QUERYING...</div></div>
-  </div>
-  <div class="panel timeline-panel">
-    <div class="panel-label">Activity — Last 30 Days</div>
-    <div class="sparkline-container" id="sparkline"></div>
-    <div class="timeline-labels" id="timeline-labels"></div>
-  </div>
-
-  <!-- Row 3: Top Shows + Event Log -->
-  <div class="panel top-shows-panel">
-    <div class="panel-label">Most Played Shows</div>
-    <div id="top-shows"><div class="loading">QUERYING...</div></div>
-  </div>
-  <div class="panel event-log-panel">
-    <div class="panel-label">Live Event Log</div>
-    <div class="event-log" id="event-log"><div class="loading">QUERYING...</div></div>
-  </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  const SUPABASE_URL = 'https://dhwllgdxpeucldtmzhme.supabase.co';
-  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRod2xsZ2R4cGV1Y2xkdG16aG1lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMzI2NTMsImV4cCI6MjA4NTgwODY1M30.PmDxpoWXP0zA2sJLgRxAfODH1JcjdFOoRMdnGZwJYLE';
-  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const SUPABASE_URL = 'https://dhwllgdxpeucldtmzhme.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRod2xsZ2R4cGV1Y2xkdG16aG1lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMzI2NTMsImV4cCI6MjA4NTgwODY1M30.PmDxpoWXP0zA2sJLgRxAfODH1JcjdFOoRMdnGZwJYLE';
 
-  const COLLECTION_NAMES = {
-    cornell_and_company: 'Cornell & Company',
-    wall_of_sound: 'Wall of Sound',
-    young_bettys: 'Young Bettys',
-    new_animal: 'New Animal'
-  };
+const COLLECTION_NAMES = {
+  cornell_and_company: 'Cornell & Company',
+  wall_of_sound: 'Wall of Sound',
+  young_bettys: 'Young Bettys',
+  new_animal: 'New Animal',
+};
 
-  function formatTime(ts) {
-    const d = new Date(ts);
-    const now = new Date();
-    const diff = now - d;
-    if (diff < 60000) return 'just now';
-    if (diff < 3600000) return Math.floor(diff/60000) + 'm ago';
-    if (diff < 86400000) return Math.floor(diff/3600000) + 'h ago';
-    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+async function query(table, params = '') {
+  const url = `${SUPABASE_URL}/rest/v1/${table}?${params}`;
+  const res = await fetch(url, {
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Prefer': 'count=exact',
+    },
+  });
+  const total = res.headers.get('content-range');
+  const data = await res.json();
+  const count = total ? parseInt(total.split('/')[1]) || data.length : data.length;
+  return { data, count };
+}
+
+function formatTime(dateStr) {
+  const d = new Date(dateStr);
+  const mo = String(d.getMonth() + 1).padStart(2, '0');
+  const da = String(d.getDate()).padStart(2, '0');
+  const hr = String(d.getHours()).padStart(2, '0');
+  const mn = String(d.getMinutes()).padStart(2, '0');
+  const sc = String(d.getSeconds()).padStart(2, '0');
+  return `${mo}-${da} ${hr}:${mn}:${sc}`;
+}
+
+function drawSparkline(canvas, dailyCounts, labels) {
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.scale(dpr, dpr);
+  const W = rect.width;
+  const H = rect.height;
+
+  const max = Math.max(1, ...dailyCounts);
+  const pad = { top: 8, bottom: 20, left: 4, right: 4 };
+  const plotW = W - pad.left - pad.right;
+  const plotH = H - pad.top - pad.bottom;
+  const barW = Math.max(2, (plotW / dailyCounts.length) - 2);
+
+  // Grid lines
+  ctx.strokeStyle = 'rgba(51, 255, 51, 0.06)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 3; i++) {
+    const y = pad.top + (plotH / 3) * i;
+    ctx.beginPath();
+    ctx.moveTo(pad.left, y);
+    ctx.lineTo(W - pad.right, y);
+    ctx.stroke();
   }
 
-  function formatDate(ts) {
-    return new Date(ts).toLocaleString('en-US', {
-      month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
-    });
-  }
+  // Bars
+  dailyCounts.forEach((count, i) => {
+    const x = pad.left + (i / dailyCounts.length) * plotW + 1;
+    const h = (count / max) * plotH;
+    const y = pad.top + plotH - h;
 
-  async function fetchAll() {
-    const { data, error } = await sb
-      .from('xlii_analytics')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(5000);
-    if (error) {
-      console.error('Fetch error:', error);
-      return [];
+    const grad = ctx.createLinearGradient(x, y, x, y + h);
+    grad.addColorStop(0, 'rgba(51, 255, 51, 0.5)');
+    grad.addColorStop(1, 'rgba(51, 255, 51, 0.15)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(x, y, barW, h);
+
+    if (count > 0) {
+      ctx.fillStyle = 'rgba(51, 255, 51, 0.8)';
+      ctx.fillRect(x, y, barW, 1.5);
     }
-    return data || [];
+  });
+
+  // Date labels
+  ctx.fillStyle = 'rgba(51, 255, 51, 0.25)';
+  ctx.font = '10px "Share Tech Mono", monospace';
+  if (labels.length >= 3) {
+    ctx.textAlign = 'left';
+    ctx.fillText(labels[0], pad.left, H - 4);
+    ctx.textAlign = 'center';
+    ctx.fillText(labels[1], W / 2, H - 4);
+    ctx.textAlign = 'right';
+    ctx.fillText(labels[2], W - pad.right, H - 4);
+  }
+}
+
+function drawRing(canvas, segments) {
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = 80 * dpr;
+  canvas.height = 80 * dpr;
+  ctx.scale(dpr, dpr);
+
+  const cx = 40, cy = 40, r = 30, lw = 10;
+  const total = segments.reduce((a, b) => a + b.value, 0) || 1;
+  let angle = -Math.PI / 2;
+
+  segments.forEach(seg => {
+    const sweep = (seg.value / total) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, angle, angle + sweep);
+    ctx.strokeStyle = seg.color;
+    ctx.lineWidth = lw;
+    ctx.lineCap = 'butt';
+    ctx.stroke();
+    angle += sweep;
+  });
+
+  ctx.fillStyle = '#33ff33';
+  ctx.font = '18px "VT323", monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(total, cx, cy);
+}
+
+async function loadDashboard() {
+  const { data: events, count: totalEvents } = await query('xlii_analytics', 'select=*&order=created_at.desc&limit=1000');
+
+  // Stats
+  const uniqueDevices = new Set(events.map(e => e.device_id)).size;
+  const opens = events.filter(e => e.event === 'app_open').length;
+  const plays = events.filter(e => e.event === 'show_play').length;
+
+  const now = new Date();
+  const todayStr = now.toISOString().split('T')[0];
+  const todayEvents = events.filter(e => e.created_at.startsWith(todayStr)).length;
+
+  const weekAgo = new Date(now - 7 * 86400000);
+  const weekEvents = events.filter(e => new Date(e.created_at) >= weekAgo).length;
+
+  // Collection popularity
+  const collectionCounts = {};
+  events.forEach(e => {
+    if (e.collection) collectionCounts[e.collection] = (collectionCounts[e.collection] || 0) + 1;
+  });
+  const maxCollection = Math.max(1, ...Object.values(collectionCounts));
+
+  // Daily activity (last 30 days)
+  const dailyCounts = [];
+  const dailyLabels = [];
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(now - i * 86400000);
+    const key = d.toISOString().split('T')[0];
+    dailyCounts.push(events.filter(e => e.created_at.startsWith(key)).length);
+    if (i === 29 || i === 14 || i === 0) dailyLabels.push(key.slice(5));
   }
 
-  function computeStats(rows) {
-    const now = new Date();
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const weekStart = new Date(todayStart);
-    weekStart.setDate(weekStart.getDate() - 7);
+  // Top shows
+  const showCounts = {};
+  events.filter(e => e.event === 'show_play' && e.show_id).forEach(e => {
+    showCounts[e.show_id] = (showCounts[e.show_id] || 0) + 1;
+  });
+  const topShows = Object.entries(showCounts).sort((a, b) => b[1] - a[1]).slice(0, 8);
 
-    const opens = rows.filter(r => r.event === 'app_open');
-    const plays = rows.filter(r => r.event === 'show_play');
-    const todayRows = rows.filter(r => new Date(r.created_at) >= todayStart);
-    const weekRows = rows.filter(r => new Date(r.created_at) >= weekStart);
+  // Platform breakdown
+  let iosCount = 0, webCount = 0, otherCount = 0;
+  events.forEach(e => {
+    const p = e.metadata?.platform;
+    if (p === 'ios' || p === 'carplay') iosCount++;
+    else if (p === 'web') webCount++;
+    else otherCount++;
+  });
 
-    const uniqueDevices = new Set(rows.map(r => r.device_id).filter(Boolean));
-    const uniqueShows = new Set(plays.map(r => r.show_id).filter(Boolean));
-    const weekDevices = new Set(weekRows.map(r => r.device_id).filter(Boolean));
+  const recentEvents = events.slice(0, 25);
 
-    // Collection counts
-    const collectionCounts = {};
-    rows.forEach(r => {
-      const c = r.collection || (r.metadata?.collection);
-      if (c) collectionCounts[c] = (collectionCounts[c] || 0) + 1;
-    });
+  // RENDER
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Events</div>
+        <div class="stat-value">${totalEvents}</div>
+        <div class="stat-sub">${todayEvents} today</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Unique Devices</div>
+        <div class="stat-value">${uniqueDevices}</div>
+        <div class="stat-sub">${opens} opens</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Shows Played</div>
+        <div class="stat-value">${plays}</div>
+        <div class="stat-sub">${Object.keys(showCounts).length} unique</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">This Week</div>
+        <div class="stat-value">${weekEvents}</div>
+        <div class="stat-sub">last 7 days</div>
+      </div>
+    </div>
 
-    // Show play counts
-    const showCounts = {};
-    plays.forEach(r => {
-      if (r.show_id) {
-        const label = r.metadata?.venue
-          ? `${r.metadata.date || ''} ${r.metadata.venue}`.trim()
-          : r.show_id;
-        if (!showCounts[r.show_id]) showCounts[r.show_id] = { count: 0, label };
-        showCounts[r.show_id].count++;
-      }
-    });
+    <div class="columns">
+      <div class="panel" style="animation-delay:0.5s">
+        <div class="panel-header"><span>30-Day Activity</span><span>${events.length} total</span></div>
+        <div class="panel-body">
+          <div class="sparkline-container"><canvas class="sparkline-canvas" id="sparkline"></canvas></div>
+        </div>
+      </div>
+      <div class="panel" style="animation-delay:0.6s">
+        <div class="panel-header"><span>Collections</span><span>all events</span></div>
+        <div class="panel-body">
+          ${Object.entries(COLLECTION_NAMES).map(([id, name]) => {
+            const count = collectionCounts[id] || 0;
+            const pct = (count / maxCollection * 100).toFixed(0);
+            return `<div class="collection-bar">
+              <div class="bar-label"><span class="name">${name}</span><span class="count">${count}</span></div>
+              <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    </div>
 
-    // Daily activity for last 30 days
-    const dailyCounts = {};
-    for (let i = 29; i >= 0; i--) {
-      const d = new Date(todayStart);
-      d.setDate(d.getDate() - i);
-      const key = d.toISOString().slice(0, 10);
-      dailyCounts[key] = 0;
+    <div class="columns">
+      <div class="panel" style="animation-delay:0.7s">
+        <div class="panel-header"><span>Top Shows</span><span>by plays</span></div>
+        <div class="panel-body">
+          ${topShows.length === 0
+            ? '<div class="empty"><div class="empty-icon">~</div>No plays yet</div>'
+            : topShows.map(([id, count], i) => {
+                const short = id.replace(/gd(\d{4})-?(\d{2})-?(\d{2}).*/, '$1-$2-$3');
+                return `<div class="show-row">
+                  <span class="show-rank">${i+1}.</span>
+                  <span class="show-name" title="${id}">${short}</span>
+                  <span class="show-plays">${count} play${count>1?'s':''}</span>
+                </div>`;
+              }).join('')}
+        </div>
+      </div>
+      <div class="panel" style="animation-delay:0.8s">
+        <div class="panel-header"><span>Platforms</span><span>${events.length} events</span></div>
+        <div class="panel-body">
+          <div class="device-stats">
+            <canvas class="device-ring" id="device-ring" width="80" height="80"></canvas>
+            <div class="device-legend">
+              <div class="legend-item"><span class="legend-dot ios"></span><span>iOS / CarPlay — ${iosCount}</span></div>
+              <div class="legend-item"><span class="legend-dot web"></span><span>Web — ${webCount}</span></div>
+              ${otherCount > 0 ? `<div class="legend-item"><span class="legend-dot unknown"></span><span>Other — ${otherCount}</span></div>` : ''}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" style="animation-delay:0.9s;margin-top:16px;">
+      <div class="panel-header"><span>Event Log</span><span>latest ${recentEvents.length}</span></div>
+      <div class="panel-body event-log">
+        <div class="log-table">
+          ${recentEvents.map(e => {
+            const evtClass = e.event === 'app_open' ? 'open' : e.event === 'show_play' ? 'play' : 'switch';
+            const evtLabel = e.event.replace('_', ' ').toUpperCase();
+            const detail = e.event === 'show_play'
+              ? (e.show_id || '').replace(/gd(\d{4})-?(\d{2})-?(\d{2}).*/, '$1-$2-$3')
+              : (COLLECTION_NAMES[e.collection] || e.collection || '\u2014');
+            const shortDevice = (e.device_id || '').slice(-8);
+            return `<div class="log-row">
+              <span class="log-time">${formatTime(e.created_at)}</span>
+              <span class="log-event ${evtClass}">${evtLabel}</span>
+              <span class="log-detail">${detail}</span>
+              <span class="log-device">${shortDevice}</span>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    </div>
+
+    <div class="refresh-bar">
+      <span onclick="loadDashboard()">REFRESH NOW</span> — next auto-refresh in <span id="countdown">60</span>s
+    </div>
+  `;
+
+  requestAnimationFrame(() => {
+    const sparkCanvas = document.getElementById('sparkline');
+    if (sparkCanvas) drawSparkline(sparkCanvas, dailyCounts, dailyLabels);
+    const ringCanvas = document.getElementById('device-ring');
+    if (ringCanvas) {
+      drawRing(ringCanvas, [
+        { value: iosCount, color: '#33ff33' },
+        { value: webCount, color: '#33ffee' },
+        { value: otherCount, color: '#1a8a1a' },
+      ].filter(s => s.value > 0));
     }
-    rows.forEach(r => {
-      const key = r.created_at?.slice(0, 10);
-      if (key && key in dailyCounts) dailyCounts[key]++;
-    });
+  });
+}
 
-    return {
-      totalOpens: opens.length,
-      totalPlays: plays.length,
-      uniqueDevices: uniqueDevices.size,
-      uniqueShows: uniqueShows.size,
-      todayEvents: todayRows.length,
-      weekEvents: weekRows.length,
-      weekDevices: weekDevices.size,
-      collectionCounts,
-      showCounts,
-      dailyCounts,
-      recentEvents: rows.slice(0, 50)
-    };
-  }
+let countdown = 60;
+setInterval(() => {
+  countdown--;
+  const el = document.getElementById('countdown');
+  if (el) el.textContent = countdown;
+  if (countdown <= 0) { countdown = 60; loadDashboard(); }
+}, 1000);
 
-  function render(stats) {
-    // Stat cards
-    document.getElementById('total-opens').textContent = stats.totalOpens;
-    document.getElementById('unique-devices').textContent = stats.uniqueDevices + ' devices';
-    document.getElementById('total-plays').textContent = stats.totalPlays;
-    document.getElementById('unique-shows').textContent = stats.uniqueShows + ' unique';
-    document.getElementById('today-events').textContent = stats.todayEvents;
-    document.getElementById('week-events').textContent = stats.weekEvents;
-    document.getElementById('week-devices').textContent = stats.weekDevices + ' devices';
-
-    // Collection bars
-    const maxC = Math.max(1, ...Object.values(stats.collectionCounts));
-    const allCollections = Object.keys(COLLECTION_NAMES);
-    let barsHtml = '';
-    allCollections.forEach(c => {
-      const count = stats.collectionCounts[c] || 0;
-      const pct = (count / maxC * 100).toFixed(0);
-      barsHtml += `<div class="bar-row">
-        <span class="bar-label">${COLLECTION_NAMES[c] || c}</span>
-        <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
-        <span class="bar-count">${count}</span>
-      </div>`;
-    });
-    document.getElementById('collection-bars').innerHTML = barsHtml || '<div class="empty-state">NO DATA YET</div>';
-
-    // Sparkline
-    const days = Object.entries(stats.dailyCounts);
-    const maxDay = Math.max(1, ...days.map(d => d[1]));
-    const sparkEl = document.getElementById('sparkline');
-    sparkEl.innerHTML = '';
-    days.forEach(([date, count]) => {
-      const bar = document.createElement('div');
-      bar.className = 'spark-bar';
-      const h = count === 0 ? 2 : Math.max(4, (count / maxDay) * 120);
-      bar.style.height = h + 'px';
-      const dayLabel = new Date(date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      bar.setAttribute('data-tooltip', `${dayLabel}: ${count}`);
-      sparkEl.appendChild(bar);
-    });
-    const labelsEl = document.getElementById('timeline-labels');
-    if (days.length > 0) {
-      const first = new Date(days[0][0] + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      const last = new Date(days[days.length-1][0] + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      labelsEl.innerHTML = `<span>${first}</span><span>${last}</span>`;
-    }
-
-    // Top shows
-    const showsSorted = Object.entries(stats.showCounts)
-      .sort((a, b) => b[1].count - a[1].count)
-      .slice(0, 12);
-    let showsHtml = '';
-    showsSorted.forEach(([id, info], i) => {
-      showsHtml += `<div class="show-row">
-        <span class="show-rank">${i + 1}.</span>
-        <span class="show-id" title="${id}">${info.label}</span>
-        <span class="show-plays">${info.count}x</span>
-      </div>`;
-    });
-    document.getElementById('top-shows').innerHTML = showsHtml || '<div class="empty-state">NO SHOWS PLAYED YET</div>';
-
-    // Event log
-    let logHtml = '';
-    stats.recentEvents.forEach(ev => {
-      const detail = ev.event === 'show_play'
-        ? (ev.metadata?.venue || ev.show_id || '')
-        : ev.event === 'collection_switch'
-        ? (COLLECTION_NAMES[ev.metadata?.collection] || ev.metadata?.collection || '')
-        : (ev.metadata?.platform || '');
-      logHtml += `<div class="event-row">
-        <span class="event-time">${formatTime(ev.created_at)}</span>
-        <span class="event-type ${ev.event}">${ev.event.replace(/_/g, ' ').toUpperCase()}</span>
-        <span class="event-detail">${detail}</span>
-      </div>`;
-    });
-    document.getElementById('event-log').innerHTML = logHtml || '<div class="empty-state">NO EVENTS RECORDED YET</div>';
-
-    // Update timestamp
-    document.getElementById('last-updated').textContent =
-      'LAST REFRESH: ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-  }
-
-  async function loadAll() {
-    const rows = await fetchAll();
-    const stats = computeStats(rows);
-    render(stats);
-  }
-
-  // Initial load
-  loadAll();
-
-  // Auto-refresh every 60 seconds
-  setInterval(loadAll, 60000);
+loadDashboard().catch(err => {
+  document.getElementById('app').innerHTML = `
+    <div class="empty" style="padding:60px 20px;">
+      <div class="empty-icon">!</div>
+      <div>Failed to load telemetry</div>
+      <div style="margin-top:8px;font-size:12px;color:rgba(51,255,51,0.3);">${err.message}</div>
+    </div>`;
+});
 </script>
 </body>
 </html>
