@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XLIIs — About the Collections</title>
+<meta name="description" content="Four tape collections from four collectors. Learn about the people behind XLIIs.">
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0a14;
+    color: #33ff33;
+    font-family: 'VT323', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px);
+    pointer-events: none;
+    z-index: 1000;
+  }
+  .container {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 60px 24px 40px;
+  }
+  h1 {
+    font-size: 36px;
+    letter-spacing: 3px;
+    margin-bottom: 8px;
+    text-shadow: 0 0 12px rgba(51, 255, 51, 0.4);
+  }
+  .subtitle {
+    font-size: 20px;
+    color: #1a8a1a;
+    margin-bottom: 40px;
+    letter-spacing: 1px;
+  }
+  .section-label {
+    font-size: 14px;
+    color: #1a6a1a;
+    letter-spacing: 3px;
+    margin-bottom: 16px;
+    margin-top: 48px;
+    text-transform: uppercase;
+    position: relative;
+    padding-left: 18px;
+  }
+  .section-label:first-of-type { margin-top: 0; }
+  .section-label::before {
+    content: '>';
+    position: absolute;
+    left: 0;
+  }
+  p {
+    font-size: 20px;
+    line-height: 1.6;
+    color: #22bb22;
+    margin-bottom: 16px;
+  }
+  p:last-child { margin-bottom: 0; }
+  a {
+    color: #33ff33;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(51, 255, 51, 0.3);
+  }
+  a:hover { border-bottom-color: #33ff33; }
+
+  .intro {
+    margin-bottom: 48px;
+  }
+
+  .collection {
+    border: 1px solid rgba(51, 255, 51, 0.12);
+    border-radius: 10px;
+    padding: 28px;
+    margin-bottom: 24px;
+    background: rgba(51, 255, 51, 0.015);
+  }
+  .collection:last-of-type { margin-bottom: 0; }
+  .collection-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 6px;
+  }
+  .collection-name {
+    font-size: 28px;
+    color: #33ff33;
+    text-shadow: 0 0 8px rgba(51, 255, 51, 0.2);
+  }
+  .collection-meta {
+    font-size: 16px;
+    color: #1a8a1a;
+    letter-spacing: 1px;
+  }
+  .collection-tagline {
+    font-size: 18px;
+    color: #22aa22;
+    margin-bottom: 14px;
+    font-style: italic;
+  }
+  .collection-desc {
+    font-size: 19px;
+    color: #1e9e1e;
+    line-height: 1.55;
+    margin-bottom: 16px;
+  }
+  .collector-note {
+    padding-top: 16px;
+    border-top: 1px solid rgba(51, 255, 51, 0.08);
+    font-size: 18px;
+    color: #1a7a1a;
+    line-height: 1.5;
+  }
+  .collector-label {
+    font-size: 13px;
+    color: #1a6a1a;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .rotation-note {
+    margin-top: 48px;
+    border: 1px solid rgba(51, 255, 51, 0.15);
+    border-radius: 10px;
+    padding: 24px;
+    background: rgba(51, 255, 51, 0.02);
+  }
+  .rotation-note p {
+    font-size: 18px;
+    color: #1a8a1a;
+  }
+
+  .back {
+    display: inline-block;
+    margin-top: 40px;
+    font-size: 18px;
+    color: #1a6a1a;
+    border-bottom: none;
+  }
+  .back:hover { color: #33ff33; }
+  .back::before { content: '< '; }
+
+  @media (max-width: 480px) {
+    .container { padding: 40px 20px 32px; }
+    h1 { font-size: 28px; }
+    .collection { padding: 20px; }
+    .collection-name { font-size: 24px; }
+    .collection-header { flex-direction: column; gap: 2px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <h1>XLIIs — The Collections</h1>
+  <p class="subtitle">Four collectors. Four eras. 171 shows.</p>
+
+  <div class="intro">
+    <p>Every collection in XLIIs is on loan from a different collector — someone who spent years tracking down pristine Grateful Dead soundboard recordings and curating them around a single theme.</p>
+    <p>We've photographed each collector's original tape cases and J-card inserts so you can see exactly what these collections look like in the wild. Turn your phone sideways during a show to see the real thing — decades of wear, personal notes, and the kind of obsessive organization that only a true collector brings to the table.</p>
+    <p>Each collection is featured for a limited three-month run. We're grateful to every collector who has trusted us with their work.</p>
+  </div>
+
+  <div class="section-label">Current Collections</div>
+
+  <div class="collection">
+    <div class="collection-header">
+      <div class="collection-name">Cornell and Company</div>
+      <div class="collection-meta">42 SHOWS / 1977</div>
+    </div>
+    <div class="collection-tagline">The year the band was perfect</div>
+    <div class="collection-desc">Forty-two soundboard recordings from the greatest year in Grateful Dead history. The Spring tour, the Fall tour, the December Winterland run. Garcia's warm tone, Keith's jazz voicings, Betty Cantor-Jackson behind the board. Cornell on May 8th is the most famous, but the shows before and after it were just as extraordinary.</div>
+    <div class="collector-note">
+      <div class="collector-label">The Collector</div>
+      On loan from Rhys Morgan, a retired librarian in Cardiff who discovered the Dead on a student exchange in '76 and spent the next forty years acquiring 1977 soundboards through transatlantic tape-trading circles. The entire collection is stored in archival boxes in his attic, organized by month.
+    </div>
+  </div>
+
+  <div class="collection">
+    <div class="collection-header">
+      <div class="collection-name">Wall of Sound</div>
+      <div class="collection-meta">37 SHOWS / 1974</div>
+    </div>
+    <div class="collection-tagline">604 speakers, 26,000 watts, one impossible year</div>
+    <div class="collection-desc">The Wall of Sound was Owsley Stanley's masterpiece — a 40-foot PA system where every instrument had its own speaker column. It cost a fortune, required two complete rigs leapfrogging across the country, and produced the cleanest live sound anyone had ever heard. The band played themselves into exhaustion and broke up in October. This collection covers every available soundboard from that impossible year.</div>
+    <div class="collector-note">
+      <div class="collector-label">The Collector</div>
+      On loan from a private collector in Budapest who prefers to remain anonymous. He acquired these tapes over decades through European trading networks. The catalogue is meticulously documented and the cases are stored in wooden crates in his apartment.
+    </div>
+  </div>
+
+  <div class="collection">
+    <div class="collection-header">
+      <div class="collection-name">Young Bettys</div>
+      <div class="collection-meta">59 SHOWS / 1969–1973</div>
+    </div>
+    <div class="collection-tagline">Betty Cantor-Jackson's earliest recordings</div>
+    <div class="collection-desc">Betty Cantor started at the Fillmore West in 1967 and became the Dead's soundboard engineer by 1969. She recorded hundreds of shows on quarter-inch and half-inch tape — warm, immediate sound where you can hear fingers on strings. Her tapes disappeared into a storage locker, resurfaced at auction in 1986, and became the gold standard for live Dead. This collection gathers 59 of those early recordings.</div>
+    <div class="collector-note">
+      <div class="collector-label">The Collector</div>
+      On loan from Andrei Petrescu, a record shop owner in Bucharest who became obsessed with the Betty Boards after hearing a third-generation dub in 1978. He spent decades trading across Eastern Europe to assemble the most complete set of early Betty recordings outside the United States.
+    </div>
+  </div>
+
+  <div class="collection">
+    <div class="collection-header">
+      <div class="collection-name">New Animal</div>
+      <div class="collection-meta">33 SHOWS / 1979–1980</div>
+    </div>
+    <div class="collection-tagline">Brent Mydland arrives and the Dead are reborn</div>
+    <div class="collection-desc">Keith and Donna left in February '79. Brent Mydland joined in April and brought his Hammond B-3, his synths, and a soulful edge the band hadn't had in years. Within months they were road-testing Althea, Feel Like a Stranger, and Alabama Getaway. Twenty months of rebirth — a band that had been drifting suddenly found a new reason to play.</div>
+    <div class="collector-note">
+      <div class="collector-label">The Collector</div>
+      On loan from Hendrik Tamm, an Estonian expat in Toronto who has been trading tapes by mail since the early '80s. He built this collection to prove that the Brent era is the most underrated chapter in Dead history.
+    </div>
+  </div>
+
+  <div class="rotation-note">
+    <p>Collections rotate every three months. If you're a collector and you'd like your tapes featured in a future release, get in touch at <a href="mailto:hello@xliis.app">hello@xliis.app</a>.</p>
+  </div>
+
+  <a href="/" class="back">Back to XLIIs</a>
+
+</div>
+</body>
+</html>
