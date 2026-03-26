@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>XLIIs — Grateful Dead Bootleg Collections</title>
-<meta name="description" content="Four collectors. 171 tapes on loan. The highest-quality Grateful Dead live recordings, curated and documented. Free.">
+<meta name="description" content="Every three months, four collections of Grateful Dead live recordings on loan from collectors around the world. 171 shows. Documented. Free.">
 <meta property="og:title" content="XLIIs — Grateful Dead Bootleg Collections">
-<meta property="og:description" content="Four collectors. 171 tapes on loan. Curated Grateful Dead bootleg collections with historical write-ups for every show.">
+<meta property="og:description" content="Four collections of Grateful Dead live recordings on loan from collectors around the world. Every show documented. Free.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://xliis.app">
 <meta property="og:image" content="https://xliis.app/icon.png">
@@ -16,33 +16,21 @@
 <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-
   body {
     background: #0a0a14;
     color: #33ff33;
     font-family: 'VT323', monospace;
     min-height: 100vh;
     overflow-x: hidden;
-    position: relative;
   }
-
-  /* CRT scanline overlay */
   body::before {
     content: '';
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(0, 0, 0, 0.15) 2px,
-      rgba(0, 0, 0, 0.15) 4px
-    );
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px);
     pointer-events: none;
     z-index: 1000;
   }
-
-  /* Subtle CRT flicker */
   @keyframes flicker {
     0%, 100% { opacity: 1; }
     92% { opacity: 1; }
@@ -51,33 +39,42 @@
   }
   body { animation: flicker 4s infinite; }
 
+  /* NAV */
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    padding: 20px 24px;
+    font-size: 16px;
+    letter-spacing: 2px;
+  }
+  nav a {
+    color: #1a6a1a;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  nav a:hover, nav a.active { color: #33ff33; }
+
   .container {
-    max-width: 680px;
+    max-width: 720px;
     margin: 0 auto;
-    padding: 60px 24px 40px;
+    padding: 40px 24px;
   }
 
-  /* ─── HERO ─── */
+  /* HERO */
   .hero {
     text-align: center;
-    margin-bottom: 64px;
+    margin-bottom: 56px;
   }
-
   .hero-image {
-    width: 200px;
-    height: 200px;
+    width: 180px;
+    height: 180px;
     border-radius: 20px;
-    margin: 0 auto 28px;
+    margin: 0 auto 24px;
     overflow: hidden;
     box-shadow: 0 8px 32px rgba(51, 255, 51, 0.12), 0 2px 8px rgba(0,0,0,0.5);
   }
-  .hero-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-
+  .hero-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
   h1 {
     font-size: 72px;
     letter-spacing: 6px;
@@ -85,41 +82,41 @@
     text-shadow: 0 0 20px rgba(51, 255, 51, 0.5);
     line-height: 1;
   }
-
   .tagline {
-    font-size: 24px;
+    font-size: 22px;
     color: #22cc22;
-    margin-bottom: 32px;
+    margin-bottom: 28px;
     letter-spacing: 2px;
   }
-
-  /* Prompt cursor blink */
-  @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
-  }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
   .cursor {
     display: inline-block;
     width: 12px;
-    height: 24px;
+    height: 22px;
     background: #33ff33;
     vertical-align: middle;
     animation: blink 1s step-end infinite;
     margin-left: 4px;
   }
-
-  /* App Store badge */
   .badge-link {
     display: inline-block;
-    margin-bottom: 12px;
     transition: transform 0.2s;
   }
   .badge-link:hover { transform: scale(1.05); }
-  .badge-link img {
-    height: 54px;
+  .badge-link img { height: 54px; }
+
+  /* WHAT WE DO */
+  .what-we-do {
+    margin-bottom: 56px;
+  }
+  .what-we-do p {
+    font-size: 21px;
+    line-height: 1.6;
+    color: #22bb22;
+    margin-bottom: 14px;
   }
 
-  /* ─── SECTION HEADINGS ─── */
+  /* SECTION LABEL */
   .section-label {
     font-size: 14px;
     color: #1a6a1a;
@@ -129,217 +126,149 @@
     position: relative;
     padding-left: 18px;
   }
-  .section-label::before {
-    content: '>';
-    position: absolute;
-    left: 0;
-  }
+  .section-label::before { content: '>'; position: absolute; left: 0; }
 
-  /* ─── INTRO ─── */
-  .intro {
-    margin-bottom: 64px;
+  /* NOW SHOWING */
+  .now-showing {
+    margin-bottom: 56px;
   }
-  .intro p {
-    font-size: 22px;
-    line-height: 1.6;
-    color: #22bb22;
-    margin-bottom: 16px;
-  }
-  .intro p:last-child { margin-bottom: 0; }
-
-  /* ─── SEASON BADGE ─── */
-  .season {
+  .season-header {
     text-align: center;
-    margin-bottom: 48px;
-    padding: 20px;
-    border: 1px solid rgba(51, 255, 51, 0.15);
-    border-radius: 10px;
-    background: rgba(51, 255, 51, 0.015);
+    margin-bottom: 24px;
   }
-  .season-label {
-    font-size: 16px;
+  .season-tag {
+    font-size: 14px;
     color: #1a6a1a;
     letter-spacing: 3px;
-    margin-bottom: 4px;
   }
   .season-name {
-    font-size: 32px;
+    font-size: 28px;
     color: #33ff33;
+    letter-spacing: 3px;
     text-shadow: 0 0 10px rgba(51, 255, 51, 0.3);
-    letter-spacing: 4px;
   }
-  .season-sub {
-    font-size: 18px;
-    color: #1a8a1a;
-    margin-top: 6px;
-  }
-
-  /* ─── COLLECTORS ─── */
-  .collectors {
-    margin-bottom: 64px;
-  }
-  .collector {
-    border: 1px solid rgba(51, 255, 51, 0.12);
-    border-radius: 10px;
-    padding: 28px 24px;
-    margin-bottom: 24px;
-    background: rgba(51, 255, 51, 0.015);
-    transition: border-color 0.3s;
-  }
-  .collector:hover {
-    border-color: rgba(51, 255, 51, 0.3);
-  }
-  .collector:last-child { margin-bottom: 0; }
-
-  .collector-artwork {
-    width: 100%;
-    border-radius: 6px;
-    margin-bottom: 20px;
-    display: block;
-  }
-
-  .collector-identity {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 8px;
-  }
-  .collector-flag {
-    width: 24px;
-    height: 16px;
-    object-fit: cover;
-    border-radius: 2px;
-    opacity: 0.8;
-  }
-  .collector-name {
-    font-size: 26px;
-    color: #33ff33;
-    text-shadow: 0 0 8px rgba(51, 255, 51, 0.2);
-    letter-spacing: 1px;
-  }
-  .collector-location {
-    font-size: 17px;
-    color: #1a8a1a;
-    margin-bottom: 14px;
-    letter-spacing: 1px;
-  }
-
-  .collection-name {
-    font-size: 22px;
-    color: #33ff33;
-    margin-bottom: 4px;
-    letter-spacing: 2px;
-  }
-  .collection-meta {
+  .season-dates {
     font-size: 16px;
     color: #1a8a1a;
-    margin-bottom: 12px;
+    margin-top: 2px;
+  }
+
+  /* COLLECTION CARDS */
+  .collection-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .collection-card {
+    border: 1px solid rgba(51, 255, 51, 0.12);
+    border-radius: 10px;
+    overflow: hidden;
+    background: rgba(51, 255, 51, 0.015);
+    transition: border-color 0.3s;
+    text-decoration: none;
+    display: block;
+  }
+  .collection-card:hover { border-color: rgba(51, 255, 51, 0.4); }
+  .card-artwork {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    display: block;
+  }
+  .card-body {
+    padding: 14px 14px 16px;
+  }
+  .card-name {
+    font-size: 18px;
+    color: #33ff33;
     letter-spacing: 1px;
+    margin-bottom: 4px;
   }
-
-  .collector-bio {
-    font-size: 19px;
-    color: #1e9e1e;
-    line-height: 1.6;
-    margin-bottom: 16px;
-  }
-
-  .collector-pick {
-    margin-top: 16px;
-    padding-top: 16px;
-    border-top: 1px solid rgba(51, 255, 51, 0.08);
-  }
-  .pick-label {
+  .card-collector {
+    display: flex;
+    align-items: center;
+    gap: 6px;
     font-size: 15px;
-    color: #1a6a1a;
-    letter-spacing: 2px;
+    color: #1a8a1a;
     margin-bottom: 6px;
   }
-  .pick-quote {
+  .card-flag {
+    width: 18px;
+    height: 12px;
+    border-radius: 1px;
+    opacity: 0.7;
+  }
+  .card-meta {
+    font-size: 14px;
+    color: #1a6a1a;
+    letter-spacing: 1px;
+  }
+  .card-link {
+    display: block;
+    margin-top: 8px;
+    font-size: 15px;
+    color: #33ff33;
+    letter-spacing: 1px;
+    opacity: 0.6;
+  }
+  .collection-card:hover .card-link { opacity: 1; }
+
+  /* THE APP */
+  .the-app {
+    margin-bottom: 56px;
+  }
+  .features {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .feature {
+    border: 1px solid rgba(51, 255, 51, 0.08);
+    border-radius: 8px;
+    padding: 16px;
+    background: rgba(51, 255, 51, 0.01);
+  }
+  .feature-title {
     font-size: 18px;
+    color: #33ff33;
+    margin-bottom: 4px;
+  }
+  .feature-desc {
+    font-size: 16px;
     color: #1a8a1a;
-    line-height: 1.5;
-    font-style: italic;
-  }
-
-  /* ─── ARTIST ─── */
-  .artist {
-    margin-bottom: 64px;
-  }
-  .artist p {
-    font-size: 20px;
-    color: #22bb22;
-    margin-bottom: 12px;
-    line-height: 1.6;
-  }
-
-  /* ─── HOW IT WORKS ─── */
-  .how {
-    margin-bottom: 64px;
-  }
-  .steps {
-    counter-reset: step;
-  }
-  .step {
-    font-size: 22px;
-    color: #22bb22;
-    margin-bottom: 12px;
-    padding-left: 32px;
-    position: relative;
     line-height: 1.4;
   }
-  .step::before {
-    counter-increment: step;
-    content: counter(step) ".";
-    position: absolute;
-    left: 0;
+  .app-cta {
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  /* NUMBERS */
+  .numbers {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-bottom: 56px;
+    text-align: center;
+    padding: 20px 0;
+    border-top: 1px solid rgba(51, 255, 51, 0.1);
+    border-bottom: 1px solid rgba(51, 255, 51, 0.1);
+  }
+  .num-value {
+    font-size: 36px;
     color: #33ff33;
-    text-shadow: 0 0 8px rgba(51, 255, 51, 0.3);
+    text-shadow: 0 0 10px rgba(51, 255, 51, 0.3);
+    line-height: 1;
+  }
+  .num-label {
+    font-size: 14px;
+    color: #1a6a1a;
+    letter-spacing: 1px;
+    margin-top: 4px;
   }
 
-  /* ─── ROTATION ─── */
-  .rotation {
-    margin-bottom: 64px;
-  }
-  .rotation p {
-    font-size: 20px;
-    color: #22bb22;
-    margin-bottom: 12px;
-    line-height: 1.6;
-  }
-
-  /* ─── SUPPORT ─── */
-  .support {
-    margin-bottom: 64px;
-  }
-  .support p {
-    font-size: 20px;
-    color: #22bb22;
-    margin-bottom: 12px;
-    line-height: 1.5;
-  }
-  .support a, .rotation a, .artist a {
-    color: #33ff33;
-    text-decoration: none;
-    border-bottom: 1px solid rgba(51, 255, 51, 0.3);
-    transition: border-color 0.2s;
-  }
-  .support a:hover, .rotation a:hover, .artist a:hover {
-    border-bottom-color: #33ff33;
-  }
-  .email-box {
-    display: inline-block;
-    border: 1px solid rgba(51, 255, 51, 0.25);
-    border-radius: 8px;
-    padding: 12px 20px;
-    margin-top: 8px;
-    font-size: 22px;
-  }
-  .email-box a {
-    border-bottom: none;
-  }
-
-  /* ─── FOOTER ─── */
+  /* FOOTER */
   footer {
     padding-top: 24px;
     border-top: 1px solid rgba(51, 255, 51, 0.15);
@@ -347,11 +276,7 @@
     color: #1a7a1a;
     text-align: center;
   }
-  footer a {
-    color: #1a7a1a;
-    text-decoration: none;
-    margin: 0 12px;
-  }
+  footer a { color: #1a7a1a; text-decoration: none; margin: 0 12px; }
   footer a:hover { color: #33ff33; }
   .footer-note {
     margin-top: 12px;
@@ -360,172 +285,166 @@
     line-height: 1.5;
   }
 
-  /* ─── MOBILE ─── */
-  @media (max-width: 480px) {
-    .container { padding: 40px 20px 32px; }
+  /* MOBILE */
+  @media (max-width: 520px) {
+    .container { padding: 24px 20px; }
     h1 { font-size: 56px; letter-spacing: 4px; }
-    .tagline { font-size: 20px; }
-    .hero-image { width: 160px; height: 160px; }
-    .intro p, .step { font-size: 20px; }
-    .collector { padding: 20px 18px; }
-    .collector-name { font-size: 22px; }
-    .collector-bio { font-size: 17px; }
-    .collection-name { font-size: 20px; }
-    .season-name { font-size: 26px; }
+    .tagline { font-size: 19px; }
+    .hero-image { width: 140px; height: 140px; }
+    .collection-grid { grid-template-columns: 1fr; }
+    .features { grid-template-columns: 1fr; }
+    .numbers { gap: 20px; }
+    .num-value { font-size: 28px; }
+    nav { gap: 16px; font-size: 14px; }
   }
 </style>
 </head>
 <body>
+
+<nav>
+  <a href="/" class="active">HOME</a>
+  <a href="/about.html">ABOUT</a>
+  <a href="/support.html">FAQ</a>
+  <a href="mailto:hello@xliis.app">CONTACT</a>
+</nav>
 
 <div class="container">
 
   <!-- HERO -->
   <div class="hero">
     <div class="hero-image">
-      <img src="icon.png" alt="XLIIs" width="200" height="200">
+      <img src="icon.png" alt="XLIIs" width="180" height="180">
     </div>
     <h1>XLIIs</h1>
-    <p class="tagline">Four collectors. 171 tapes on loan.<span class="cursor"></span></p>
-
+    <p class="tagline">Grateful Dead Bootleg Collections<span class="cursor"></span></p>
     <a href="https://apps.apple.com/app/xliis/id6759740213" class="badge-link">
       <img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83" alt="Download on the App Store">
     </a>
   </div>
 
-  <!-- SEASON -->
-  <div class="season">
-    <div class="season-label">NOW SHOWING</div>
-    <div class="season-name">SPRING 2026</div>
-    <div class="season-sub">4 collectors · 171 shows · 1 artist</div>
+  <!-- WHAT WE DO -->
+  <div class="what-we-do">
+    <p>Every three months, XLIIs acquires four collections of Grateful Dead live recordings on loan from collectors around the world. Each show comes with a historical write-up. Each collector's original cassettes and J-card inserts are photographed. Everything is free.</p>
   </div>
 
-  <!-- INTRO / PREMISE -->
-  <div class="intro">
-    <p>Every three months, XLIIs features four Grateful Dead tape collections from four different collectors around the world. Each one spent years — sometimes decades — tracking down the highest-quality recordings and organizing them around a single idea.</p>
-    <p>We photograph their original cassettes and J-card inserts. We commission an artist to create new artwork for the collections. Then we put the tapes on loan for a three-month run.</p>
-    <p>These are this season's collectors.</p>
-  </div>
-
-  <!-- THE COLLECTORS -->
-  <div class="collectors">
-    <div class="section-label">The Collectors</div>
-
-    <!-- CORNELL AND COMPANY — Rhys Morgan, Cardiff -->
-    <div class="collector">
-      <img src="collection-artwork/cornell_and_company.jpg" alt="Cornell and Company" class="collector-artwork">
-      <div class="collector-identity">
-        <img src="flags/wales.png" alt="Wales" class="collector-flag">
-        <div class="collector-name">Rhys Morgan</div>
-      </div>
-      <div class="collector-location">Cardiff, Wales</div>
-      <div class="collection-name">CORNELL AND COMPANY</div>
-      <div class="collection-meta">42 SHOWS · 1977</div>
-      <div class="collector-bio">[Dave will write this bio — a full paragraph about Rhys, the retired librarian who discovered the Dead on a student exchange in '76 and spent forty years acquiring the best 1977 recordings through transatlantic tape-trading circles.]</div>
-      <div class="collector-pick">
-        <div class="pick-label">IN HIS OWN WORDS:</div>
-        <div class="pick-quote">"The one that started it all. I heard a fourth-generation dub in a pub in Pontypridd and spent the next three years tracking down a clean copy. When I finally held it, my hands were shaking."</div>
-      </div>
+  <!-- NOW SHOWING -->
+  <div class="now-showing">
+    <div class="season-header">
+      <div class="season-tag">NOW SHOWING</div>
+      <div class="season-name">SPRING 2026</div>
+      <div class="season-dates">Through June 2026</div>
     </div>
 
-    <!-- SIX HUNDRED FOUR — Anonymous, Budapest -->
-    <div class="collector">
-      <img src="collection-artwork/wall_of_sound.jpg" alt="Six Hundred Four" class="collector-artwork">
-      <div class="collector-identity">
-        <img src="flags/hungary.png" alt="Hungary" class="collector-flag">
-        <div class="collector-name">Anonymous</div>
-      </div>
-      <div class="collector-location">Budapest, Hungary</div>
-      <div class="collection-name">SIX HUNDRED FOUR</div>
-      <div class="collection-meta">37 SHOWS · 1974</div>
-      <div class="collector-bio">[Dave will write this bio — about the private collector in Budapest who prefers to remain anonymous, who acquired these tapes over decades through European trading networks. The catalogue is meticulously documented and the cases are stored in wooden crates in his apartment.]</div>
-      <div class="collector-pick">
-        <div class="pick-label">IN HIS OWN WORDS:</div>
-        <div class="pick-quote">"Kezigírem, ha egy felvételt hallgatsz ebből a gyűjteményből, ez legyen az. A Playing in the Band eleje... lehetetlen szavakkal leírni."</div>
-      </div>
-    </div>
+    <div class="collection-grid">
 
-    <!-- YOUNG BETTYS — Andrei Petrescu, Bucharest -->
-    <div class="collector">
-      <img src="collection-artwork/young_bettys.jpg" alt="Young Bettys" class="collector-artwork">
-      <div class="collector-identity">
-        <img src="flags/romania.png" alt="Romania" class="collector-flag">
-        <div class="collector-name">Andrei Petrescu</div>
-      </div>
-      <div class="collector-location">Bucharest, Romania</div>
-      <div class="collection-name">YOUNG BETTYS</div>
-      <div class="collection-meta">59 SHOWS · 1969–1973</div>
-      <div class="collector-bio">[Dave will write this bio — about the record shop owner in Bucharest who became obsessed with the Betty Boards after hearing a third-generation dub in 1978 and spent decades trading across Eastern Europe to assemble the most complete set of early Betty recordings outside the United States.]</div>
-      <div class="collector-pick">
-        <div class="pick-label">IN HIS OWN WORDS:</div>
-        <div class="pick-quote">"Ascultă Dark Star-ul. Douăzeci și trei de minute în care timpul se oprește. Am pus banda asta de sute de ori și tot descopăr ceva nou."</div>
-      </div>
-    </div>
+      <a href="/cornell.html" class="collection-card">
+        <img src="collection-artwork/cornell_and_company.jpg" alt="Cornell and Company" class="card-artwork">
+        <div class="card-body">
+          <div class="card-name">CORNELL AND COMPANY</div>
+          <div class="card-collector">
+            <img src="flags/wales.png" alt="Wales" class="card-flag">
+            Rhys Morgan
+          </div>
+          <div class="card-meta">42 shows · 1977</div>
+          <div class="card-link">View collection →</div>
+        </div>
+      </a>
 
-    <!-- NEW ANIMAL — Hendrik Tamm, Toronto -->
-    <div class="collector">
-      <img src="collection-artwork/new_animal.jpg" alt="New Animal" class="collector-artwork">
-      <div class="collector-identity">
-        <img src="flags/estonia.png" alt="Estonia" class="collector-flag">
-        <div class="collector-name">Hendrik Tamm</div>
-      </div>
-      <div class="collector-location">Toronto, Canada (Estonian expat)</div>
-      <div class="collection-name">NEW ANIMAL</div>
-      <div class="collection-meta">33 SHOWS · 1979–1980</div>
-      <div class="collector-bio">[Dave will write this bio — about the Estonian expat in Toronto who has been trading tapes by mail since the early '80s and built this collection to prove that the Brent era is the most underrated chapter in Dead history.]</div>
-      <div class="collector-pick">
-        <div class="pick-label">IN HIS OWN WORDS:</div>
-        <div class="pick-quote">"See oli Brenti kuu. Kuulake Althea't — see on tema laul ja ta teadis seda juba esimesel ööl. Minu lemmiklint kogu kollektsioonis."</div>
-      </div>
-    </div>
+      <a href="/wall-of-sound.html" class="collection-card">
+        <img src="collection-artwork/wall_of_sound.jpg" alt="Six Hundred Four" class="card-artwork">
+        <div class="card-body">
+          <div class="card-name">SIX HUNDRED FOUR</div>
+          <div class="card-collector">
+            <img src="flags/hungary.png" alt="Hungary" class="card-flag">
+            Anonymous
+          </div>
+          <div class="card-meta">37 shows · 1974</div>
+          <div class="card-link">View collection →</div>
+        </div>
+      </a>
 
-  </div>
+      <a href="/young-bettys.html" class="collection-card">
+        <img src="collection-artwork/young_bettys.jpg" alt="Young Bettys" class="card-artwork">
+        <div class="card-body">
+          <div class="card-name">YOUNG BETTYS</div>
+          <div class="card-collector">
+            <img src="flags/romania.png" alt="Romania" class="card-flag">
+            Andrei Petrescu
+          </div>
+          <div class="card-meta">59 shows · 1969–1973</div>
+          <div class="card-link">View collection →</div>
+        </div>
+      </a>
 
-  <!-- THE ARTIST -->
-  <div class="artist">
-    <div class="section-label">The Artist</div>
-    <p>Each season, XLIIs commissions one artist to create artwork for all four collections. The artist chooses the medium. The collections share a visual language — but only for that season.</p>
-    <p>Spring 2026's artist worked in stamps. Hand-carved, ink on paper. Each collection got its own stamped illustration — speakers and amplifiers for 1974, circus elephants for Brent's era, a librarian's desk for 1977, Betty's recording equipment for the early years.</p>
-    <p>Next season will be a different artist, a different medium. We don't know what it will look like yet.</p>
-  </div>
+      <a href="/new-animal.html" class="collection-card">
+        <img src="collection-artwork/new_animal.jpg" alt="New Animal" class="card-artwork">
+        <div class="card-body">
+          <div class="card-name">NEW ANIMAL</div>
+          <div class="card-collector">
+            <img src="flags/estonia.png" alt="Estonia" class="card-flag">
+            Hendrik Tamm
+          </div>
+          <div class="card-meta">33 shows · 1979–1980</div>
+          <div class="card-link">View collection →</div>
+        </div>
+      </a>
 
-  <!-- HOW IT WORKS -->
-  <div class="how">
-    <div class="section-label">How It Works</div>
-    <div class="steps">
-      <div class="step">Pick a collector's tape case</div>
-      <div class="step">Choose a show — every one has a historical write-up</div>
-      <div class="step">Turn your phone sideways to see the J-card from the original tape</div>
-      <div class="step">Press play — your position saves automatically</div>
     </div>
   </div>
 
-  <!-- THE ROTATION -->
-  <div class="rotation">
-    <div class="section-label">The Rotation</div>
-    <p>These four collections are on loan through June 2026. After that, four new collectors and a new artist. Every three months, the whole thing changes.</p>
-    <p>The app is free. No ads, no subscriptions.</p>
+  <!-- THE APP -->
+  <div class="the-app">
+    <div class="section-label">The App</div>
+    <div class="features">
+      <div class="feature">
+        <div class="feature-title">Documented</div>
+        <div class="feature-desc">Every show has a researched write-up — the venue, the setlist, what made the night matter.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-title">J-Cards</div>
+        <div class="feature-desc">Turn your phone sideways to see the original insert from the collector's tape case.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-title">Full Shows</div>
+        <div class="feature-desc">Complete recordings, start to finish. No excerpts. Lock screen controls, background audio.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-title">Free</div>
+        <div class="feature-desc">No ads, no subscriptions. All recordings stream from the Internet Archive.</div>
+      </div>
+    </div>
+    <div class="app-cta">
+      <a href="https://apps.apple.com/app/xliis/id6759740213" class="badge-link">
+        <img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83" alt="Download on the App Store">
+      </a>
+    </div>
   </div>
 
-  <!-- SUPPORT -->
-  <div class="support" id="support">
-    <div class="section-label">Contact</div>
-    <p>Have a feature request? Found a bug?</p>
-    <div class="email-box">
-      <a href="mailto:hello@xliis.app">hello@xliis.app</a>
+  <!-- NUMBERS -->
+  <div class="numbers">
+    <div>
+      <div class="num-value">171</div>
+      <div class="num-label">SHOWS</div>
+    </div>
+    <div>
+      <div class="num-value">4</div>
+      <div class="num-label">COLLECTIONS</div>
+    </div>
+    <div>
+      <div class="num-value">NEW</div>
+      <div class="num-label">EVERY 3 MONTHS</div>
     </div>
   </div>
 
   <!-- FOOTER -->
   <footer>
+    <a href="/about.html">About</a>
     <a href="/privacy.html">Privacy</a>
     <a href="/support.html">FAQ</a>
-    <a href="/contact.html">Contact</a>
-    <div class="footer-note">
-      New collectors. New artist. Every three months.
-    </div>
+    <a href="mailto:hello@xliis.app">Contact</a>
+    <div class="footer-note">Who's responsible for this? Wouldn't you like to know.</div>
   </footer>
 
 </div>
-
 </body>
 </html>

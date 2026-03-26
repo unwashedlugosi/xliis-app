@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XLIIs — YOUNG BETTYS</title>
+<meta name="description" content="YOUNG BETTYS — 59 shows · 1969–1973. On loan from Andrei Petrescu, Bucharest, Romania.">
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0a14;
+    color: #33ff33;
+    font-family: 'VT323', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px);
+    pointer-events: none;
+    z-index: 1000;
+  }
+  @keyframes flicker {
+    0%, 100% { opacity: 1; }
+    92% { opacity: 1; }
+    93% { opacity: 0.96; }
+    94% { opacity: 1; }
+  }
+  body { animation: flicker 4s infinite; }
+
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    padding: 20px 24px;
+    font-size: 16px;
+    letter-spacing: 2px;
+  }
+  nav a {
+    color: #1a6a1a;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  nav a:hover { color: #33ff33; }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 20px 24px 40px;
+  }
+
+  .back {
+    display: inline-block;
+    font-size: 16px;
+    color: #1a6a1a;
+    text-decoration: none;
+    letter-spacing: 1px;
+    margin-bottom: 24px;
+    transition: color 0.2s;
+  }
+  .back:hover { color: #33ff33; }
+  .back::before { content: '← '; }
+
+  .artwork {
+    width: 100%;
+    border-radius: 10px;
+    margin-bottom: 28px;
+    display: block;
+  }
+
+  .collection-title {
+    font-size: 36px;
+    letter-spacing: 3px;
+    text-shadow: 0 0 12px rgba(51, 255, 51, 0.4);
+    margin-bottom: 6px;
+  }
+  .collection-meta {
+    font-size: 18px;
+    color: #1a8a1a;
+    letter-spacing: 2px;
+    margin-bottom: 28px;
+  }
+
+  .section-label {
+    font-size: 14px;
+    color: #1a6a1a;
+    letter-spacing: 3px;
+    margin-bottom: 14px;
+    margin-top: 36px;
+    text-transform: uppercase;
+    position: relative;
+    padding-left: 18px;
+  }
+  .section-label::before { content: '>'; position: absolute; left: 0; }
+
+  .collector-identity {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  .collector-flag {
+    width: 24px;
+    height: 16px;
+    border-radius: 2px;
+    opacity: 0.8;
+  }
+  .collector-name {
+    font-size: 24px;
+    color: #33ff33;
+    letter-spacing: 1px;
+  }
+  .collector-location {
+    font-size: 17px;
+    color: #1a8a1a;
+    margin-bottom: 14px;
+  }
+
+  .bio {
+    font-size: 19px;
+    color: #22bb22;
+    line-height: 1.65;
+    margin-bottom: 20px;
+  }
+
+  .music-context {
+    font-size: 19px;
+    color: #1e9e1e;
+    line-height: 1.65;
+    margin-bottom: 20px;
+  }
+
+  .pick {
+    border: 1px solid rgba(51, 255, 51, 0.1);
+    border-radius: 8px;
+    padding: 16px 18px;
+    margin-bottom: 20px;
+    background: rgba(51, 255, 51, 0.01);
+  }
+  .pick-label {
+    font-size: 14px;
+    color: #1a6a1a;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+  .pick-quote {
+    font-size: 19px;
+    color: #1a8a1a;
+    line-height: 1.55;
+    font-style: italic;
+  }
+
+  .shows-list {
+    margin-top: 12px;
+  }
+  .show-row {
+    font-size: 17px;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(51, 255, 51, 0.05);
+    display: flex;
+    gap: 12px;
+  }
+  .show-row:last-child { border-bottom: none; }
+  .show-date {
+    color: #33ff33;
+    white-space: nowrap;
+    min-width: 110px;
+  }
+  .show-venue {
+    color: #1a8a1a;
+  }
+
+  .page-cta {
+    text-align: center;
+    margin: 40px 0 20px;
+    padding: 24px;
+    border: 1px solid rgba(51, 255, 51, 0.12);
+    border-radius: 10px;
+  }
+  .page-cta p {
+    font-size: 20px;
+    color: #22bb22;
+    margin-bottom: 16px;
+  }
+  .badge-link {
+    display: inline-block;
+    transition: transform 0.2s;
+  }
+  .badge-link:hover { transform: scale(1.05); }
+  .badge-link img { height: 48px; }
+
+  footer {
+    padding-top: 24px;
+    margin-top: 40px;
+    border-top: 1px solid rgba(51, 255, 51, 0.15);
+    font-size: 16px;
+    color: #1a7a1a;
+    text-align: center;
+  }
+  footer a { color: #1a7a1a; text-decoration: none; margin: 0 12px; }
+  footer a:hover { color: #33ff33; }
+
+  @media (max-width: 480px) {
+    .container { padding: 16px 20px 32px; }
+    .collection-title { font-size: 28px; }
+    .bio, .music-context { font-size: 17px; }
+    .show-row { font-size: 15px; flex-direction: column; gap: 0; }
+    .show-date { min-width: auto; }
+    nav { gap: 16px; font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/">HOME</a>
+  <a href="/about.html">ABOUT</a>
+  <a href="/support.html">FAQ</a>
+  <a href="mailto:hello@xliis.app">CONTACT</a>
+</nav>
+
+<div class="container">
+
+  <a href="/" class="back">All Collections</a>
+
+  <img src="collection-artwork/young_bettys.jpg" alt="YOUNG BETTYS" class="artwork">
+
+  <div class="collection-title">YOUNG BETTYS</div>
+  <div class="collection-meta">59 shows · 1969–1973</div>
+
+  <div class="section-label">The Collector</div>
+  <div class="collector-identity">
+    <img src="flags/romania.png" alt="Romania" class="collector-flag">
+    <div class="collector-name">Andrei Petrescu</div>
+  </div>
+  <div class="collector-location">Bucharest, Romania</div>
+  <p class="bio">Andrei Petrescu runs a record shop on Strada Lipscani in the old center of Bucharest. He heard his first Grateful Dead tape in 1978 — a third-generation dub of a 1971 Fillmore East show recorded by Betty Cantor-Jackson. The warmth of the recording, the way you could hear fingers on strings and breath on microphones, became an obsession. Over the next three decades, he traded across Eastern Europe — with collectors in Prague, Warsaw, Belgrade, and East Berlin — to assemble what he believes is the most complete set of early Betty Board recordings outside the United States. His tapes cover Betty's earliest work, from 1969 through 1973, when the Dead were at their most exploratory and the recordings were made on quarter-inch tape that captured every overtone.</p>
+
+  <div class="section-label">The Music</div>
+  <p class="music-context">Betty Cantor started working at the Fillmore West in 1967 and became the Dead's soundboard engineer by 1969. She recorded hundreds of shows on quarter-inch and half-inch tape — warm, immediate sound where the room and the audience are as present as the band. Her tapes disappeared into a storage locker in the early 1980s, resurfaced at auction in 1986, and became the gold standard for live Dead recordings. This collection spans the years when the band was inventing its language — the first Dark Stars, the early Truckin' jams, the birth of Playing in the Band as a vehicle for extended improvisation, the addition of Keith and Donna Godchaux. Pigpen is still on stage for the early shows. The music is raw and searching in a way it would never be again.</p>
+
+  <div class="pick">
+    <div class="pick-label">IN HIS OWN WORDS:</div>
+    <div class="pick-quote">"Ascultă Dark Star-ul. Douăzeci și trei de minute în care timpul se oprește. Am pus banda asta de sute de ori și tot descopăr ceva nou."</div>
+  </div>
+
+  <div class="section-label">The Shows</div>
+  <div class="shows-list">
+      <div class="show-row"><span class="show-date">Feb 27, 1969</span> <span class="show-venue">Fillmore West, San Francisco, CA</span></div>
+      <div class="show-row"><span class="show-date">Feb 28, 1969</span> <span class="show-venue">Fillmore West, San Francisco, CA</span></div>
+      <div class="show-row"><span class="show-date">Mar 1, 1969</span> <span class="show-venue">Fillmore West, San Francisco, CA</span></div>
+      <div class="show-row"><span class="show-date">Mar 2, 1969</span> <span class="show-venue">Fillmore West, San Francisco, CA</span></div>
+      <div class="show-row"><span class="show-date">May 23, 1969</span> <span class="show-venue">Seminole Indian Village, Hollywood, FL</span></div>
+      <div class="show-row"><span class="show-date">Feb 18, 1971</span> <span class="show-venue">Capitol Theater, Port Chester, NY</span></div>
+      <div class="show-row"><span class="show-date">Feb 19, 1971</span> <span class="show-venue">Capitol Theater, Port Chester, NY</span></div>
+      <div class="show-row"><span class="show-date">Feb 20, 1971</span> <span class="show-venue">Capitol Theater, Port Chester, NY</span></div>
+      <div class="show-row"><span class="show-date">Feb 21, 1971</span> <span class="show-venue">Capitol Theater, Port Chester, NY</span></div>
+      <div class="show-row"><span class="show-date">Feb 23, 1971</span> <span class="show-venue">Capitol Theater, Port Chester, NY</span></div>
+      <div class="show-row"><span class="show-date">Feb 24, 1971</span> <span class="show-venue">Capitol Theater, Port Chester, NY</span></div>
+      <div class="show-row"><span class="show-date">Apr 4, 1971</span> <span class="show-venue">Manhattan Center, New York, NY</span></div>
+      <div class="show-row"><span class="show-date">Apr 5, 1971</span> <span class="show-venue">Manhattan Center, New York, NY</span></div>
+      <div class="show-row"><span class="show-date">Apr 6, 1971</span> <span class="show-venue">Manhattan Center, New York, NY</span></div>
+      <div class="show-row"><span class="show-date">Apr 7, 1971</span> <span class="show-venue">Boston Music Hall, Boston, MA</span></div>
+      <div class="show-row"><span class="show-date">Apr 8, 1971</span> <span class="show-venue">Boston Music Hall, Boston, MA</span></div>
+      <div class="show-row"><span class="show-date">Apr 25, 1971</span> <span class="show-venue">Fillmore East, New York, NY</span></div>
+      <div class="show-row"><span class="show-date">Apr 26, 1971</span> <span class="show-venue">Fillmore East, New York, NY</span></div>
+      <div class="show-row"><span class="show-date">Apr 27, 1971</span> <span class="show-venue">Fillmore East, New York, NY</span></div>
+      <div class="show-row"><span class="show-date">Apr 28, 1971</span> <span class="show-venue">Fillmore East, New York, NY</span></div>
+      <div class="show-row"><span class="show-date">Apr 29, 1971</span> <span class="show-venue">Fillmore East, New York, NY</span></div>
+      <div class="show-row"><span class="show-date">Aug 6, 1971</span> <span class="show-venue">Hollywood Palladium, Hollywood, CA</span></div>
+      <div class="show-row"><span class="show-date">Dec 14, 1971</span> <span class="show-venue">Hill Auditorium, Ann Arbor, MI</span></div>
+      <div class="show-row"><span class="show-date">Dec 15, 1971</span> <span class="show-venue">Hill Auditorium, Ann Arbor, MI</span></div>
+      <div class="show-row"><span class="show-date">Mar 21, 1972</span> <span class="show-venue">Academy of Music, New York, NY</span></div>
+      <div class="show-row"><span class="show-date">Mar 22, 1972</span> <span class="show-venue">Academy of Music, New York, NY</span></div>
+      <div class="show-row"><span class="show-date">Mar 23, 1972</span> <span class="show-venue">Academy of Music, New York, NY</span></div>
+      <div class="show-row"><span class="show-date">Mar 25, 1972</span> <span class="show-venue">Academy of Music, New York, NY</span></div>
+      <div class="show-row"><span class="show-date">Mar 26, 1972</span> <span class="show-venue">Academy of Music, New York, NY</span></div>
+      <div class="show-row"><span class="show-date">Mar 27, 1972</span> <span class="show-venue">Academy of Music, New York, NY</span></div>
+      <div class="show-row"><span class="show-date">Mar 28, 1972</span> <span class="show-venue">Academy of Music, New York, NY</span></div>
+      <div class="show-row"><span class="show-date">Apr 8, 1972</span> <span class="show-venue">Wembley Empire Pool, London, England</span></div>
+      <div class="show-row"><span class="show-date">Apr 8, 1972</span> <span class="show-venue">Wembley Empire Pool, London, England</span></div>
+      <div class="show-row"><span class="show-date">Apr 26, 1972</span> <span class="show-venue">Jahrhunderthalle, Frankfurt, West Germany</span></div>
+      <div class="show-row"><span class="show-date">May 3, 1972</span> <span class="show-venue">Olympia Theatre, Paris, France</span></div>
+      <div class="show-row"><span class="show-date">May 4, 1972</span> <span class="show-venue">Olympia Theatre, Paris, France</span></div>
+      <div class="show-row"><span class="show-date">May 7, 1972</span> <span class="show-venue">Bickershaw Festival, Wigan, England</span></div>
+      <div class="show-row"><span class="show-date">May 26, 1972</span> <span class="show-venue">Lyceum Theatre, London, England</span></div>
+      <div class="show-row"><span class="show-date">Jul 18, 1972</span> <span class="show-venue">Roosevelt Stadium, Jersey City, NJ</span></div>
+      <div class="show-row"><span class="show-date">Aug 12, 1972</span> <span class="show-venue">Sacramento Memorial Auditorium, Sacramento, CA</span></div>
+      <div class="show-row"><span class="show-date">Aug 20, 1972</span> <span class="show-venue">San Jose Civic Auditorium, San Jose, CA</span></div>
+      <div class="show-row"><span class="show-date">Aug 21, 1972</span> <span class="show-venue">Berkeley Community Theater, Berkeley, CA</span></div>
+      <div class="show-row"><span class="show-date">Aug 22, 1972</span> <span class="show-venue">Berkeley Community Theater, Berkeley, CA</span></div>
+      <div class="show-row"><span class="show-date">Aug 24, 1972</span> <span class="show-venue">Berkeley Community Theater, Berkeley, CA</span></div>
+      <div class="show-row"><span class="show-date">Aug 25, 1972</span> <span class="show-venue">Berkeley Community Theater, Berkeley, CA</span></div>
+      <div class="show-row"><span class="show-date">Aug 27, 1972</span> <span class="show-venue">Old Renaissance Faire Grounds, Veneta, OR</span></div>
+      <div class="show-row"><span class="show-date">Sep 21, 1972</span> <span class="show-venue">The Spectrum, Philadelphia, PA</span></div>
+      <div class="show-row"><span class="show-date">Nov 19, 1972</span> <span class="show-venue">Hofheinz Pavilion, Houston, TX</span></div>
+      <div class="show-row"><span class="show-date">Feb 9, 1973</span> <span class="show-venue">Maples Pavilion, Stanford, Palo Alto, CA</span></div>
+      <div class="show-row"><span class="show-date">Feb 15, 1973</span> <span class="show-venue">Assembly Hall, Champaign, IL</span></div>
+      <div class="show-row"><span class="show-date">Feb 21, 1973</span> <span class="show-venue">Assembly Hall, Champaign, IL</span></div>
+      <div class="show-row"><span class="show-date">Feb 22, 1973</span> <span class="show-venue">Assembly Hall, Champaign, IL</span></div>
+      <div class="show-row"><span class="show-date">Mar 24, 1973</span> <span class="show-venue">The Spectrum, Philadelphia, PA</span></div>
+      <div class="show-row"><span class="show-date">Jun 10, 1973</span> <span class="show-venue">Robert F. Kennedy Stadium, Washington, DC</span></div>
+      <div class="show-row"><span class="show-date">Jun 22, 1973</span> <span class="show-venue">P.N.E. Coliseum, Vancouver, BC</span></div>
+      <div class="show-row"><span class="show-date">Jun 24, 1973</span> <span class="show-venue">Portland Memorial Coliseum, Portland, OR</span></div>
+      <div class="show-row"><span class="show-date">Jul 28, 1973</span> <span class="show-venue">Watkins Glen Raceway, Watkins Glen, NY</span></div>
+      <div class="show-row"><span class="show-date">Nov 11, 1973</span> <span class="show-venue">Winterland Arena, San Francisco, CA</span></div>
+      <div class="show-row"><span class="show-date">Nov 14, 1973</span> <span class="show-venue">San Diego Sports Arena, San Diego, CA</span></div>
+  </div>
+
+  <div class="page-cta">
+    <p>Listen to Young Bettys in the XLIIs app.</p>
+    <a href="https://apps.apple.com/app/xliis/id6759740213" class="badge-link">
+      <img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83" alt="Download on the App Store">
+    </a>
+  </div>
+
+  <footer>
+    <a href="/about.html">About</a>
+    <a href="/privacy.html">Privacy</a>
+    <a href="/support.html">FAQ</a>
+    <a href="mailto:hello@xliis.app">Contact</a>
+  </footer>
+
+</div>
+</body>
+</html>

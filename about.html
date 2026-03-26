@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XLIIs — About</title>
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0a14;
+    color: #33ff33;
+    font-family: 'VT323', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px);
+    pointer-events: none;
+    z-index: 1000;
+  }
+  @keyframes flicker {
+    0%, 100% { opacity: 1; }
+    92% { opacity: 1; }
+    93% { opacity: 0.96; }
+    94% { opacity: 1; }
+  }
+  body { animation: flicker 4s infinite; }
+
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    padding: 20px 24px;
+    font-size: 16px;
+    letter-spacing: 2px;
+  }
+  nav a {
+    color: #1a6a1a;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  nav a:hover, nav a.active { color: #33ff33; }
+
+  .container {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 20px 24px 40px;
+  }
+  h1 {
+    font-size: 36px;
+    letter-spacing: 3px;
+    margin-bottom: 32px;
+    text-shadow: 0 0 12px rgba(51, 255, 51, 0.4);
+  }
+  .section-label {
+    font-size: 14px;
+    color: #1a6a1a;
+    letter-spacing: 3px;
+    margin-bottom: 14px;
+    margin-top: 40px;
+    text-transform: uppercase;
+    position: relative;
+    padding-left: 18px;
+  }
+  .section-label:first-of-type { margin-top: 0; }
+  .section-label::before { content: '>'; position: absolute; left: 0; }
+  p {
+    font-size: 20px;
+    line-height: 1.65;
+    color: #22bb22;
+    margin-bottom: 14px;
+  }
+  a {
+    color: #33ff33;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(51, 255, 51, 0.3);
+  }
+  a:hover { border-bottom-color: #33ff33; }
+
+  footer {
+    padding-top: 24px;
+    margin-top: 40px;
+    border-top: 1px solid rgba(51, 255, 51, 0.15);
+    font-size: 16px;
+    color: #1a7a1a;
+    text-align: center;
+  }
+  footer a { color: #1a7a1a; text-decoration: none; margin: 0 12px; border-bottom: none; }
+  footer a:hover { color: #33ff33; }
+  .footer-note {
+    margin-top: 12px;
+    font-size: 14px;
+    color: #145a14;
+    line-height: 1.5;
+  }
+  @media (max-width: 480px) {
+    .container { padding: 16px 20px 32px; }
+    h1 { font-size: 28px; }
+    p { font-size: 18px; }
+    nav { gap: 16px; font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/">HOME</a>
+  <a href="/about.html" class="active">ABOUT</a>
+  <a href="/support.html">FAQ</a>
+  <a href="mailto:hello@xliis.app">CONTACT</a>
+</nav>
+
+<div class="container">
+
+  <h1>About XLIIs</h1>
+
+  <div class="section-label">What We Do</div>
+  <p>XLIIs presents collections of Grateful Dead live recordings — complete shows, sourced from the highest-quality tapes available, with historical documentation for every performance.</p>
+  <p>Every three months, we acquire four collections on loan from collectors around the world. Each collector has spent years — sometimes decades — assembling a set of recordings around a single idea: a particular era of the band, a specific sound engineer, a run of shows that changed something. We present their collections as they organized them, with their original cassettes and J-card inserts photographed for the app.</p>
+  <p>All recordings are streamed freely from the <a href="https://archive.org/details/GratefulDead">Internet Archive</a> under the Grateful Dead's open taping policy.</p>
+
+  <div class="section-label">The Rotation</div>
+  <p>Collections rotate every three months. A new season means new collectors, new recordings, and a new visual identity. We don't know what the next season will look like until the collections arrive.</p>
+
+  <div class="section-label">The Artwork</div>
+  <p>Each season, we commission one artist to create artwork for all four collections. The artist chooses the medium. This season's artist worked in stamps — hand-carved, ink on paper. Next season will be a different artist, a different approach. The artwork changes with the collections.</p>
+
+  <div class="section-label">The Name</div>
+  <p>XLII is the designation for Type II high-bias cassette tape — the tape that Dead tapers used to record and trade live shows. Maxell XLII. TDK SA. The good stuff. The name is a nod to those tapes and the culture of collecting and sharing them.</p>
+
+  <footer>
+    <a href="/">Home</a>
+    <a href="/privacy.html">Privacy</a>
+    <a href="/support.html">FAQ</a>
+    <a href="mailto:hello@xliis.app">Contact</a>
+    <div class="footer-note">Who's responsible for this? Wouldn't you like to know.</div>
+  </footer>
+
+</div>
+</body>
+</html>

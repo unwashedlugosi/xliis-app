@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XLIIs — NEW ANIMAL</title>
+<meta name="description" content="NEW ANIMAL — 33 shows · 1979–1980. On loan from Rhys Morgan, Toronto, Canada.">
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0a14;
+    color: #33ff33;
+    font-family: 'VT323', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px);
+    pointer-events: none;
+    z-index: 1000;
+  }
+  @keyframes flicker {
+    0%, 100% { opacity: 1; }
+    92% { opacity: 1; }
+    93% { opacity: 0.96; }
+    94% { opacity: 1; }
+  }
+  body { animation: flicker 4s infinite; }
+
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    padding: 20px 24px;
+    font-size: 16px;
+    letter-spacing: 2px;
+  }
+  nav a {
+    color: #1a6a1a;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  nav a:hover { color: #33ff33; }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 20px 24px 40px;
+  }
+
+  .back {
+    display: inline-block;
+    font-size: 16px;
+    color: #1a6a1a;
+    text-decoration: none;
+    letter-spacing: 1px;
+    margin-bottom: 24px;
+    transition: color 0.2s;
+  }
+  .back:hover { color: #33ff33; }
+  .back::before { content: '← '; }
+
+  .artwork {
+    width: 100%;
+    border-radius: 10px;
+    margin-bottom: 28px;
+    display: block;
+  }
+
+  .collection-title {
+    font-size: 36px;
+    letter-spacing: 3px;
+    text-shadow: 0 0 12px rgba(51, 255, 51, 0.4);
+    margin-bottom: 6px;
+  }
+  .collection-meta {
+    font-size: 18px;
+    color: #1a8a1a;
+    letter-spacing: 2px;
+    margin-bottom: 28px;
+  }
+
+  .section-label {
+    font-size: 14px;
+    color: #1a6a1a;
+    letter-spacing: 3px;
+    margin-bottom: 14px;
+    margin-top: 36px;
+    text-transform: uppercase;
+    position: relative;
+    padding-left: 18px;
+  }
+  .section-label::before { content: '>'; position: absolute; left: 0; }
+
+  .collector-identity {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  .collector-flag {
+    width: 24px;
+    height: 16px;
+    border-radius: 2px;
+    opacity: 0.8;
+  }
+  .collector-name {
+    font-size: 24px;
+    color: #33ff33;
+    letter-spacing: 1px;
+  }
+  .collector-location {
+    font-size: 17px;
+    color: #1a8a1a;
+    margin-bottom: 14px;
+  }
+
+  .bio {
+    font-size: 19px;
+    color: #22bb22;
+    line-height: 1.65;
+    margin-bottom: 20px;
+  }
+
+  .music-context {
+    font-size: 19px;
+    color: #1e9e1e;
+    line-height: 1.65;
+    margin-bottom: 20px;
+  }
+
+  .pick {
+    border: 1px solid rgba(51, 255, 51, 0.1);
+    border-radius: 8px;
+    padding: 16px 18px;
+    margin-bottom: 20px;
+    background: rgba(51, 255, 51, 0.01);
+  }
+  .pick-label {
+    font-size: 14px;
+    color: #1a6a1a;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+  .pick-quote {
+    font-size: 19px;
+    color: #1a8a1a;
+    line-height: 1.55;
+    font-style: italic;
+  }
+
+  .shows-list {
+    margin-top: 12px;
+  }
+  .show-row {
+    font-size: 17px;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(51, 255, 51, 0.05);
+    display: flex;
+    gap: 12px;
+  }
+  .show-row:last-child { border-bottom: none; }
+  .show-date {
+    color: #33ff33;
+    white-space: nowrap;
+    min-width: 110px;
+  }
+  .show-venue {
+    color: #1a8a1a;
+  }
+
+  .page-cta {
+    text-align: center;
+    margin: 40px 0 20px;
+    padding: 24px;
+    border: 1px solid rgba(51, 255, 51, 0.12);
+    border-radius: 10px;
+  }
+  .page-cta p {
+    font-size: 20px;
+    color: #22bb22;
+    margin-bottom: 16px;
+  }
+  .badge-link {
+    display: inline-block;
+    transition: transform 0.2s;
+  }
+  .badge-link:hover { transform: scale(1.05); }
+  .badge-link img { height: 48px; }
+
+  footer {
+    padding-top: 24px;
+    margin-top: 40px;
+    border-top: 1px solid rgba(51, 255, 51, 0.15);
+    font-size: 16px;
+    color: #1a7a1a;
+    text-align: center;
+  }
+  footer a { color: #1a7a1a; text-decoration: none; margin: 0 12px; }
+  footer a:hover { color: #33ff33; }
+
+  @media (max-width: 480px) {
+    .container { padding: 16px 20px 32px; }
+    .collection-title { font-size: 28px; }
+    .bio, .music-context { font-size: 17px; }
+    .show-row { font-size: 15px; flex-direction: column; gap: 0; }
+    .show-date { min-width: auto; }
+    nav { gap: 16px; font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/">HOME</a>
+  <a href="/about.html">ABOUT</a>
+  <a href="/support.html">FAQ</a>
+  <a href="mailto:hello@xliis.app">CONTACT</a>
+</nav>
+
+<div class="container">
+
+  <a href="/" class="back">All Collections</a>
+
+  <img src="collection-artwork/new_animal.jpg" alt="NEW ANIMAL" class="artwork">
+
+  <div class="collection-title">NEW ANIMAL</div>
+  <div class="collection-meta">33 shows · 1979–1980</div>
+
+  <div class="section-label">The Collector</div>
+  <div class="collector-identity">
+    <img src="flags/estonia.png" alt="Estonia" class="collector-flag">
+    <div class="collector-name">Hendrik Tamm</div>
+  </div>
+  <div class="collector-location">Toronto, Canada</div>
+<p class="bio">Hendrik Tamm left Tallinn in 1979, the same year Brent Mydland joined the Grateful Dead. He settled in Toronto, got a job at a print shop, and discovered the Dead through a co-worker who passed him a tape of the October '79 Cape Cod Coliseum show. He started trading tapes by mail — first within Canada, then with collectors in California and the Midwest — and built a collection focused entirely on Brent's first twenty months with the band. He has been making this argument for forty years: that the period from April 1979 through December 1980 is the most underrated chapter in Dead history, and that Brent Mydland's arrival didn't just save the band — it made them a new animal entirely.</p>
+
+  <div class="section-label">The Music</div>
+<p class="music-context">Keith and Donna Godchaux left the band in February 1979. Brent Mydland joined in April and brought a Hammond B-3, synthesizers, and a soulful voice the band hadn't had since Pigpen. Within months they were road-testing new material — Althea, Feel Like a Stranger, Alabama Getaway, Far From Me — songs that would define the next decade. The energy on stage changed immediately. Garcia was engaged again. Phil Lesh was playing with an aggression that had been missing for years. Bobby Weir started writing songs that actually worked in the live format. This collection covers twenty months of a band finding a new reason to exist — from Brent's debut at the Spartan Stadium in San Jose through New Year's Eve 1980 at the Oakland Auditorium.</p>
+
+  <div class="pick">
+    <div class="pick-label">IN HIS OWN WORDS:</div>
+    <div class="pick-quote">"See oli Brenti kuu. Kuulake Althea't — see on tema laul ja ta teadis seda juba esimesel ööl. Minu lemmiklint kogu kollektsioonis."</div>
+  </div>
+
+  <div class="section-label">The Shows</div>
+  <div class="shows-list">
+      <div class="show-row"><span class="show-date">Apr 22, 1979</span> <span class="show-venue">Spartan Stadium, San Jose, CA</span></div>
+      <div class="show-row"><span class="show-date">May 5, 1979</span> <span class="show-venue">Baltimore Civic Center, Baltimore, MD</span></div>
+      <div class="show-row"><span class="show-date">Aug 4, 1979</span> <span class="show-venue">Oakland Auditorium Arena, Oakland, CA</span></div>
+      <div class="show-row"><span class="show-date">Sep 2, 1979</span> <span class="show-venue">Augusta Civic Center, Augusta, ME</span></div>
+      <div class="show-row"><span class="show-date">Oct 25, 1979</span> <span class="show-venue">New Haven Coliseum, New Haven, CT</span></div>
+      <div class="show-row"><span class="show-date">Oct 27, 1979</span> <span class="show-venue">Cape Cod Coliseum, South Yarmouth, MA</span></div>
+      <div class="show-row"><span class="show-date">Oct 31, 1979</span> <span class="show-venue">Nassau Coliseum, Uniondale, NY</span></div>
+      <div class="show-row"><span class="show-date">Nov 1, 1979</span> <span class="show-venue">Nassau Coliseum, Uniondale, NY</span></div>
+      <div class="show-row"><span class="show-date">Nov 2, 1979</span> <span class="show-venue">Nassau Coliseum, Uniondale, NY</span></div>
+      <div class="show-row"><span class="show-date">Nov 6, 1979</span> <span class="show-venue">The Spectrum, Philadelphia, PA</span></div>
+      <div class="show-row"><span class="show-date">Nov 9, 1979</span> <span class="show-venue">Community War Memorial Auditorium, Buffalo, NY</span></div>
+      <div class="show-row"><span class="show-date">Nov 10, 1979</span> <span class="show-venue">Crisler Arena, Ann Arbor, MI</span></div>
+      <div class="show-row"><span class="show-date">Dec 26, 1979</span> <span class="show-venue">Oakland Auditorium, Oakland, CA</span></div>
+      <div class="show-row"><span class="show-date">Dec 28, 1979</span> <span class="show-venue">Oakland Auditorium Arena, Oakland, CA</span></div>
+      <div class="show-row"><span class="show-date">Dec 30, 1979</span> <span class="show-venue">Oakland Auditorium Arena, Oakland, CA</span></div>
+      <div class="show-row"><span class="show-date">Dec 31, 1979</span> <span class="show-venue">Oakland Auditorium Arena, Oakland, CA</span></div>
+      <div class="show-row"><span class="show-date">Jan 13, 1980</span> <span class="show-venue">Oakland-Alameda County Coliseum, Oakland, CA</span></div>
+      <div class="show-row"><span class="show-date">Mar 30, 1980</span> <span class="show-venue">Capitol Theatre, Passaic, NJ</span></div>
+      <div class="show-row"><span class="show-date">May 15, 1980</span> <span class="show-venue">Nassau Coliseum, Uniondale, NY</span></div>
+      <div class="show-row"><span class="show-date">May 16, 1980</span> <span class="show-venue">Nassau Coliseum, Uniondale, NY</span></div>
+      <div class="show-row"><span class="show-date">Jun 20, 1980</span> <span class="show-venue">West High Auditorium, Anchorage, AK</span></div>
+      <div class="show-row"><span class="show-date">Aug 19, 1980</span> <span class="show-venue">Uptown Theater, Chicago, IL</span></div>
+      <div class="show-row"><span class="show-date">Sep 2, 1980</span> <span class="show-venue">Community War Memorial, Rochester, NY</span></div>
+      <div class="show-row"><span class="show-date">Oct 4, 1980</span> <span class="show-venue">Warfield Theatre, San Francisco, CA</span></div>
+      <div class="show-row"><span class="show-date">Oct 14, 1980</span> <span class="show-venue">Warfield Theatre, San Francisco, CA</span></div>
+      <div class="show-row"><span class="show-date">Oct 26, 1980</span> <span class="show-venue">Radio City Music Hall, New York, NY</span></div>
+      <div class="show-row"><span class="show-date">Oct 30, 1980</span> <span class="show-venue">Radio City Music Hall, New York, NY</span></div>
+      <div class="show-row"><span class="show-date">Oct 31, 1980</span> <span class="show-venue">Radio City Music Hall, New York, NY</span></div>
+      <div class="show-row"><span class="show-date">Nov 28, 1980</span> <span class="show-venue">Lakeland Civic Center, Lakeland, FL</span></div>
+      <div class="show-row"><span class="show-date">Nov 30, 1980</span> <span class="show-venue">Fox Theatre, Atlanta, GA</span></div>
+      <div class="show-row"><span class="show-date">Dec 26, 1980</span> <span class="show-venue">Oakland Auditorium Arena, Oakland, CA</span></div>
+      <div class="show-row"><span class="show-date">Dec 28, 1980</span> <span class="show-venue">Oakland Auditorium Arena, Oakland, CA</span></div>
+      <div class="show-row"><span class="show-date">Dec 31, 1980</span> <span class="show-venue">Oakland Auditorium Arena, Oakland, CA</span></div>
+  </div>
+
+  <div class="page-cta">
+    <p>Listen to New Animal in the XLIIs app.</p>
+    <a href="https://apps.apple.com/app/xliis/id6759740213" class="badge-link">
+      <img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83" alt="Download on the App Store">
+    </a>
+  </div>
+
+  <footer>
+    <a href="/about.html">About</a>
+    <a href="/privacy.html">Privacy</a>
+    <a href="/support.html">FAQ</a>
+    <a href="mailto:hello@xliis.app">Contact</a>
+  </footer>
+
+</div>
+</body>
+</html>
