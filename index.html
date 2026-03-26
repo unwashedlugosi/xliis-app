@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>XLIIs — Grateful Dead Bootleg Collections</title>
-<meta name="description" content="Four tape collections from four collectors. The highest-quality Grateful Dead live recordings with historical write-ups for every show. Free.">
+<meta name="description" content="Four collectors. 171 tapes on loan. The highest-quality Grateful Dead live recordings, curated and documented. Free.">
 <meta property="og:title" content="XLIIs — Grateful Dead Bootleg Collections">
-<meta property="og:description" content="Four tape collections from four collectors. The highest-quality Grateful Dead live recordings. Free.">
+<meta property="og:description" content="Four collectors. 171 tapes on loan. Curated Grateful Dead bootleg collections with historical write-ups for every show.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://xliis.app">
 <meta property="og:image" content="https://xliis.app/icon.png">
@@ -119,27 +119,6 @@
     height: 54px;
   }
 
-  /* ─── STATS ─── */
-  .stats {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 64px;
-    text-align: center;
-  }
-  .stat-num {
-    font-size: 40px;
-    color: #33ff33;
-    text-shadow: 0 0 10px rgba(51, 255, 51, 0.4);
-    line-height: 1;
-  }
-  .stat-label {
-    font-size: 16px;
-    color: #1a8a1a;
-    margin-top: 4px;
-    letter-spacing: 1px;
-  }
-
   /* ─── SECTION HEADINGS ─── */
   .section-label {
     font-size: 14px;
@@ -168,56 +147,130 @@
   }
   .intro p:last-child { margin-bottom: 0; }
 
-  /* ─── COLLECTIONS ─── */
-  .collections {
+  /* ─── SEASON BADGE ─── */
+  .season {
+    text-align: center;
+    margin-bottom: 48px;
+    padding: 20px;
+    border: 1px solid rgba(51, 255, 51, 0.15);
+    border-radius: 10px;
+    background: rgba(51, 255, 51, 0.015);
+  }
+  .season-label {
+    font-size: 16px;
+    color: #1a6a1a;
+    letter-spacing: 3px;
+    margin-bottom: 4px;
+  }
+  .season-name {
+    font-size: 32px;
+    color: #33ff33;
+    text-shadow: 0 0 10px rgba(51, 255, 51, 0.3);
+    letter-spacing: 4px;
+  }
+  .season-sub {
+    font-size: 18px;
+    color: #1a8a1a;
+    margin-top: 6px;
+  }
+
+  /* ─── COLLECTORS ─── */
+  .collectors {
     margin-bottom: 64px;
   }
-  .collection {
+  .collector {
     border: 1px solid rgba(51, 255, 51, 0.12);
     border-radius: 10px;
-    padding: 24px;
-    margin-bottom: 20px;
+    padding: 28px 24px;
+    margin-bottom: 24px;
     background: rgba(51, 255, 51, 0.015);
     transition: border-color 0.3s;
   }
-  .collection:hover {
+  .collector:hover {
     border-color: rgba(51, 255, 51, 0.3);
   }
-  .collection:last-child { margin-bottom: 0; }
-  .collection-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 6px;
+  .collector:last-child { margin-bottom: 0; }
+
+  .collector-artwork {
+    width: 100%;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    display: block;
   }
-  .collection-name {
+
+  .collector-identity {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .collector-flag {
+    width: 24px;
+    height: 16px;
+    object-fit: cover;
+    border-radius: 2px;
+    opacity: 0.8;
+  }
+  .collector-name {
     font-size: 26px;
     color: #33ff33;
     text-shadow: 0 0 8px rgba(51, 255, 51, 0.2);
+    letter-spacing: 1px;
+  }
+  .collector-location {
+    font-size: 17px;
+    color: #1a8a1a;
+    margin-bottom: 14px;
+    letter-spacing: 1px;
+  }
+
+  .collection-name {
+    font-size: 22px;
+    color: #33ff33;
+    margin-bottom: 4px;
+    letter-spacing: 2px;
   }
   .collection-meta {
     font-size: 16px;
     color: #1a8a1a;
+    margin-bottom: 12px;
     letter-spacing: 1px;
   }
-  .collection-tagline {
-    font-size: 18px;
-    color: #22aa22;
-    margin-bottom: 12px;
-    font-style: italic;
-  }
-  .collection-desc {
+
+  .collector-bio {
     font-size: 19px;
     color: #1e9e1e;
-    line-height: 1.55;
+    line-height: 1.6;
+    margin-bottom: 16px;
   }
-  .collector-note {
-    margin-top: 14px;
-    padding-top: 14px;
+
+  .collector-pick {
+    margin-top: 16px;
+    padding-top: 16px;
     border-top: 1px solid rgba(51, 255, 51, 0.08);
-    font-size: 17px;
-    color: #1a7a1a;
+  }
+  .pick-label {
+    font-size: 15px;
+    color: #1a6a1a;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+  .pick-quote {
+    font-size: 18px;
+    color: #1a8a1a;
     line-height: 1.5;
+    font-style: italic;
+  }
+
+  /* ─── ARTIST ─── */
+  .artist {
+    margin-bottom: 64px;
+  }
+  .artist p {
+    font-size: 20px;
+    color: #22bb22;
+    margin-bottom: 12px;
+    line-height: 1.6;
   }
 
   /* ─── HOW IT WORKS ─── */
@@ -244,6 +297,17 @@
     text-shadow: 0 0 8px rgba(51, 255, 51, 0.3);
   }
 
+  /* ─── ROTATION ─── */
+  .rotation {
+    margin-bottom: 64px;
+  }
+  .rotation p {
+    font-size: 20px;
+    color: #22bb22;
+    margin-bottom: 12px;
+    line-height: 1.6;
+  }
+
   /* ─── SUPPORT ─── */
   .support {
     margin-bottom: 64px;
@@ -254,13 +318,13 @@
     margin-bottom: 12px;
     line-height: 1.5;
   }
-  .support a {
+  .support a, .rotation a, .artist a {
     color: #33ff33;
     text-decoration: none;
     border-bottom: 1px solid rgba(51, 255, 51, 0.3);
     transition: border-color 0.2s;
   }
-  .support a:hover {
+  .support a:hover, .rotation a:hover, .artist a:hover {
     border-bottom-color: #33ff33;
   }
   .email-box {
@@ -302,15 +366,12 @@
     h1 { font-size: 56px; letter-spacing: 4px; }
     .tagline { font-size: 20px; }
     .hero-image { width: 160px; height: 160px; }
-    .stats { gap: 8px; }
-    .stat-num { font-size: 32px; }
-    .stat-label { font-size: 14px; }
     .intro p, .step { font-size: 20px; }
-    .collection { padding: 18px; }
-    .collection-name { font-size: 22px; }
-    .collection-desc { font-size: 17px; }
-    .collector-note { font-size: 16px; }
-    .collection-header { flex-direction: column; gap: 2px; }
+    .collector { padding: 20px 18px; }
+    .collector-name { font-size: 22px; }
+    .collector-bio { font-size: 17px; }
+    .collection-name { font-size: 20px; }
+    .season-name { font-size: 26px; }
   }
 </style>
 </head>
@@ -324,96 +385,130 @@
       <img src="icon.png" alt="XLIIs" width="200" height="200">
     </div>
     <h1>XLIIs</h1>
-    <p class="tagline">Grateful Dead Bootleg Collections<span class="cursor"></span></p>
+    <p class="tagline">Four collectors. 171 tapes on loan.<span class="cursor"></span></p>
 
     <a href="https://apps.apple.com/app/xliis/id6759740213" class="badge-link">
       <img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83" alt="Download on the App Store">
     </a>
   </div>
 
-  <!-- STATS -->
-  <div class="stats">
-    <div>
-      <div class="stat-num">171</div>
-      <div class="stat-label">SHOWS</div>
-    </div>
-    <div>
-      <div class="stat-num">FOUR</div>
-      <div class="stat-label">COLLECTIONS</div>
-    </div>
-    <div>
-      <div class="stat-num">NEW</div>
-      <div class="stat-label">EVERY 3 MONTHS</div>
-    </div>
+  <!-- SEASON -->
+  <div class="season">
+    <div class="season-label">NOW SHOWING</div>
+    <div class="season-name">SPRING 2026</div>
+    <div class="season-sub">4 collectors · 171 shows · 1 artist</div>
   </div>
 
-  <!-- INTRO -->
+  <!-- INTRO / PREMISE -->
   <div class="intro">
-    <div class="section-label">The Tapes</div>
-    <p>Every collection in XLIIs is on loan from a different collector — someone who spent years tracking down the highest-quality Grateful Dead recordings and curating them around a single theme.</p>
-    <p>We've photographed each collector's original cassettes and J-card inserts so you can see exactly what these collections look like in the wild. Turn your phone sideways during a show to see the real thing — decades of wear, personal notes, and the kind of obsessive organization that only a true collector brings to the table.</p>
-    <p>We're grateful to each of them for letting us feature their work for a limited three-month run.</p>
+    <p>Every three months, XLIIs features four Grateful Dead tape collections from four different collectors around the world. Each one spent years — sometimes decades — tracking down the highest-quality recordings and organizing them around a single idea.</p>
+    <p>We photograph their original cassettes and J-card inserts. We commission an artist to create new artwork for the collections. Then we put the tapes on loan for a three-month run.</p>
+    <p>These are this season's collectors.</p>
   </div>
 
-  <!-- COLLECTIONS -->
-  <div class="collections">
-    <div class="section-label">The Collections</div>
+  <!-- THE COLLECTORS -->
+  <div class="collectors">
+    <div class="section-label">The Collectors</div>
 
-    <div class="collection">
-      <div class="collection-header">
-        <div class="collection-name">Cornell and Company</div>
-        <div class="collection-meta">42 SHOWS / 1977</div>
+    <!-- CORNELL AND COMPANY — Rhys Morgan, Cardiff -->
+    <div class="collector">
+      <img src="collection-artwork/cornell_and_company.jpg" alt="Cornell and Company" class="collector-artwork">
+      <div class="collector-identity">
+        <img src="flags/wales.png" alt="Wales" class="collector-flag">
+        <div class="collector-name">Rhys Morgan</div>
       </div>
-      <div class="collection-tagline">The year the band was perfect</div>
-      <div class="collection-desc">Forty-two pristine recordings from the greatest year in Grateful Dead history. The Spring tour, the Fall tour, the December Winterland run. Garcia's warm tone, Keith's jazz voicings, Betty Cantor-Jackson behind the board.</div>
-      <div class="collector-note">On loan from Rhys Morgan, a retired librarian in Cardiff who discovered the Dead on a student exchange in '76 and spent the next forty years acquiring the best 1977 recordings through transatlantic tape-trading circles. The entire collection is stored in archival boxes in his attic, organized by month.</div>
+      <div class="collector-location">Cardiff, Wales</div>
+      <div class="collection-name">CORNELL AND COMPANY</div>
+      <div class="collection-meta">42 SHOWS · 1977</div>
+      <div class="collector-bio">[Dave will write this bio — a full paragraph about Rhys, the retired librarian who discovered the Dead on a student exchange in '76 and spent forty years acquiring the best 1977 recordings through transatlantic tape-trading circles.]</div>
+      <div class="collector-pick">
+        <div class="pick-label">IN HIS OWN WORDS:</div>
+        <div class="pick-quote">"The one that started it all. I heard a fourth-generation dub in a pub in Pontypridd and spent the next three years tracking down a clean copy. When I finally held it, my hands were shaking."</div>
+      </div>
     </div>
 
-    <div class="collection">
-      <div class="collection-header">
-        <div class="collection-name">Six Hundred Four</div>
-        <div class="collection-meta">37 SHOWS / 1974</div>
+    <!-- SIX HUNDRED FOUR — Anonymous, Budapest -->
+    <div class="collector">
+      <img src="collection-artwork/wall_of_sound.jpg" alt="Six Hundred Four" class="collector-artwork">
+      <div class="collector-identity">
+        <img src="flags/hungary.png" alt="Hungary" class="collector-flag">
+        <div class="collector-name">Anonymous</div>
       </div>
-      <div class="collection-tagline">604 speakers, 26,000 watts, one impossible year</div>
-      <div class="collection-desc">The Wall of Sound was Owsley Stanley's masterpiece — a 40-foot PA system where every instrument had its own speaker column. It cost a fortune, required two complete rigs leapfrogging across the country, and produced the cleanest live sound anyone had ever heard. The band played themselves into exhaustion and broke up in October. This collection covers the highest-quality recording of every available show from that impossible year.</div>
-      <div class="collector-note">On loan from a private collector in Budapest who prefers to remain anonymous. He acquired these tapes over decades through European trading networks. The catalogue is meticulously documented and the cases are stored in wooden crates in his apartment.</div>
+      <div class="collector-location">Budapest, Hungary</div>
+      <div class="collection-name">SIX HUNDRED FOUR</div>
+      <div class="collection-meta">37 SHOWS · 1974</div>
+      <div class="collector-bio">[Dave will write this bio — about the private collector in Budapest who prefers to remain anonymous, who acquired these tapes over decades through European trading networks. The catalogue is meticulously documented and the cases are stored in wooden crates in his apartment.]</div>
+      <div class="collector-pick">
+        <div class="pick-label">IN HIS OWN WORDS:</div>
+        <div class="pick-quote">"Kezigírem, ha egy felvételt hallgatsz ebből a gyűjteményből, ez legyen az. A Playing in the Band eleje... lehetetlen szavakkal leírni."</div>
+      </div>
     </div>
 
-    <div class="collection">
-      <div class="collection-header">
-        <div class="collection-name">Young Bettys</div>
-        <div class="collection-meta">59 SHOWS / 1969–1973</div>
+    <!-- YOUNG BETTYS — Andrei Petrescu, Bucharest -->
+    <div class="collector">
+      <img src="collection-artwork/young_bettys.jpg" alt="Young Bettys" class="collector-artwork">
+      <div class="collector-identity">
+        <img src="flags/romania.png" alt="Romania" class="collector-flag">
+        <div class="collector-name">Andrei Petrescu</div>
       </div>
-      <div class="collection-tagline">Betty Cantor-Jackson's earliest recordings</div>
-      <div class="collection-desc">Betty Cantor started at the Fillmore West in 1967 and became the Dead's soundboard engineer by 1969. She recorded hundreds of shows on quarter-inch and half-inch tape — warm, immediate sound where you can hear fingers on strings. Her tapes disappeared into a storage locker, resurfaced at auction in 1986, and became the gold standard for live Dead. This collection gathers 59 of those early recordings.</div>
-      <div class="collector-note">On loan from Andrei Petrescu, a record shop owner in Bucharest who became obsessed with the Betty Boards after hearing a third-generation dub in 1978. He spent decades trading across Eastern Europe to assemble the most complete set of early Betty recordings outside the United States.</div>
+      <div class="collector-location">Bucharest, Romania</div>
+      <div class="collection-name">YOUNG BETTYS</div>
+      <div class="collection-meta">59 SHOWS · 1969–1973</div>
+      <div class="collector-bio">[Dave will write this bio — about the record shop owner in Bucharest who became obsessed with the Betty Boards after hearing a third-generation dub in 1978 and spent decades trading across Eastern Europe to assemble the most complete set of early Betty recordings outside the United States.]</div>
+      <div class="collector-pick">
+        <div class="pick-label">IN HIS OWN WORDS:</div>
+        <div class="pick-quote">"Ascultă Dark Star-ul. Douăzeci și trei de minute în care timpul se oprește. Am pus banda asta de sute de ori și tot descopăr ceva nou."</div>
+      </div>
     </div>
 
-    <div class="collection">
-      <div class="collection-header">
-        <div class="collection-name">New Animal</div>
-        <div class="collection-meta">33 SHOWS / 1979–1980</div>
+    <!-- NEW ANIMAL — Hendrik Tamm, Toronto -->
+    <div class="collector">
+      <img src="collection-artwork/new_animal.jpg" alt="New Animal" class="collector-artwork">
+      <div class="collector-identity">
+        <img src="flags/estonia.png" alt="Estonia" class="collector-flag">
+        <div class="collector-name">Hendrik Tamm</div>
       </div>
-      <div class="collection-tagline">Brent Mydland arrives and the Dead are reborn</div>
-      <div class="collection-desc">Keith and Donna left in February '79. Brent Mydland joined in April and brought his Hammond B-3, his synths, and a soulful edge the band hadn't had in years. Within months they were road-testing Althea, Feel Like a Stranger, and Alabama Getaway. Twenty months of rebirth — a band that had been drifting suddenly found a new reason to play.</div>
-      <div class="collector-note">On loan from Hendrik Tamm, an Estonian expat in Toronto who has been trading tapes by mail since the early '80s. He built this collection to prove that the Brent era is the most underrated chapter in Dead history.</div>
+      <div class="collector-location">Toronto, Canada (Estonian expat)</div>
+      <div class="collection-name">NEW ANIMAL</div>
+      <div class="collection-meta">33 SHOWS · 1979–1980</div>
+      <div class="collector-bio">[Dave will write this bio — about the Estonian expat in Toronto who has been trading tapes by mail since the early '80s and built this collection to prove that the Brent era is the most underrated chapter in Dead history.]</div>
+      <div class="collector-pick">
+        <div class="pick-label">IN HIS OWN WORDS:</div>
+        <div class="pick-quote">"See oli Brenti kuu. Kuulake Althea't — see on tema laul ja ta teadis seda juba esimesel ööl. Minu lemmiklint kogu kollektsioonis."</div>
+      </div>
     </div>
+
+  </div>
+
+  <!-- THE ARTIST -->
+  <div class="artist">
+    <div class="section-label">The Artist</div>
+    <p>Each season, XLIIs commissions one artist to create artwork for all four collections. The artist chooses the medium. The collections share a visual language — but only for that season.</p>
+    <p>Spring 2026's artist worked in stamps. Hand-carved, ink on paper. Each collection got its own stamped illustration — speakers and amplifiers for 1974, circus elephants for Brent's era, a librarian's desk for 1977, Betty's recording equipment for the early years.</p>
+    <p>Next season will be a different artist, a different medium. We don't know what it will look like yet.</p>
   </div>
 
   <!-- HOW IT WORKS -->
   <div class="how">
     <div class="section-label">How It Works</div>
     <div class="steps">
-      <div class="step">Pick a collection</div>
-      <div class="step">Choose a show — each one has a write-up with historical context</div>
-      <div class="step">Turn your phone sideways to see the original J-card</div>
+      <div class="step">Pick a collector's tape case</div>
+      <div class="step">Choose a show — every one has a historical write-up</div>
+      <div class="step">Turn your phone sideways to see the J-card from the original tape</div>
       <div class="step">Press play — your position saves automatically</div>
     </div>
   </div>
 
+  <!-- THE ROTATION -->
+  <div class="rotation">
+    <div class="section-label">The Rotation</div>
+    <p>These four collections are on loan through June 2026. After that, four new collectors and a new artist. Every three months, the whole thing changes.</p>
+    <p>The app is free. No ads, no subscriptions.</p>
+  </div>
+
   <!-- SUPPORT -->
   <div class="support" id="support">
-    <div class="section-label">Support</div>
+    <div class="section-label">Contact</div>
     <p>Have a feature request? Found a bug?</p>
     <div class="email-box">
       <a href="mailto:hello@xliis.app">hello@xliis.app</a>
@@ -422,12 +517,11 @@
 
   <!-- FOOTER -->
   <footer>
-    <a href="/collections.html">Collections</a>
     <a href="/privacy.html">Privacy</a>
     <a href="/support.html">FAQ</a>
     <a href="/contact.html">Contact</a>
     <div class="footer-note">
-      Four collectors. One app. New collections every three months.
+      New collectors. New artist. Every three months.
     </div>
   </footer>
 
