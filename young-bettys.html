@@ -205,6 +205,39 @@
   footer a { color: #1a7a1a; text-decoration: none; margin: 0 12px; }
   footer a:hover { color: #33ff33; }
 
+
+  .jcard-row {
+    display: flex;
+    gap: 8px;
+    margin: 12px 0 24px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+  .jcard-thumb {
+    flex: 0 0 auto;
+    width: 140px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: transform 0.2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  }
+  .jcard-thumb:hover { transform: scale(1.08); }
+  .lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.92);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  }
+  .lightbox.visible { display: flex; }
+  .lightbox img {
+    max-height: 85vh;
+    max-width: 90vw;
+    border-radius: 8px;
+  }
   @media (max-width: 480px) {
     .container { padding: 16px 20px 32px; }
     .collection-title { font-size: 28px; }
@@ -219,6 +252,7 @@
 
 <nav>
   <a href="/">HOME</a>
+  <a href="/app.html">THE APP</a>
   <a href="/about.html">ABOUT</a>
   <a href="/support.html">FAQ</a>
   <a href="mailto:hello@xliis.app">CONTACT</a>
@@ -249,6 +283,16 @@
     <div class="pick-quote">"Ascultă Dark Star-ul. Douăzeci și trei de minute în care timpul se oprește. Am pus banda asta de sute de ori și tot descopăr ceva nou."</div>
   </div>
 
+
+  <div class="section-label">The J-Cards</div>
+  <p class="feature-text" style="font-size:18px;color:#1e9e1e;margin-bottom:8px;">Each tape in the collection has a J-card insert — the setlist, venue, and date in the collector's handwriting. Turn your phone sideways in the app to see them.</p>
+  <div class="jcard-row">
+    <img src="jcards/young_bettys_1.jpg" alt="J-card" class="jcard-thumb" onclick="showLightbox(this.src)">
+    <img src="jcards/young_bettys_2.jpg" alt="J-card" class="jcard-thumb" onclick="showLightbox(this.src)">
+    <img src="jcards/young_bettys_3.jpg" alt="J-card" class="jcard-thumb" onclick="showLightbox(this.src)">
+    <img src="jcards/young_bettys_4.jpg" alt="J-card" class="jcard-thumb" onclick="showLightbox(this.src)">
+    <img src="jcards/young_bettys_5.jpg" alt="J-card" class="jcard-thumb" onclick="showLightbox(this.src)">
+  </div>
   <div class="section-label">The Shows</div>
   <div class="shows-list">
       <div class="show-row"><span class="show-date">Feb 27, 1969</span> <span class="show-venue">Fillmore West, San Francisco, CA</span></div>
@@ -320,12 +364,24 @@
   </div>
 
   <footer>
-    <a href="/about.html">About</a>
+    <a href="/app.html">THE APP</a>
+  <a href="/about.html">About</a>
     <a href="/privacy.html">Privacy</a>
     <a href="/support.html">FAQ</a>
     <a href="mailto:hello@xliis.app">Contact</a>
   </footer>
 
 </div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="this.classList.remove('visible')">
+  <img id="lightbox-img" src="" alt="Full size">
+</div>
+<script>
+function showLightbox(src) {
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox').classList.add('visible');
+}
+</script>
 </body>
 </html>

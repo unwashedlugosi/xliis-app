@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XLIIs — The Artist: Marta Vidal</title>
+<meta name="description" content="Spring 2026 artwork by Marta Vidal. Hand-carved rubber stamps, ink on paper.">
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0a14;
+    color: #33ff33;
+    font-family: 'VT323', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px);
+    pointer-events: none;
+    z-index: 1000;
+  }
+  @keyframes flicker {
+    0%, 100% { opacity: 1; }
+    92% { opacity: 1; }
+    93% { opacity: 0.96; }
+    94% { opacity: 1; }
+  }
+  body { animation: flicker 4s infinite; }
+
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    padding: 20px 24px;
+    font-size: 16px;
+    letter-spacing: 2px;
+  }
+  nav a { color: #1a6a1a; text-decoration: none; transition: color 0.2s; }
+  nav a:hover, nav a.active { color: #33ff33; }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 20px 24px 40px;
+  }
+
+  .season-tag {
+    font-size: 14px;
+    color: #1a6a1a;
+    letter-spacing: 3px;
+    text-align: center;
+    margin-bottom: 4px;
+  }
+  h1 {
+    font-size: 36px;
+    letter-spacing: 3px;
+    margin-bottom: 8px;
+    text-shadow: 0 0 12px rgba(51, 255, 51, 0.4);
+    text-align: center;
+  }
+  .subtitle {
+    font-size: 20px;
+    color: #1a8a1a;
+    text-align: center;
+    margin-bottom: 36px;
+    letter-spacing: 1px;
+  }
+
+  .section-label {
+    font-size: 14px;
+    color: #1a6a1a;
+    letter-spacing: 3px;
+    margin-bottom: 14px;
+    margin-top: 40px;
+    text-transform: uppercase;
+    position: relative;
+    padding-left: 18px;
+  }
+  .section-label:first-of-type { margin-top: 0; }
+  .section-label::before { content: '>'; position: absolute; left: 0; }
+
+  p {
+    font-size: 20px;
+    line-height: 1.65;
+    color: #22bb22;
+    margin-bottom: 14px;
+  }
+
+  /* FINAL ARTWORK GRID */
+  .artwork-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 20px 0 32px;
+  }
+  .artwork-grid img {
+    width: 100%;
+    border-radius: 8px;
+    display: block;
+  }
+  .artwork-caption {
+    font-size: 14px;
+    color: #1a6a1a;
+    text-align: center;
+    margin-top: 4px;
+    letter-spacing: 1px;
+  }
+
+  /* PROCESS IMAGES */
+  .process-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin: 16px 0 24px;
+  }
+  .process-grid img {
+    width: 100%;
+    border-radius: 6px;
+    display: block;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .process-grid img:hover { transform: scale(1.05); }
+  .process-label {
+    font-size: 13px;
+    color: #1a6a1a;
+    text-align: center;
+    margin-top: 4px;
+  }
+
+  /* LIGHTBOX */
+  .lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.92);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  }
+  .lightbox.visible { display: flex; }
+  .lightbox img {
+    max-height: 85vh;
+    max-width: 90vw;
+    border-radius: 10px;
+  }
+
+  footer {
+    padding-top: 24px;
+    margin-top: 40px;
+    border-top: 1px solid rgba(51, 255, 51, 0.15);
+    font-size: 16px;
+    color: #1a7a1a;
+    text-align: center;
+  }
+  footer a { color: #1a7a1a; text-decoration: none; margin: 0 12px; }
+  footer a:hover { color: #33ff33; }
+
+  @media (max-width: 480px) {
+    .container { padding: 16px 20px 32px; }
+    h1 { font-size: 28px; }
+    p { font-size: 18px; }
+    .process-grid { grid-template-columns: 1fr 1fr; }
+    nav { gap: 16px; font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/">HOME</a>
+  <a href="/app.html">THE APP</a>
+  <a href="/about.html">ABOUT</a>
+  <a href="/support.html">FAQ</a>
+  <a href="mailto:hello@xliis.app">CONTACT</a>
+</nav>
+
+<div class="container">
+
+  <div class="season-tag">SPRING 2026 ARTIST</div>
+  <h1>Marta Vidal</h1>
+  <div class="subtitle">Hand-carved rubber stamps · Ink on paper</div>
+
+  <div class="section-label">About the Artist</div>
+  <p>Marta Vidal is a printmaker and illustrator based in Porto, Portugal. She works primarily in hand-carved rubber stamps — cutting the image in reverse into a block of soft rubber, inking it, and pressing it onto paper by hand. Each impression is slightly different. The ink bleeds where the pressure is uneven. The edges aren't clean. That's the point.</p>
+  <p>Before this commission, she had never listened to the Grateful Dead. We sent her the four collections and told her to listen for a week before starting. She came back with a question: "Why do all of these sound like they were recorded in a cathedral?" She spent the next month carving.</p>
+
+  <div class="section-label">The Process</div>
+  <p>Each collection got its own stamp. Marta carved a single block for each — the speakers for Six Hundred Four, the elephants for New Animal, the recording equipment for Young Bettys, the librarian's desk for Cornell and Company. She printed dozens of impressions, varying the ink weight and pressure, before selecting the final versions.</p>
+  <p>The stamps were printed on uncoated stock in a single color — a dark indigo ink on warm off-white paper. No digital manipulation. The texture you see in the artwork is the actual texture of ink pressed into paper by hand.</p>
+
+  <div class="section-label">The Final Artwork</div>
+  <div class="artwork-grid">
+    <div>
+      <img src="collection-artwork/cornell_and_company.jpg" alt="Cornell and Company" onclick="showLightbox(this.src)">
+      <div class="artwork-caption">CORNELL AND COMPANY</div>
+    </div>
+    <div>
+      <img src="collection-artwork/wall_of_sound.jpg" alt="Six Hundred Four" onclick="showLightbox(this.src)">
+      <div class="artwork-caption">SIX HUNDRED FOUR</div>
+    </div>
+    <div>
+      <img src="collection-artwork/young_bettys.jpg" alt="Young Bettys" onclick="showLightbox(this.src)">
+      <div class="artwork-caption">YOUNG BETTYS</div>
+    </div>
+    <div>
+      <img src="collection-artwork/new_animal.jpg" alt="New Animal" onclick="showLightbox(this.src)">
+      <div class="artwork-caption">NEW ANIMAL</div>
+    </div>
+  </div>
+
+  <div class="section-label">Earlier Impressions</div>
+  <p>Some of the test prints from Marta's studio, before she selected the final versions. Each stamp was printed dozens of times — the ink weight, the angle of pressure, even the humidity in the room affected the result.</p>
+
+  <div style="margin-bottom:20px;">
+    <p style="font-size:16px;color:#1a6a1a;letter-spacing:1px;margin-bottom:8px;">NEW ANIMAL — TEST PRINTS</p>
+    <div class="process-grid">
+      <img src="artwork-process/xlii-elephant-stamp-1.png" alt="Elephant stamp test 1" onclick="showLightbox(this.src)">
+      <img src="artwork-process/xlii-elephant-stamp-2.png" alt="Elephant stamp test 2" onclick="showLightbox(this.src)">
+      <img src="artwork-process/xlii-elephant-stamp-3.png" alt="Elephant stamp test 3" onclick="showLightbox(this.src)">
+    </div>
+  </div>
+
+  <div style="margin-bottom:20px;">
+    <p style="font-size:16px;color:#1a6a1a;letter-spacing:1px;margin-bottom:8px;">SIX HUNDRED FOUR — TEST PRINTS</p>
+    <div class="process-grid">
+      <img src="artwork-process/xlii-speaker-stamp-1.png" alt="Speaker stamp test 1" onclick="showLightbox(this.src)">
+      <img src="artwork-process/xlii-speaker-stamp-2.png" alt="Speaker stamp test 2" onclick="showLightbox(this.src)">
+      <img src="artwork-process/xlii-speaker-stamp-3.png" alt="Speaker stamp test 3" onclick="showLightbox(this.src)">
+    </div>
+  </div>
+
+  <footer>
+    <a href="/">Home</a>
+    <a href="/about.html">About</a>
+    <a href="/privacy.html">Privacy</a>
+    <a href="/support.html">FAQ</a>
+    <a href="mailto:hello@xliis.app">Contact</a>
+  </footer>
+
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="this.classList.remove('visible')">
+  <img id="lightbox-img" src="" alt="Full size">
+</div>
+
+<script>
+function showLightbox(src) {
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox').classList.add('visible');
+}
+</script>
+
+</body>
+</html>

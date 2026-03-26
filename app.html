@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XLIIs — The App</title>
+<meta name="description" content="171 Grateful Dead bootleg recordings. Every show documented. Original J-cards. Lock screen controls. Free on iPhone.">
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0a14;
+    color: #33ff33;
+    font-family: 'VT323', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px);
+    pointer-events: none;
+    z-index: 1000;
+  }
+  @keyframes flicker {
+    0%, 100% { opacity: 1; }
+    92% { opacity: 1; }
+    93% { opacity: 0.96; }
+    94% { opacity: 1; }
+  }
+  body { animation: flicker 4s infinite; }
+
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    padding: 20px 24px;
+    font-size: 16px;
+    letter-spacing: 2px;
+  }
+  nav a {
+    color: #1a6a1a;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  nav a:hover, nav a.active { color: #33ff33; }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 20px 24px 40px;
+  }
+
+  h1 {
+    font-size: 36px;
+    letter-spacing: 3px;
+    margin-bottom: 12px;
+    text-shadow: 0 0 12px rgba(51, 255, 51, 0.4);
+    text-align: center;
+  }
+  .page-intro {
+    font-size: 21px;
+    color: #22bb22;
+    text-align: center;
+    margin-bottom: 40px;
+    line-height: 1.5;
+  }
+
+  /* FEATURE SECTIONS */
+  .feature-section {
+    margin-bottom: 48px;
+  }
+  .feature-header {
+    font-size: 14px;
+    color: #1a6a1a;
+    letter-spacing: 3px;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    position: relative;
+    padding-left: 18px;
+  }
+  .feature-header::before { content: '>'; position: absolute; left: 0; }
+
+  .feature-text {
+    font-size: 20px;
+    color: #22bb22;
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+
+  .screenshot {
+    width: 100%;
+    max-width: 360px;
+    display: block;
+    margin: 16px auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+  }
+  .screenshot-wide {
+    width: 100%;
+    max-width: 600px;
+    display: block;
+    margin: 16px auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+  }
+  .screenshot-caption {
+    text-align: center;
+    font-size: 15px;
+    color: #1a6a1a;
+    margin-top: 8px;
+    letter-spacing: 1px;
+  }
+
+  /* CTA */
+  .cta {
+    text-align: center;
+    margin: 48px 0 24px;
+    padding: 28px;
+    border: 1px solid rgba(51, 255, 51, 0.15);
+    border-radius: 10px;
+    background: rgba(51, 255, 51, 0.015);
+  }
+  .cta p {
+    font-size: 22px;
+    color: #22bb22;
+    margin-bottom: 16px;
+  }
+  .badge-link {
+    display: inline-block;
+    transition: transform 0.2s;
+  }
+  .badge-link:hover { transform: scale(1.05); }
+  .badge-link img { height: 54px; }
+
+  footer {
+    padding-top: 24px;
+    margin-top: 40px;
+    border-top: 1px solid rgba(51, 255, 51, 0.15);
+    font-size: 16px;
+    color: #1a7a1a;
+    text-align: center;
+  }
+  footer a { color: #1a7a1a; text-decoration: none; margin: 0 12px; }
+  footer a:hover { color: #33ff33; }
+
+  @media (max-width: 480px) {
+    .container { padding: 16px 20px 32px; }
+    h1 { font-size: 28px; }
+    .page-intro { font-size: 19px; }
+    .feature-text { font-size: 18px; }
+    .screenshot { max-width: 280px; }
+    .screenshot-wide { max-width: 100%; }
+    nav { gap: 16px; font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/">HOME</a>
+  <a href="/app.html" class="active">THE APP</a>
+  <a href="/about.html">ABOUT</a>
+  <a href="/support.html">FAQ</a>
+  <a href="mailto:hello@xliis.app">CONTACT</a>
+</nav>
+
+<div class="container">
+
+  <h1>The App</h1>
+  <p class="page-intro">XLIIs is an iPhone app. Everything happens there — the collections, the tapes, the write-ups, the J-cards.</p>
+
+  <!-- COLLECTIONS -->
+  <div class="feature-section">
+    <div class="feature-header">Four Collections</div>
+    <p class="feature-text">Each season's collections are organized on a single screen. Pick a collection, browse the shows, press play. The app remembers where you left off.</p>
+    <img src="screenshots/collections.png" alt="Collections screen" class="screenshot">
+  </div>
+
+  <!-- DOCUMENTED -->
+  <div class="feature-section">
+    <div class="feature-header">Every Show Documented</div>
+    <p class="feature-text">Every show in every collection has a historical write-up — the venue, the city, what was happening with the band, what makes the recording worth hearing. Tap "About" on any show to read it.</p>
+    <img src="screenshots/about-tape.png" alt="Show write-up" class="screenshot">
+  </div>
+
+  <!-- NOW PLAYING -->
+  <div class="feature-section">
+    <div class="feature-header">Full Shows</div>
+    <p class="feature-text">Complete recordings from start to finish. Lock screen controls, background audio, automatic position saving. Close the app, come back tomorrow, pick up where you left off.</p>
+    <img src="screenshots/now-playing.png" alt="Now playing" class="screenshot">
+  </div>
+
+  <!-- J-CARDS -->
+  <div class="feature-section">
+    <div class="feature-header">J-Cards</div>
+    <p class="feature-text">Turn your phone sideways during a show to see the J-card from the collector's original tape case — the setlist, the date, the venue, all in the collector's handwriting and language.</p>
+    <img src="screenshots/jcard-landscape.png" alt="J-card in landscape" class="screenshot-wide">
+  </div>
+
+  <!-- INFO -->
+  <div class="feature-section">
+    <div class="feature-header">The Collectors</div>
+    <p class="feature-text">Each collection comes with background on the collector — who they are, where they're from, how they built their collection. Every collection has its own commissioned artwork.</p>
+    <img src="screenshots/info-detail.png" alt="Collection info" class="screenshot">
+  </div>
+
+  <!-- CTA -->
+  <div class="cta">
+    <p>iPhone only. No ads.</p>
+    <a href="https://apps.apple.com/app/xliis/id6759740213" class="badge-link">
+      <img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83" alt="Download on the App Store">
+    </a>
+  </div>
+
+  <footer>
+    <a href="/">Home</a>
+    <a href="/about.html">About</a>
+    <a href="/privacy.html">Privacy</a>
+    <a href="/support.html">FAQ</a>
+    <a href="mailto:hello@xliis.app">Contact</a>
+  </footer>
+
+</div>
+</body>
+</html>
