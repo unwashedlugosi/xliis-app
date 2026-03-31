@@ -360,5 +360,15 @@ function showLightbox(src) {
   document.getElementById('lightbox').classList.add('visible');
 }
 </script>
+<!-- XLIIs Analytics -->
+<script>
+(function(){
+  var SB="https://dhwllgdxpeucldtmzhme.supabase.co/rest/v1";
+  var KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRod2xsZ2R4cGV1Y2xkdG16aG1lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMzI2NTMsImV4cCI6MjA4NTgwODY1M30.PmDxpoWXP0zA2sJLgRxAfODH1JcjdFOoRMdnGZwJYLE";
+  var vid=localStorage.getItem("xlii_vid");
+  if(!vid){vid=Math.random().toString(36).substr(2,12);localStorage.setItem("xlii_vid",vid);}
+  fetch(SB+"/xlii_web_analytics",{method:"POST",headers:{"apikey":KEY,"Authorization":"Bearer "+KEY,"Content-Type":"application/json","Prefer":"return=minimal"},body:JSON.stringify({page:location.pathname,visitor_id:vid,referrer:document.referrer||"",user_agent:navigator.userAgent})}).catch(function(){});
+})();
+</script>
 </body>
 </html>
