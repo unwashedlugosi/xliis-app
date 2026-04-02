@@ -528,8 +528,12 @@ async function loadDashboard() {
   const plays = events.filter(e => e.event === 'show_play').length;
 
   const now = new Date();
-  const todayStr = now.toISOString().split('T')[0];
-  const todayEvents = events.filter(e => e.created_at.startsWith(todayStr)).length;
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const tomorrowStart = new Date(todayStart.getTime() + 86400000);
+  const todayEvents = events.filter(e => {
+    const d = new Date(e.created_at);
+    return d >= todayStart && d < tomorrowStart;
+  }).length;
 
   const weekAgo = new Date(now - 7 * 86400000);
   const weekEvents = events.filter(e => new Date(e.created_at) >= weekAgo).length;
@@ -545,10 +549,14 @@ async function loadDashboard() {
   const dailyCounts = [];
   const dailyLabels = [];
   for (let i = 29; i >= 0; i--) {
-    const d = new Date(now - i * 86400000);
-    const key = d.toISOString().split('T')[0];
-    dailyCounts.push(events.filter(e => e.created_at.startsWith(key)).length);
-    if (i === 29 || i === 14 || i === 0) dailyLabels.push(key.slice(5));
+    const dayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+    const dayEnd = new Date(dayStart.getTime() + 86400000);
+    const key = `${String(dayStart.getMonth()+1).padStart(2,'0')}-${String(dayStart.getDate()).padStart(2,'0')}`;
+    dailyCounts.push(events.filter(e => {
+      const d = new Date(e.created_at);
+      return d >= dayStart && d < dayEnd;
+    }).length);
+    if (i === 29 || i === 14 || i === 0) dailyLabels.push(key);
   }
 
   // Top shows
