@@ -139,7 +139,9 @@ Each move below has passed the fit test (project, not graft). For each I name **
 
 **Phase 4 — Deferred.** M16.
 
-**Decision gate at 90 days** (longer than v1's 60 — Buddy's note on Google indexing latency for new sites): Search Console showing impressions on show pages? Weekly App Store installs moved vs Phase 0 baseline? Any single show pages getting >5 organic sessions/week? If indexing is dead at 90 days with sitemap + 170 pages live + schema, Google rejected it — don't ship Phase 3 expecting attribution to fix it.
+**Decision gate at 90 days, split into two questions** (Buddy v2 fix — the v1 gate conflated cause and effect):
+- **Gate A — did indexing work?** Search Console impressions on show pages? Any show pages getting >5 organic sessions/week? If no after 90 days with sitemap + 170 pages + schema all live, **don't invest more in show-page SEO polish.** This kills further work on M14 (archive.org backlinks) and M15 (forum outreach) — both of those depend on having indexed pages worth linking to.
+- **Gate B — independent of indexing.** M12 (Companion-Reader mode) and M13 (universal links + in-app share-to-web) serve the in-app audience, not Google. **Ship them regardless of Gate A.** They don't need Google to work.
 
 ---
 
@@ -159,9 +161,12 @@ Per your instruction: source = sentence case, visual caps via CSS `text-transfor
    - **(b) Hand-edit all 170.** ~25 hours. Highest fidelity, no review burden.
    - **(c) Mechanical lowercase + CSS uppercase + accept that screen readers/crawlers see lowercase proper nouns.** Cheapest, worst for accessibility, fine for SEO (Google handles it). The "no proper nouns" version is uglier but defensible.
 
-   **Recommendation: (a).** The LLM pass is one-shot, reviewable as a diff, and the result is a permanent improvement to the data — not a runtime behavior. ~3 hours, one time.
+   **Recommendation: (a), with safety rails (Buddy concern #1).** `shows.json` is on the `xlii-build/CLAUDE.md` approved-content list. A 170-record LLM diff is exactly the size where a reviewer's eyes glaze over and bad changes slip through (Lesson #4: approved work overwritten during a panic fix). Mitigations:
+   - Convert in batches of ~20 records, separate diffs per batch, Dave signs off per batch.
+   - Mechanical verification script: re-uppercase the new sentence-case version and diff it against the original. Any non-whitespace difference = proper-noun mangling or punctuation bug. Catches LLM errors before Dave reads.
+   - The conversion is gated on this script passing.
 
-2. iOS app change in lockstep: add `text-transform: uppercase` to `.show-detail-review` and `.about-text` in `xlii-build/www/index.html` so the app displays the same visual identity from the new sentence-case source. Required to ship together — drift would mean the app suddenly shows lowercase prose.
+2. **iOS app change in lockstep — this is a real v1.5.x release, not a bolt-on (Buddy concern #2).** Adding `text-transform: uppercase` to `.show-detail-review` and `.about-text` in `xlii-build/www/index.html` requires: full `build.sh` cycle, the test gate (Lesson #23 piece 5), symbol audit, archive, TestFlight, App Store submission. Sequencing matters: **iOS release ships and goes live BEFORE the website's sentence-case `shows.json` lands.** If the website ships first and the iOS app reads sentence-case from a future shows.json sync without the CSS change, it displays lowercase prose for however long Apple takes to approve. Order: (1) iOS PR with CSS change merged + tested + submitted; (2) Apple approves; (3) website's shows.json conversion + show-page generation ships.
 
 3. Website CSS: same — `.review-prose { text-transform: uppercase; }` (or whatever class we settle on). On Companion-Reader mode in Phase 3, this gets toggled off for legibility.
 
@@ -173,13 +178,21 @@ Two surfaces (xliis-app website, xlii-build iOS app) currently hold the same dat
 - **(b) Copy at build time** — the xliis-app build script reads `xlii-build/www/shows.json` directly. Brittle if directory structure changes; requires both checkouts on the same machine.
 - **(c) Move shows.json to a third repo, both consume.** Clean but adds a third repo.
 - **(d) Publish shows.json as a JSON endpoint, both consume at build time + cache.** Cleanest long-term.
-- **(e) Pragmatic: xlii-build remains canonical. xliis-app's generator script reads `../../xlii-build/www/shows.json` at generation time, fails noisily if file missing or hash unchanged from last commit (so we notice when iOS data updates).**
+- **(e) Pragmatic: xlii-build remains canonical. xliis-app's generator reads its location from `XLII_SHOWS_JSON_PATH` env var, defaulting to a relative path; fails loud with the exact required path if missing or unchanged from last commit (so we notice when iOS data updates).**
 
-**Recommendation: (e) for Phase 1.** Note (d) as the right Phase 4 cleanup if this site survives the 90-day gate. The relative path constraint is fine because both repos live under the same workspace on the only machine that builds either.
+**Recommendation: (e) for Phase 1, with Buddy concern #3 fix:** the generator script reads `XLII_SHOWS_JSON_PATH` env var (default `../../xlii-build/www/shows.json`), and **a one-line note in `xlii-build/CLAUDE.md` under the source-of-truth map flags that xliis-app reads this file** — so a future session reorganizing xlii-build doesn't silently break the website build. Note (d) as the right Phase 4 cleanup if the site survives the 90-day gate.
 
 ### 6.4 URL slugs
 
 `/shows/YYYY-MM-DD-venue-slug` where venue-slug is `lower(venue_name)` with non-alphanumerics → `-`. Multi-night runs at the same venue get distinct dates so no collision. Pre-flight: dedupe-check the 170 generated slugs before publishing.
+
+### 6.5 Schema.org type — validate before generating 170 (Buddy unflagged concern)
+
+`MusicEvent` is defined for upcoming events. Most validators warn on past dates, and 50-year-old shows are extreme cases. Likely better: primary type `MusicRecording` (the actual artifact we're describing) with `recordedAt` → `MusicEvent` (the historical performance) as a nested entity, plus `MusicGroup` (Grateful Dead) and `Place` (the venue). 10 minutes of Google's Rich Results Test in Phase 1a before generating 170 pages with the wrong primary type.
+
+### 6.6 Generator must have a snapshot test (Buddy unflagged concern)
+
+170 pages from one template means one template bug ships 170 broken pages. The Phase 1a "5 prototype pages" must be checked into the repo as a snapshot fixture. After 1b runs, diff the generator's output for those 5 pages against the snapshot — any unexpected diff blocks the 165-page generation. Cheap, prevents the worst class of generator bug.
 
 ---
 
@@ -200,9 +213,22 @@ Two surfaces (xliis-app website, xlii-build iOS app) currently hold the same dat
 
 ## 8. Buddy review of v2
 
-Run after the fit-test revision. Buddy was specifically asked: are any remaining moves still SEO-driven grafts that don't belong to the actual project?
+**Verdict: GREEN** with three concerns and three unflagged additions, all integrated into the relevant sections above:
 
-> Pending — see appendix in next commit.
+| # | Concern | Where it lives now |
+|---|---|---|
+| 1 | Caps conversion is a Lesson #4 hazard — needs batching + verification script | §6.2 step 1 |
+| 2 | iOS lockstep is a real v1.5.x release that must ship BEFORE the website | §6.2 step 2 |
+| 3 | Single-source-of-truth needs env var + xlii-build CLAUDE.md note | §6.3 |
+| 4 | Schema.org `MusicEvent` for 50-year-old shows is wrong type — validate first | §6.5 |
+| 5 | Generator needs a snapshot test before 165-page run | §6.6 |
+| 6 | 90-day gate must split: Gate A (indexing) vs Gate B (in-app audience) | §5 |
+
+**Universal links scope (Buddy unflagged):** Appendix A Q4 understates the surface area. `apple-app-site-association` requires `/.well-known/` served with the right Content-Type, plus iOS entitlement, plus per-domain provisioning profile updates. This is its own milestone, not bolted onto a future iOS release.
+
+**M9 multilingual capsules — passes fit test (Buddy):** the foreign-language conceit IS the project; the plan correctly limits to translating *existing* collector prose, not inventing new fiction per language.
+
+**What v2 improved over v1 (per Buddy):** the CUT section. Naming exactly what failed the fit test (songs as "SEO graft," this-week-in-Dead as "generic Dead content," AI-citation page as "references other Dead apps") makes the project rule operational, not aspirational. Future Claude sessions can apply the same test.
 
 ---
 
@@ -211,4 +237,4 @@ Run after the fit-test revision. Buddy was specifically asked: are any remaining
 1. **Caps conversion path (§6.2).** OK to use option (a) — LLM-assisted convert + manual review of the diff?
 2. **iOS lockstep change.** Adding `text-transform: uppercase` to `.show-detail-review` / `.about-text` in the iOS web view is a low-risk visual no-op IF the conversion is correct. OK to ship as one PR alongside the website launch?
 3. **Multilingual translations (M9).** Use existing collector prose translated by LLM + native-speaker review where available, or write fresh in each language? Fresh = much more work; translated = mirrors the existing English nonfiction voice.
-4. **Phase 3 universal links.** Closing the web-to-app loop touches the iOS app's entitlements, which means a new App Store build. Is it OK to plan for this as part of the next iOS release rather than a hot patch?
+4. **Phase 3 universal links — its own milestone (Buddy correction).** Not "part of the next iOS release." Requires `/.well-known/apple-app-site-association` served with right Content-Type, iOS entitlement change, per-domain provisioning profile update, and a full submission cycle. Plan as standalone milestone before commitment.
