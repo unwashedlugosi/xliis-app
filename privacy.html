@@ -87,26 +87,35 @@
 <div class="container">
 
   <h1>XLIIs — Privacy</h1>
-  <p class="date">Effective March 10, 2026</p>
+  <p class="date">Effective July 29, 2026</p>
 
-  <div class="section-label">The Short Version</div>
-  <p>XLIIs doesn't collect personal data. No accounts, no ads, no sign-ups.</p>
+  <div class="section-label">What XLIIs Does</div>
+  <p>XLIIs is a free music player for streaming freely available Grateful Dead live recordings from the Internet Archive (archive.org). XLIIs has no user accounts, sign-in, advertising, or cross-app tracking.</p>
 
-  <div class="section-label">What's Stored on Your Device</div>
-  <p>Your listening history, favorites, and playback position are saved locally on your phone.</p>
+  <div class="section-label">Data Stored Only on Your Device</div>
+  <p>Your favorites, listening history, completed shows, track progress, and playback position are stored locally on your device. On iPhone, the app also copies the local favorites and current playback session to Apple UserDefaults so its CarPlay interface can use them. XLIIs does not upload this personal playback state to a cloud database.</p>
 
-  <div class="section-label">What's Sent to the Cloud</div>
-  <p>To let you resume where you left off, the app saves your playback position to a cloud database (Supabase). This is tied to a randomly generated ID — not your name, not your email, nothing personal.</p>
-  <p>The app also logs basic usage data — which collections and shows are played. This helps us understand which collections people are listening to. Each entry is tied to a random ID, not to you personally.</p>
+  <div class="section-label">Usage Information</div>
+  <p>XLIIs uses a random installation identifier and records product interactions such as app opens, show playback, feature use, liner-note use, playback duration, track counts, the selected collection, and show details associated with those events. XLIIs does not collect your name, email address, advertising identifier, or browser/device user-agent string.</p>
+  <p>The random identifier lets us count usage without an account. It is not used to follow you across other companies' apps or websites, serve ads, or build an advertising profile.</p>
 
-  <div class="section-label">What the App Connects To</div>
-  <p>XLIIs streams audio from archive.org and syncs data through Supabase. No personal information is included in these requests.</p>
+  <div class="section-label">Current Listener Status</div>
+  <p>While audio is playing, XLIIs may send the random installation identifier, current show and track, collection, and update timestamps. This powers XLIIs' private operational dashboard and helps us understand whether playback is working. XLIIs attempts to remove the current-listener record when playback stops.</p>
 
-  <div class="section-label">What We Don't Do</div>
-  <p>No advertising. No third-party tracking. No data sold or shared. No data collection from children under 13.</p>
+  <div class="section-label">Purpose and Service Provider</div>
+  <p>We use this information only to measure product usage, diagnose reliability, and improve XLIIs. The data is processed and stored in Supabase, our database service provider. XLIIs does not sell or share this data for advertising or tracking.</p>
+
+  <div class="section-label">Retention and Deletion</div>
+  <p>Current-listener status is temporary. Usage events are kept only while useful for the purposes described above and are deleted when no longer needed.</p>
+
+  <div class="section-label">Network Requests</div>
+  <p>XLIIs requests audio and show metadata from the Internet Archive. Like other internet services, the Internet Archive may receive ordinary network information such as an IP address under its own privacy practices. Opening the XLIIs website, support page, or privacy policy also makes ordinary web requests to those sites.</p>
+
+  <div class="section-label">Children's Privacy</div>
+  <p>XLIIs is not directed to children under 13, and we do not knowingly collect personal information from children under 13.</p>
 
   <div class="section-label">Contact</div>
-  <p>Questions? Email <a href="mailto:hello@xliis.app">hello@xliis.app</a>.</p>
+  <p>Questions: <a href="mailto:hello@xliis.app">hello@xliis.app</a>.</p>
 
   <a href="/" class="back">Back to XLIIs</a>
 
