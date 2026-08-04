@@ -3,6 +3,10 @@
     {
       "source": "/bc",
       "destination": "/api/bc"
+    },
+    {
+      "source": "/car",
+      "destination": "/api/car"
     }
   ]
 }

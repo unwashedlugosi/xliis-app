@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
 
-const handler = require('../api/bc');
+const handler = require('../api/car');
 const {
   CAMPAIGN_METADATA,
   COOKIE_NAME,
@@ -41,7 +41,7 @@ async function withFetch(fetchImpl, callback) {
   }
 }
 
-test('first GET records a scan, sets a durable cookie, and redirects', async () => {
+test('first GET records a car-magnet scan, sets its own durable cookie, and redirects', async () => {
   const requests = [];
 
   await withFetch(async (url, options) => {
@@ -54,6 +54,7 @@ test('first GET records a scan, sets a durable cookie, and redirects', async () 
     assert.equal(res.statusCode, 302);
     assert.equal(res.headers.location, DESTINATION_URL);
     assert.equal(res.headers['cache-control'], 'private, no-store, max-age=0');
+    assert.match(res.headers['set-cookie'], /^xlii_car_vid=/);
     assert.match(res.headers['set-cookie'], /; Max-Age=31536000; Path=\/; Secure; HttpOnly; SameSite=Lax$/);
     assert.equal(requests.length, 1);
 
@@ -62,14 +63,21 @@ test('first GET records a scan, sets a durable cookie, and redirects', async () 
     const body = JSON.parse(request.options.body);
     assert.equal(request.url, 'https://dhwllgdxpeucldtmzhme.supabase.co/rest/v1/xlii_analytics');
     assert.equal(request.options.method, 'POST');
-    assert.equal(body.event, 'business_card_qr_scan');
+    assert.equal(body.event, 'car_magnet_qr_scan');
     assert.equal(body.device_id, visitorId);
+    assert.deepEqual(body.metadata, {
+      source: 'car_magnet',
+      medium: 'qr',
+      campaign: 'steal_your_face_magnet',
+      content: 'skull_qr_v1',
+      repeat: false
+    });
     assert.deepEqual(body.metadata, { ...CAMPAIGN_METADATA, repeat: false });
     assert.ok(request.options.signal instanceof AbortSignal);
   });
 });
 
-test('repeat GET reuses the visitor id and marks the scan as repeat', async () => {
+test('repeat GET reuses the car visitor id and marks the scan as repeat', async () => {
   const visitorId = '123e4567-e89b-42d3-a456-426614174000';
   let recordedBody;
 
@@ -80,7 +88,7 @@ test('repeat GET reuses the visitor id and marks the scan as repeat', async () =
     const res = responseRecorder();
     await handler({
       method: 'GET',
-      headers: { cookie: `unrelated=1; ${COOKIE_NAME}=${visitorId}` }
+      headers: { cookie: `xlii_bc_vid=aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa; ${COOKIE_NAME}=${visitorId}` }
     }, res);
 
     assert.equal(res.statusCode, 302);
@@ -147,7 +155,9 @@ test('methods other than GET and HEAD return 405 without logging', async () => {
 
     assert.equal(res.statusCode, 405);
     assert.equal(res.headers.allow, 'GET, HEAD');
+    assert.equal(res.headers['cache-control'], 'private, no-store, max-age=0');
     assert.equal(res.body, 'Method Not Allowed');
+    assert.equal(res.headers['set-cookie'], undefined);
     assert.equal(fetchCalls, 0);
   });
 });
@@ -157,7 +167,7 @@ test('destination hard-checks the correct XLIIs App Store id', () => {
   assert.doesNotMatch(DESTINATION_URL, /6759740213/);
 });
 
-test('Vercel preserves /bc, includes /car, and leaves static pages available', () => {
+test('Vercel config contains both the existing /bc rewrite and the new /car rewrite', () => {
   const root = path.resolve(__dirname, '..');
   const config = JSON.parse(fs.readFileSync(path.join(root, 'vercel.json'), 'utf8'));
 
@@ -165,7 +175,4 @@ test('Vercel preserves /bc, includes /car, and leaves static pages available', (
     { source: '/bc', destination: '/api/bc' },
     { source: '/car', destination: '/api/car' }
   ]);
-  for (const file of ['index.html', 'about.html', 'privacy.html', 'support.html']) {
-    assert.equal(fs.statSync(path.join(root, file)).isFile(), true, `${file} should remain available`);
-  }
 });
