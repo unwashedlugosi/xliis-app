@@ -1,12 +1,12 @@
 {
   "schema": 1,
-  "version": 2026080602,
-  "cipher_size": 3347168,
-  "plain_size": 3347168,
-  "sha256": "aa9aa4e9bb86cb6c1d9a07564d08d416af9fe273a759f6f3ffc7311c07c87e00",
-  "md5": "ddc7eda18415330a128dc9cee3ba2261",
-  "nonce": "+NSIRoKvHs5/fdl3",
-  "tag": "wvJdxSmuW1jbKfhGXgbQAA==",
-  "url": "https://xliis.app/firmware/core2/releases/2026080602.enc",
-  "signature": "F7xSJdhIxWBwMy/Xuz3W4JejBOCbBHYnFwc8BCwdg1lYl6f0HUCywK05/+fWechimujWrFYlsJKjJPUe2VV0oGi6baI5S3dM66o+zioZHBkZnSypTu67rpjXg2HrDh6+U6HVW02JhAKN5zeQTZV6C1G7UJ9eVoBfsGi/REgrDSOQ2loBtQIMk9DcUEFyRhosLnePvfIgVYorgXcUs1eyTJyuuFNSyZBInNzbia0q+MHpowz/llD5x/jVinRJnwXrc7VNwJ4/oxuOqasgPRoXrP2qU9CCTzJMu14QOU+no/z8fEMtfuCT5l2AGMSk5+dOHkKnVCNWUGneCVh7UwitnA=="
+  "version": 2026080604,
+  "cipher_size": 3347232,
+  "plain_size": 3347232,
+  "sha256": "e514b99e0c9de13e14582ca7e8ecca7063c7ba6e049e1d0952b749e3ecbd068a",
+  "md5": "4793b66c52dc368b1ff1e064ad8c49e3",
+  "nonce": "GuJ6JxPNuw5Xgns/",
+  "tag": "3L9A5YgzOmF5hnFliV20sQ==",
+  "url": "https://xliis.app/firmware/core2/releases/2026080604.enc",
+  "signature": "iv4SX8pdFtJXuGvaPi4OknlrwUZx4oXnXFNCdL4MDb3Ki2JWfU3MNRc8Sr5CvXyyhrj24plVLzxAVWFgeHcEucWLZImtr5PtckqfcP/7UySsI7iYCTCPzdQwTWogjfXPc3W2KIoJ24IF5sPViZ6hthNgA4HWkOhQWLt0MidtNPGCKSbKMJRtUkFH6i0YOkzL52tQi0zYnPfYvRtLuOlMD/mII3l6O8+pTN/+rofG0Si27GzWWC6xnVgARFKLr2McIrPHW4Y8MS/j3GPTwaMfUwAsA08idPL4HtdadskF4P263cd6mHl8K3L1gXcVhlj6Lx9axc9OmvY32f1npcvGJg=="
 }
