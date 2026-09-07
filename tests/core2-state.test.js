@@ -2,7 +2,7 @@ const assert = require('node:assert/strict');
 const test = require('node:test');
 
 const handler = require('../api/core2-state');
-const { STATE_RPC_PATH, SUPABASE_URL, fetchState } = handler._test;
+const { STATE_RPC_PATH, SUPABASE_URL, fetchState, supabaseKey } = handler._test;
 
 function responseRecorder() {
   return {
@@ -89,4 +89,12 @@ test('upstream request has a hard timeout', async () => {
   const startedAt = Date.now();
   await assert.rejects(fetchState(() => new Promise(() => {}), 20), /timed out/);
   assert.ok(Date.now() - startedAt < 250);
+});
+
+test('bundled public client key is scoped to the production Supabase project', () => {
+  const [, payload] = supabaseKey().split('.');
+  const claims = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'));
+  assert.equal(claims.iss, 'supabase');
+  assert.equal(claims.ref, 'dhwllgdxpeucldtmzhme');
+  assert.equal(claims.role, 'anon');
 });

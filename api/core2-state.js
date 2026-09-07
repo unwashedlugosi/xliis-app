@@ -1,5 +1,5 @@
 const SUPABASE_URL = 'https://dhwllgdxpeucldtmzhme.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXAiLCJyZWYiOiJkaHdsbGdkeHBldWNsZHRtemhtZSIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzcwMjMyNjUzLCJleHAiOjIwODU4MDg2NTN9.PmDxpoWXP0zA2sJLgRxAfODH1JcjdFOoRMdnGZwJYLE';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRod2xsZ2R4cGV1Y2xkdG16aG1lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMzI2NTMsImV4cCI6MjA4NTgwODY1M30.PmDxpoWXP0zA2sJLgRxAfODH1JcjdFOoRMdnGZwJYLE';
 const STATE_RPC_PATH = '/rest/v1/rpc/get_xlii_core2_state';
 const UPSTREAM_TIMEOUT_MS = 8_000;
 
@@ -72,5 +72,6 @@ module.exports._test = {
   STATE_RPC_PATH,
   SUPABASE_URL,
   UPSTREAM_TIMEOUT_MS,
-  fetchState
+  fetchState,
+  supabaseKey
 };
