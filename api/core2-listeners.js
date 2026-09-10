@@ -30,6 +30,26 @@ function dayStart(key) {
   }
   throw new Error('Invalid Eastern date');
 }
+function weekKey(ms) {
+  const localDay = dayKey(ms);
+  const weekday = new Date(`${localDay}T12:00:00Z`).getUTCDay();
+  return moveDay(localDay, -((weekday + 6) % 7));
+}
+function recordedDate(ms) {
+  return new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(ms));
+}
+function lastHereLabel(ms, evaluatedMs) {
+  const date = dayKey(ms);
+  const today = dayKey(evaluatedMs);
+  const time = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }).format(new Date(ms));
+  if (date === today) return `Today ${time}`;
+  if (date === moveDay(today, -1)) return `Yesterday ${time}`;
+  if (date >= moveDay(today, -6)) {
+    const weekday = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short' }).format(new Date(ms));
+    return `${weekday} ${time}`;
+  }
+  return recordedDate(ms);
+}
 function timestamp(value) {
   if (typeof value !== 'string' || !/(Z|[+-]\d\d:\d\d)$/.test(value)) return NaN;
   return Date.parse(value);
@@ -44,7 +64,7 @@ function clippedText(value, max) {
   return result;
 }
 function unknownHistory() {
-  return { today_sessions: null, today_seconds: null, streak_days: null, month_days: null, month_seconds: null };
+  return { today_sessions: null, today_seconds: null, streak_days: null, week_days: null, week_seconds: null, month_days: null, month_seconds: null, last_here: null };
 }
 function mergeIntervals(intervals, gap = 0) {
   const result = [];
@@ -71,15 +91,19 @@ function supportedIntervals(start, end, showId, playbackPoints) {
 function summarizeHistory(listener, rows, evaluatedMs, complete = true, coveredFrom = -Infinity) {
   const today = dayKey(evaluatedMs);
   const todayStart = dayStart(today);
+  const week = weekKey(evaluatedMs);
+  const weekStart = dayStart(week);
   const monthStart = dayStart(`${today.slice(0, 7)}-01`);
   const firstDay = moveDay(today, -LOOKBACK_DAYS);
   const reported = [];
   const points = [];
   const playbackPoints = [];
+  const observations = [];
   for (const row of rows) {
     if (row.device_id !== listener.user_id) continue;
     const end = timestamp(row.created_at);
     if (!Number.isFinite(end) || end > evaluatedMs) return unknownHistory();
+    observations.push(end);
     if (row.event === 'show_play' || row.event === 'track_play') {
       points.push(end);
       playbackPoints.push({ at: end, showId: row.show_id });
@@ -119,12 +143,27 @@ function summarizeHistory(listener, rows, evaluatedMs, complete = true, coveredF
   }
   const todayComplete = complete || coveredFrom <= todayStart - VISIT_GAP_MS;
   const monthComplete = complete || coveredFrom <= monthStart;
+  const weekComplete = complete || coveredFrom <= weekStart;
+  const currentAnchor = Math.max(start, ...playbackPoints.filter(point =>
+    point.showId === listener.show_identifier && point.at >= start && point.at <= updated).map(point => point.at));
+  const currentVisitIndex = visits.findIndex(([a, b]) => a <= currentAnchor && currentAnchor <= b);
+  let lastHere = null;
+  if (currentVisitIndex > 0 && updated - visits[currentVisitIndex][1] <= VISIT_GAP_MS) {
+    const [previousStart, previousEnd] = visits[currentVisitIndex - 1];
+    // Use an actual earlier event, not an estimated support-window endpoint.
+    const previousObservations = observations.filter(at => at >= previousStart && at <= previousEnd &&
+      (complete || at > coveredFrom));
+    if (previousObservations.length) lastHere = lastHereLabel(Math.max(...previousObservations), evaluatedMs);
+  }
   return {
     today_sessions: todayComplete ? visits.filter(([a, b]) => (a === b ? a >= todayStart : b > todayStart) && a <= evaluatedMs).length : null,
     today_seconds: todayComplete ? secondsSince(todayStart) : null,
     streak_days: streak,
+    week_days: weekComplete ? [...activeDays].filter(day => day >= week).length : null,
+    week_seconds: weekComplete ? secondsSince(weekStart) : null,
     month_days: monthComplete ? [...activeDays].filter(day => day >= today.slice(0, 7) + '-01').length : null,
-    month_seconds: monthComplete ? secondsSince(monthStart) : null
+    month_seconds: monthComplete ? secondsSince(monthStart) : null,
+    last_here: lastHere
   };
 }
 
@@ -207,6 +246,20 @@ async function fetchHistory(listener, evaluatedMs, fetchImpl, deadline) {
   } catch { /* A card can remain live when its history is unavailable. */ }
   return unknownHistory();
 }
+async function fetchFirstSeen(listener, evaluatedMs, fetchImpl, deadline) {
+  const params = new URLSearchParams({
+    select: 'device_id,created_at', device_id: `eq.${listener.user_id}`,
+    order: 'created_at.asc,id.asc', limit: '1', created_at: `lte.${new Date(evaluatedMs).toISOString()}`
+  });
+  try {
+    const remaining = deadline - Date.now();
+    if (remaining <= 0) return null;
+    const { data } = await requestJSON(`${SUPABASE_URL}/rest/v1/xlii_analytics?${params}`, { method: 'GET' }, fetchImpl, remaining, 4096);
+    if (!Array.isArray(data) || data.length !== 1 || data[0].device_id !== listener.user_id) return null;
+    const first = timestamp(data[0].created_at);
+    return Number.isFinite(first) && first <= evaluatedMs ? recordedDate(first) : null;
+  } catch { return null; }
+}
 async function buildResponse(fetchImpl = globalThis.fetch, now = Date.now, timeoutMs = 6000) {
   const deadline = Date.now() + timeoutMs;
   const { data } = await requestJSON(`${SUPABASE_URL}${DETAILS_PATH}`, {
@@ -236,15 +289,22 @@ async function buildResponse(fetchImpl = globalThis.fetch, now = Date.now, timeo
     }
     identities.add(listener.user_id);
   }
-  const listeners = await Promise.all(snapshot.active_listeners.slice().sort((a, b) => a.user_id.localeCompare(b.user_id)).slice(0, MAX_LISTENERS).map(async listener => ({
-    id: createHash('sha256').update(`core2-listener-v1:${listener.user_id}`).digest('hex').slice(0, 24),
-    track_name: clippedText(listener.track_name, 96),
-    show_date: clippedText(listener.show_date, 16),
-    show_venue: clippedText(listener.show_venue, 96),
-    ...await fetchHistory(listener, evaluated, fetchImpl, deadline)
-  })));
+  const listeners = await Promise.all(snapshot.active_listeners.slice().sort((a, b) => a.user_id.localeCompare(b.user_id)).slice(0, MAX_LISTENERS).map(async listener => {
+    const [history, firstSeen] = await Promise.all([
+      fetchHistory(listener, evaluated, fetchImpl, deadline),
+      fetchFirstSeen(listener, evaluated, fetchImpl, deadline)
+    ]);
+    return {
+      id: createHash('sha256').update(`core2-listener-v1:${listener.user_id}`).digest('hex').slice(0, 24),
+      track_name: clippedText(listener.track_name, 96),
+      show_date: clippedText(listener.show_date, 16),
+      show_venue: clippedText(listener.show_venue, 96),
+      ...history,
+      first_seen: firstSeen
+    };
+  }));
   if (valid <= now()) throw new Error('Listener snapshot expired');
-  return { evaluated_at: snapshot.evaluated_at, valid_until: snapshot.valid_until, total_count: snapshot.active_count, listeners };
+  return { evaluated_at: snapshot.evaluated_at, valid_until: snapshot.valid_until, naming_month: dayKey(evaluated).slice(0, 7), total_count: snapshot.active_count, listeners };
 }
 function finish(res, code, body) {
   res.statusCode = code;
@@ -262,4 +322,4 @@ async function handler(req, res) {
   catch { finish(res, 502, 'Listener details unavailable'); }
 }
 module.exports = handler;
-module.exports._test = { buildResponse, summarizeHistory, fetchHistory, dayStart, dayKey, mergeIntervals, supportedIntervals, requestJSON, DETAILS_PATH, PAGE_SIZE, MAX_PAGES };
+module.exports._test = { buildResponse, summarizeHistory, fetchHistory, dayStart, dayKey, weekKey, lastHereLabel, fetchFirstSeen, mergeIntervals, supportedIntervals, requestJSON, DETAILS_PATH, PAGE_SIZE, MAX_PAGES };

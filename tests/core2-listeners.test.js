@@ -1,7 +1,7 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
 const handler = require('../api/core2-listeners');
-const { buildResponse, summarizeHistory, dayStart, dayKey, requestJSON, PAGE_SIZE, supportedIntervals } = handler._test;
+const { buildResponse, summarizeHistory, dayStart, dayKey, requestJSON, PAGE_SIZE, supportedIntervals, weekKey, lastHereLabel, fetchFirstSeen } = handler._test;
 const ASOF = Date.parse('2026-09-10T16:00:00Z');
 const iso = ms => new Date(ms).toISOString();
 const listener = (id = 'xlii-current') => ({ user_id: id, show_identifier: 'gd1973-06-24', track_name: 'Looks Like Rain', show_date: '1973-06-24', show_venue: 'Portland', started_at: '2026-09-10T15:00:00Z', updated_at: '2026-09-10T15:59:00Z' });
@@ -67,6 +67,7 @@ test('history GET filters exact identity and returns bounded opaque live cards w
   let historyURL;
   const response = await buildResponse(async (url, options) => {
     if (url.includes('/rpc/')) return json(envelope());
+    if (new URL(url).searchParams.get('limit') === '1') return json([]);
     historyURL = new URL(url);
     assert.equal(options.headers.Range, '0-249');
     assert.equal(options.headers.Prefer, 'count=exact');
@@ -84,6 +85,7 @@ test('pagination uses all pages and rejects another identity even when show matc
   let pages = 0;
   const result = await buildResponse(async url => {
     if (url.includes('/rpc/')) return json(envelope());
+    if (new URL(url).searchParams.get('limit') === '1') return json([]);
     pages++;
     if (pages === 1) return json(Array.from({ length: PAGE_SIZE }, (_, i) => event(i, '2026-09-10T15:30:00Z', 1800)), { 'Content-Range': '0-249/251' });
     return json([event(250, '2026-09-10T15:30:00Z', 1800, 'wrong-device')], { 'Content-Range': '250-250/251' });
@@ -95,6 +97,7 @@ test('bounded descending pagination retains month totals when older history exce
   let pages = 0;
   const result = await buildResponse(async url => {
     if (url.includes('/rpc/')) return json(envelope());
+    if (new URL(url).searchParams.get('limit') === '1') return json([]);
     const offset = pages++ * PAGE_SIZE;
     return json(Array.from({ length: PAGE_SIZE }, (_, i) => event(offset + i, '2026-08-19T15:30:00Z', 1800)),
       { 'Content-Range': `${offset}-${offset + PAGE_SIZE - 1}/1500` });
@@ -119,7 +122,7 @@ test('cap eight cards, preserve total count, and bound UTF8 fields', async () =>
     requests++;
     return json([], { 'Content-Range': '*/0' });
   }, () => ASOF);
-  assert.equal(requests, 8);
+  assert.equal(requests, 16);
   assert.equal(result.total_count, 10);
   assert.equal(result.listeners.length, 8);
   assert.equal(Buffer.byteLength(result.listeners[0].show_venue), 96);
@@ -202,4 +205,81 @@ test('dense real playback still accumulates a long session with no arbitrary tot
     ...Array.from({ length: 18 }, (_, i) => event(i + 2, iso(from + i * 20 * 60000), undefined, 'xlii-current', 'track_play'))];
   const summary = summarizeHistory(listener(), rows, ASOF);
   assert.equal(summary.today_seconds, 21600 + 1800);
+});
+
+test('weekly statistics reset Monday Eastern midnight including DST changes', () => {
+  assert.equal(weekKey(Date.parse('2026-09-07T03:59:59Z')), '2026-08-31');
+  assert.equal(weekKey(Date.parse('2026-09-07T04:00:00Z')), '2026-09-07');
+  assert.equal(weekKey(Date.parse('2026-11-02T04:59:59Z')), '2026-10-26');
+  assert.equal(weekKey(Date.parse('2026-11-02T05:00:00Z')), '2026-11-02');
+  const summary = summarizeHistory(listener(), [event(1, '2026-09-06T14:00:00Z', 1800), event(2, '2026-09-07T14:00:00Z', 1800)], ASOF);
+  assert.equal(summary.week_days, 2);
+  assert.equal(summary.week_seconds, 3600);
+  assert.equal(summary.month_days, 3);
+  assert.equal(summary.month_seconds, 5400);
+  const partial = summarizeHistory(listener(), [], ASOF, false, Date.parse('2026-09-08T00:00:00Z'));
+  assert.equal(partial.today_seconds, 1800);
+  assert.equal(partial.week_days, null);
+  assert.equal(partial.week_seconds, null);
+});
+test('first recorded date queries all retained exact-device history independently of capped recent history', async () => {
+  let request;
+  const result = await fetchFirstSeen(listener(), ASOF, async url => {
+    request = new URL(url);
+    return json([{ device_id: 'xlii-current', created_at: '2025-01-02T03:00:00Z' }]);
+  }, Date.now() + 1000);
+  assert.equal(result, 'Jan 1, 2025');
+  assert.equal(request.searchParams.get('device_id'), 'eq.xlii-current');
+  assert.equal(request.searchParams.get('order'), 'created_at.asc,id.asc');
+  assert.equal(request.searchParams.get('limit'), '1');
+  assert.deepEqual(request.searchParams.getAll('created_at'), [`lte.${iso(ASOF)}`]);
+  for (const response of [json([], {}, 500), json([{ device_id: 'another', created_at: '2025-01-02T03:00:00Z' }]), json([])]) {
+    assert.equal(await fetchFirstSeen(listener(), ASOF, async () => response, Date.now() + 1000), null);
+  }
+});
+test('last here excludes the current visit even across show changes and uses actual prior event time', () => {
+  const rows = [event(1, '2026-09-09T14:30:00Z', 1800),
+    { ...event(2, '2026-09-10T14:00:00Z', undefined, 'xlii-current', 'track_play'), show_id: 'different-prior-show' },
+    event(3, '2026-09-10T15:20:00Z', undefined, 'xlii-current', 'track_play')];
+  const summary = summarizeHistory(listener(), rows, ASOF);
+  assert.equal(summary.last_here, 'Today 10:00 AM');
+  assert.notEqual(summary.last_here, 'Today 11:20 AM');
+  const onlyCurrent = summarizeHistory(listener(), [rows[2]], ASOF);
+  assert.equal(onlyCurrent.last_here, null);
+  assert.equal(lastHereLabel(Date.parse('2026-09-09T23:10:00Z'), ASOF), 'Yesterday 7:10 PM');
+  assert.equal(lastHereLabel(Date.parse('2026-09-07T13:10:00Z'), ASOF), 'Mon 9:10 AM');
+});
+test('last here uses latest current playback cluster rather than original pre-pause start', () => {
+  const current = { ...listener(), started_at: '2026-09-10T11:00:00Z', updated_at: '2026-09-10T15:59:00Z' };
+  const rows = ['11:05', '15:20'].map((time, i) => event(i + 1, `2026-09-10T${time}:00Z`, undefined, 'xlii-current', 'track_play'));
+  assert.equal(summarizeHistory(current, rows, ASOF).last_here, 'Today 7:05 AM');
+  const paused = summarizeHistory(current, [rows[0]], ASOF);
+  assert.equal(paused.last_here, null);
+  const oldSameShow = event(20, '2026-09-09T15:20:00Z', undefined, 'xlii-current', 'track_play');
+  assert.equal(summarizeHistory(current, [oldSameShow, rows[0]], ASOF).last_here, null);
+});
+test('naming month follows Eastern local first-of-month and comes from evaluated timestamp', async () => {
+  for (const [at, expected] of [['2026-10-01T03:59:59Z', '2026-09'], ['2026-10-01T04:00:00Z', '2026-10'],
+    ['2026-12-01T04:59:59Z', '2026-11'], ['2026-12-01T05:00:00Z', '2026-12']]) {
+    const time = Date.parse(at);
+    const result = await buildResponse(async () => json([{ active_count: 0, active_listeners: [], evaluated_at: at, valid_until: iso(time + 30000) }]), () => time);
+    assert.equal(result.naming_month, expected);
+    assert.equal(result.evaluated_at, at);
+  }
+});
+
+
+test('first recorded and recent history fail independently without losing current card', async () => {
+  for (const historyFails of [true, false]) {
+    const result = await buildResponse(async url => {
+      if (url.includes('/rpc/')) return json(envelope());
+      if (new URL(url).searchParams.get('limit') === '1') {
+        return historyFails ? json([{ device_id: 'xlii-current', created_at: '2025-01-02T03:00:00Z' }]) : json([], {}, 500);
+      }
+      return historyFails ? json([], {}, 500) : json([], { 'Content-Range': '*/0' });
+    }, () => ASOF);
+    assert.equal(result.total_count, 1);
+    assert.equal(result.listeners[0].first_seen, historyFails ? 'Jan 1, 2025' : null);
+    assert.equal(result.listeners[0].week_seconds, historyFails ? null : 1800);
+  }
 });
