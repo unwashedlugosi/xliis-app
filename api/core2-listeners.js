@@ -9,6 +9,7 @@ const LOOKBACK_DAYS = 180;
 const VISIT_GAP_MS = 30 * 60_000;
 const MAX_DURATION_MS = 24 * 60 * 60_000;
 const MAX_ACTIVE_MS = 6 * 60 * 60_000;
+const PLAYBACK_SUPPORT_MS = 30 * 60_000;
 const EASTERN = new Intl.DateTimeFormat('en-CA', {
   timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit'
 });
@@ -54,30 +55,47 @@ function mergeIntervals(intervals, gap = 0) {
   }
   return result;
 }
+function supportedIntervals(start, end, showId, playbackPoints) {
+  // session_end uses a wall-clock timer, and now-playing heartbeats continue
+  // while paused. Neither proves uninterrupted playback. Estimate at most
+  // thirty minutes after each show/track start, bounded by the reported span.
+  // The reported initial start contributes one bounded fallback window.
+  const starts = [start];
+  if (typeof showId === 'string' && showId.trim()) {
+    for (const point of playbackPoints) {
+      if (point.showId === showId && point.at >= start && point.at <= end) starts.push(point.at);
+    }
+  }
+  return mergeIntervals(starts.map(at => [at, Math.min(end, at + PLAYBACK_SUPPORT_MS)]));
+}
 function summarizeHistory(listener, rows, evaluatedMs, complete = true, coveredFrom = -Infinity) {
   const today = dayKey(evaluatedMs);
   const todayStart = dayStart(today);
   const monthStart = dayStart(`${today.slice(0, 7)}-01`);
   const firstDay = moveDay(today, -LOOKBACK_DAYS);
-  const intervals = [];
+  const reported = [];
   const points = [];
+  const playbackPoints = [];
   for (const row of rows) {
     if (row.device_id !== listener.user_id) continue;
     const end = timestamp(row.created_at);
     if (!Number.isFinite(end) || end > evaluatedMs) return unknownHistory();
-    if (row.event === 'show_play' || row.event === 'track_play') points.push(end);
+    if (row.event === 'show_play' || row.event === 'track_play') {
+      points.push(end);
+      playbackPoints.push({ at: end, showId: row.show_id });
+    }
     if (row.event !== 'session_end') continue;
     const raw = row.metadata?.duration_seconds;
     if (!/^[0-9]{1,5}$/.test(String(raw))) { points.push(end); continue; }
     const duration = Number(raw) * 1000;
     if (duration <= 0 || duration > MAX_DURATION_MS) { points.push(end); continue; }
-    intervals.push([end - duration, end]);
+    reported.push({ start: end - duration, end, showId: row.show_id });
   }
   const start = timestamp(listener.started_at);
   const updated = Math.min(timestamp(listener.updated_at), evaluatedMs);
   if (!Number.isFinite(start) || !Number.isFinite(updated) || start > updated) return unknownHistory();
-  intervals.push([Math.max(start, updated - MAX_ACTIVE_MS), updated]);
-  const union = mergeIntervals(intervals);
+  reported.push({ start: Math.max(start, updated - MAX_ACTIVE_MS), end: updated, showId: listener.show_identifier });
+  const union = mergeIntervals(reported.flatMap(span => supportedIntervals(span.start, span.end, span.showId, playbackPoints)));
   const evidence = union.concat(points.map(p => [p, p]));
   const visits = mergeIntervals(evidence, VISIT_GAP_MS);
   const activeDays = new Set();
@@ -88,9 +106,8 @@ function summarizeHistory(listener, rows, evaluatedMs, complete = true, coveredF
     }
   }
   const secondsSince = boundary => {
-    // This is approximate recorded session time, not audible playback time.
-    // Keep known intervals when other playback pings have no duration; never
-    // invent duration from the gap between those pings.
+    // This bounded playback estimate deliberately omits unsupported long gaps.
+    // Overlapping support windows, including rapid skips, count only once.
     const measured = union.reduce((sum, [a, b]) => sum + Math.max(0, Math.min(b, evaluatedMs) - Math.max(a, boundary)), 0);
     return measured > 0 ? Math.floor(measured / 1000) : null;
   };
@@ -153,7 +170,7 @@ async function requestJSON(url, options, fetchImpl, timeoutMs, maxBytes = 512_00
 async function fetchHistory(listener, evaluatedMs, fetchImpl, deadline) {
   const firstDay = moveDay(dayKey(evaluatedMs), -LOOKBACK_DAYS);
   const params = new URLSearchParams({
-    select: 'id,device_id,event,metadata,created_at',
+    select: 'id,device_id,show_id,event,metadata,created_at',
     device_id: `eq.${listener.user_id}`,
     event: 'in.(show_play,track_play,session_end)',
     order: 'created_at.desc,id.desc'
@@ -245,4 +262,4 @@ async function handler(req, res) {
   catch { finish(res, 502, 'Listener details unavailable'); }
 }
 module.exports = handler;
-module.exports._test = { buildResponse, summarizeHistory, fetchHistory, dayStart, dayKey, mergeIntervals, requestJSON, DETAILS_PATH, PAGE_SIZE, MAX_PAGES };
+module.exports._test = { buildResponse, summarizeHistory, fetchHistory, dayStart, dayKey, mergeIntervals, supportedIntervals, requestJSON, DETAILS_PATH, PAGE_SIZE, MAX_PAGES };
