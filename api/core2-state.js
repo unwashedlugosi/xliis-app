@@ -42,6 +42,11 @@ async function fetchState(fetchImpl = globalThis.fetch, timeoutMs = UPSTREAM_TIM
 function finish(res, statusCode, body, contentType = 'text/plain; charset=utf-8') {
   res.statusCode = statusCode;
   res.setHeader('Cache-Control', 'private, no-store, max-age=0');
+  // Temporary recovery bridge for Core2 2.51: its reusable listener TLS
+  // session can retain enough heap to starve its next firmware check. Asking
+  // the client to close this response releases that session so the appliance
+  // can pull the self-repairing 2.54 release. Safe for ordinary HTTP clients.
+  res.setHeader('Connection', 'close');
   res.setHeader('Content-Type', contentType);
   res.end(body);
 }
