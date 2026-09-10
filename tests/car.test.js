@@ -172,6 +172,10 @@ test('Vercel config contains both the existing /bc rewrite and the new /car rewr
   const config = JSON.parse(fs.readFileSync(path.join(root, 'vercel.json'), 'utf8'));
 
   assert.deepEqual(config.rewrites, [
+    {
+      source: '/firmware/core2/manifest.json',
+      destination: '/api/core2-manifest'
+    },
     { source: '/bc', destination: '/api/bc' },
     { source: '/car', destination: '/api/car' }
   ]);

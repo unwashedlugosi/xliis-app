@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/firmware/core2/manifest.json",
+      "destination": "/api/core2-manifest"
+    },
+    {
       "source": "/bc",
       "destination": "/api/bc"
     },
