@@ -2,7 +2,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const MANIFEST_PATH = path.join(
-  process.cwd(), 'firmware', 'core2', 'manifest.json'
+  process.cwd(), 'firmware', 'core2', 'manifest-source.json'
 );
 
 function finish(res, statusCode, body, contentType = 'text/plain; charset=utf-8') {
