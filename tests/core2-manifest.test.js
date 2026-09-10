@@ -23,8 +23,8 @@ test('GET serves the current signed manifest with strict no-cache headers', () =
   handler({ method: 'GET' }, res);
   const parsed = JSON.parse(res.body);
   assert.equal(res.statusCode, 200);
-  assert.equal(parsed.version, 2026091011);
-  assert.equal(parsed.user_version, '2.61');
+  assert.equal(parsed.version, 2026091012);
+  assert.equal(parsed.user_version, '2.62');
   assert.match(res.headers['cache-control'], /no-store/);
   assert.match(res.headers['cache-control'], /no-cache/);
   assert.equal(res.headers.pragma, 'no-cache');
