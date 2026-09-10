@@ -2,6 +2,7 @@ const { createHash } = require('node:crypto');
 const { SUPABASE_URL, supabaseKey } = require('./core2-state')._test;
 
 const DETAILS_PATH = '/rest/v1/rpc/get_xlii_current_listener_details';
+const TODAY_EVENTS_PATH = '/rest/v1/rpc/get_xlii_core2_today_events';
 const MAX_LISTENERS = 8;
 const PAGE_SIZE = 250;
 const MAX_PAGES = 4;
@@ -10,6 +11,8 @@ const VISIT_GAP_MS = 30 * 60_000;
 const MAX_DURATION_MS = 24 * 60 * 60_000;
 const MAX_ACTIVE_MS = 6 * 60 * 60_000;
 const PLAYBACK_SUPPORT_MS = 30 * 60_000;
+const VALID_SCOPES = new Set(['active', 'all']);
+const PLAYBACK_EVENTS = new Set(['show_play', 'track_play', 'session_end']);
 const EASTERN = new Intl.DateTimeFormat('en-CA', {
   timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit'
 });
@@ -260,7 +263,106 @@ async function fetchFirstSeen(listener, evaluatedMs, fetchImpl, deadline) {
     return Number.isFinite(first) && first <= evaluatedMs ? recordedDate(first) : null;
   } catch { return null; }
 }
-async function buildResponse(fetchImpl = globalThis.fetch, now = Date.now, timeoutMs = 6000) {
+
+function summarizeEndedToday(rows, evaluatedMs) {
+  const todayStart = dayStart(dayKey(evaluatedMs));
+  const playbackPoints = rows.filter(row => row.event === 'show_play' || row.event === 'track_play')
+    .map(row => ({ at: timestamp(row.created_at), showId: row.show_id }))
+    .filter(point => Number.isFinite(point.at) && point.at >= todayStart - PLAYBACK_SUPPORT_MS && point.at <= evaluatedMs);
+  const supported = [];
+  let firstSeenAt = Infinity;
+  for (const row of rows) {
+    const end = timestamp(row.created_at);
+    if (!Number.isFinite(end) || end < todayStart || end > evaluatedMs) continue;
+    firstSeenAt = Math.min(firstSeenAt, end);
+    if (row.event !== 'session_end') continue;
+    const raw = row.metadata?.duration_seconds;
+    if (!/^[0-9]{1,5}$/.test(String(raw))) continue;
+    const duration = Number(raw) * 1000;
+    if (duration <= 0 || duration > MAX_DURATION_MS) continue;
+    supported.push(...supportedIntervals(end - duration, end, row.show_id, playbackPoints));
+  }
+  const measured = mergeIntervals(supported).reduce((sum, [start, end]) =>
+    sum + Math.max(0, Math.min(end, evaluatedMs) - Math.max(start, todayStart)), 0);
+  return {
+    first_seen_at: Number.isFinite(firstSeenAt) ? firstSeenAt : null,
+    today_seconds: measured > 0 ? Math.floor(measured / 1000) : null
+  };
+}
+
+async function fetchTodayRoster(activeListeners, activeCards, evaluatedMs, fetchImpl, deadline) {
+  const lowerBound = dayStart(dayKey(evaluatedMs)) - PLAYBACK_SUPPORT_MS;
+  const rows = [];
+  const rowIds = new Set();
+  let expectedTotal;
+  for (let page = 0; page < MAX_PAGES; page++) {
+    const remaining = deadline - Date.now();
+    if (remaining <= 0) return null;
+    const offset = page * PAGE_SIZE;
+    let response;
+    try {
+      response = await requestJSON(`${SUPABASE_URL}${TODAY_EVENTS_PATH}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ p_as_of: new Date(evaluatedMs).toISOString(), p_offset: offset, p_limit: PAGE_SIZE })
+      }, fetchImpl, remaining);
+    } catch { return null; }
+    if (!Array.isArray(response.data) || response.data.length !== 1) return null;
+    const pageData = response.data[0];
+    if (!pageData || typeof pageData !== 'object' || Array.isArray(pageData)) return null;
+    const data = pageData.events;
+    const total = pageData.total_count;
+    if (timestamp(pageData.evaluated_at) !== evaluatedMs || pageData.page_offset !== offset ||
+        pageData.page_limit !== PAGE_SIZE || !Array.isArray(data) || data.length > PAGE_SIZE ||
+        !Number.isSafeInteger(total) || total < 0 ||
+        (expectedTotal !== undefined && total !== expectedTotal)) return null;
+    expectedTotal = total;
+    for (const row of data) {
+      if (!row || typeof row !== 'object' || Array.isArray(row) ||
+          !((typeof row.id === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(row.id)) ||
+            (Number.isSafeInteger(row.id) && row.id >= 0)) ||
+          rowIds.has(String(row.id)) || typeof row.device_id !== 'string' ||
+          !/^[A-Za-z0-9_-]{1,128}$/.test(row.device_id) || !PLAYBACK_EVENTS.has(row.event) ||
+          !Number.isFinite(timestamp(row.created_at)) || timestamp(row.created_at) < lowerBound ||
+          timestamp(row.created_at) > evaluatedMs) return null;
+      rowIds.add(String(row.id));
+    }
+    rows.push(...data);
+    if (rows.length === total) break;
+    if (data.length !== PAGE_SIZE || page === MAX_PAGES - 1) return null;
+  }
+
+  const grouped = new Map();
+  for (const row of rows) {
+    if (!grouped.has(row.device_id)) grouped.set(row.device_id, []);
+    grouped.get(row.device_id).push(row);
+  }
+  const cardsById = new Map((await activeCards).map(card => [card.id, card]));
+  const activeById = new Map(activeListeners.map(listener => [listener.user_id, cardsById.get(
+    createHash('sha256').update(`core2-listener-v1:${listener.user_id}`).digest('hex').slice(0, 24))]));
+  for (const listener of activeListeners) {
+    if (!grouped.has(listener.user_id)) grouped.set(listener.user_id, []);
+  }
+  const roster = [...grouped.entries()].map(([deviceId, history]) => {
+    const ended = summarizeEndedToday(history, evaluatedMs);
+    const active = activeById.get(deviceId);
+    return {
+      id: createHash('sha256').update(`core2-listener-v1:${deviceId}`).digest('hex').slice(0, 24),
+      today_seconds: activeById.has(deviceId) ? active?.today_seconds ?? null : ended.today_seconds,
+      first_seen_at: ended.first_seen_at ?? (activeById.has(deviceId) ? evaluatedMs : null)
+    };
+  }).filter(entry => entry.first_seen_at !== null).sort((left, right) => {
+    const leftSeconds = left.today_seconds ?? -1;
+    const rightSeconds = right.today_seconds ?? -1;
+    return rightSeconds - leftSeconds || left.first_seen_at - right.first_seen_at || left.id.localeCompare(right.id);
+  });
+  return {
+    total_count: roster.length,
+    listeners: roster.slice(0, MAX_LISTENERS).map(({ id, today_seconds }) => ({ id, today_seconds }))
+  };
+}
+
+async function buildResponse(fetchImpl = globalThis.fetch, now = Date.now, timeoutMs = 6000, scope = 'all') {
+  if (!VALID_SCOPES.has(scope)) throw new Error('Invalid listener scope');
   const deadline = Date.now() + timeoutMs;
   const { data } = await requestJSON(`${SUPABASE_URL}${DETAILS_PATH}`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}'
@@ -289,7 +391,21 @@ async function buildResponse(fetchImpl = globalThis.fetch, now = Date.now, timeo
     }
     identities.add(listener.user_id);
   }
-  const listeners = await Promise.all(snapshot.active_listeners.slice().sort((a, b) => a.user_id.localeCompare(b.user_id)).slice(0, MAX_LISTENERS).map(async listener => {
+  const activeListeners = snapshot.active_listeners.slice()
+    .sort((a, b) => a.user_id.localeCompare(b.user_id)).slice(0, MAX_LISTENERS);
+  if (scope === 'active') {
+    if (valid <= now()) throw new Error('Listener snapshot expired');
+    return {
+      evaluated_at: snapshot.evaluated_at,
+      valid_until: snapshot.valid_until,
+      naming_month: dayKey(evaluated).slice(0, 7),
+      total_count: snapshot.active_count,
+      listeners: activeListeners.map(listener => ({
+        id: createHash('sha256').update(`core2-listener-v1:${listener.user_id}`).digest('hex').slice(0, 24)
+      }))
+    };
+  }
+  const listenersPromise = Promise.all(activeListeners.map(async listener => {
     const [history, firstSeen] = await Promise.all([
       fetchHistory(listener, evaluated, fetchImpl, deadline),
       fetchFirstSeen(listener, evaluated, fetchImpl, deadline)
@@ -303,8 +419,19 @@ async function buildResponse(fetchImpl = globalThis.fetch, now = Date.now, timeo
       first_seen: firstSeen
     };
   }));
+  const todayPromise = fetchTodayRoster(snapshot.active_listeners, listenersPromise, evaluated, fetchImpl, deadline);
+  const [listeners, today] = await Promise.all([listenersPromise, todayPromise]);
   if (valid <= now()) throw new Error('Listener snapshot expired');
-  return { evaluated_at: snapshot.evaluated_at, valid_until: snapshot.valid_until, naming_month: dayKey(evaluated).slice(0, 7), total_count: snapshot.active_count, listeners };
+  return {
+    evaluated_at: snapshot.evaluated_at,
+    valid_until: snapshot.valid_until,
+    naming_month: dayKey(evaluated).slice(0, 7),
+    total_count: snapshot.active_count,
+    listeners,
+    today_date: dayKey(evaluated),
+    today_total_count: today?.total_count ?? null,
+    today_listeners: today?.listeners ?? null
+  };
 }
 function finish(res, code, body) {
   res.statusCode = code;
@@ -318,8 +445,13 @@ async function handler(req, res) {
     finish(res, 405, 'Method Not Allowed');
     return;
   }
-  try { finish(res, 200, JSON.stringify(await buildResponse())); }
+  const scope = req.query?.scope || 'all';
+  if (!VALID_SCOPES.has(scope)) {
+    finish(res, 400, 'Invalid listener scope');
+    return;
+  }
+  try { finish(res, 200, JSON.stringify(await buildResponse(globalThis.fetch, Date.now, 6000, scope))); }
   catch { finish(res, 502, 'Listener details unavailable'); }
 }
 module.exports = handler;
-module.exports._test = { buildResponse, summarizeHistory, fetchHistory, dayStart, dayKey, weekKey, lastHereLabel, fetchFirstSeen, mergeIntervals, supportedIntervals, requestJSON, DETAILS_PATH, PAGE_SIZE, MAX_PAGES };
+module.exports._test = { buildResponse, summarizeHistory, summarizeEndedToday, fetchHistory, fetchTodayRoster, dayStart, dayKey, weekKey, lastHereLabel, fetchFirstSeen, mergeIntervals, supportedIntervals, requestJSON, DETAILS_PATH, TODAY_EVENTS_PATH, PAGE_SIZE, MAX_PAGES };
