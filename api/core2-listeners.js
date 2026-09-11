@@ -3,6 +3,8 @@ const { SUPABASE_URL, supabaseKey } = require('./core2-state')._test;
 
 const DETAILS_PATH = '/rest/v1/rpc/get_xlii_current_listener_details';
 const TODAY_EVENTS_PATH = '/rest/v1/rpc/get_xlii_core2_today_events';
+const TODAY_LEDGER_PATH = '/rest/v1/rpc/get_xlii_core2_today_ledger';
+const MAX_LEDGER_LISTENERS = 256;
 const MAX_LISTENERS = 8;
 const PAGE_SIZE = 250;
 const MAX_PAGES = 4;
@@ -290,7 +292,56 @@ function summarizeEndedToday(rows, evaluatedMs) {
   };
 }
 
-async function fetchTodayRoster(activeListeners, activeCards, evaluatedMs, fetchImpl, deadline) {
+async function fetchTodayLedger(evaluatedMs, fetchImpl, deadline) {
+  try {
+    const remaining = deadline - Date.now();
+    if (remaining <= 0) return null;
+    const { data } = await requestJSON(`${SUPABASE_URL}${TODAY_LEDGER_PATH}`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ p_as_of: new Date(evaluatedMs).toISOString() })
+    }, fetchImpl, remaining);
+    if (!Array.isArray(data) || data.length !== 1 || !data[0] || typeof data[0] !== 'object') return null;
+    const snapshot = data[0];
+    const readAt = timestamp(snapshot.evaluated_at);
+    if (timestamp(snapshot.requested_as_of) !== evaluatedMs || snapshot.local_date !== dayKey(evaluatedMs) ||
+        !Number.isFinite(readAt) || readAt < evaluatedMs - 5000 || readAt > evaluatedMs + 60000 ||
+        readAt > Date.now() + 5000 || dayKey(readAt) !== snapshot.local_date ||
+        !Number.isSafeInteger(snapshot.total_seconds) || snapshot.total_seconds < 0 ||
+        !Number.isSafeInteger(snapshot.unattributed_seconds) || snapshot.unattributed_seconds < 0 ||
+        snapshot.unattributed_seconds > snapshot.total_seconds ||
+        !Number.isSafeInteger(snapshot.listener_count) || snapshot.listener_count < 0 ||
+        typeof snapshot.truncated !== 'boolean' || !Array.isArray(snapshot.listeners) ||
+        snapshot.listeners.length > MAX_LEDGER_LISTENERS ||
+        snapshot.truncated !== (snapshot.listener_count > MAX_LEDGER_LISTENERS) ||
+        snapshot.listeners.length !== Math.min(snapshot.listener_count, MAX_LEDGER_LISTENERS)) return null;
+    const byId = new Map();
+    let sum = 0;
+    for (const row of snapshot.listeners) {
+      if (!row || typeof row !== 'object' || typeof row.id !== 'string' || !/^[a-f0-9]{24}$/.test(row.id) ||
+          byId.has(row.id) || !Number.isSafeInteger(row.today_seconds) || row.today_seconds < 0 || row.today_seconds > 100000000) return null;
+      byId.set(row.id, row.today_seconds);
+      sum += row.today_seconds;
+      if (!Number.isSafeInteger(sum)) return null;
+    }
+    if (!Number.isSafeInteger(sum + snapshot.unattributed_seconds) ||
+        sum + snapshot.unattributed_seconds > snapshot.total_seconds ||
+        (!snapshot.truncated && sum + snapshot.unattributed_seconds !== snapshot.total_seconds)) return null;
+    return { ...snapshot, byId };
+  } catch { return null; }
+}
+function withLedgerToday(card, ledger) {
+  const today = ledger?.byId.get(card.id) ?? null;
+  return {
+    ...card,
+    today_seconds: today,
+    week_seconds: today !== null && card.week_seconds !== null && card.week_seconds < today ? null : card.week_seconds,
+    month_seconds: today !== null && card.month_seconds !== null && card.month_seconds < today ? null : card.month_seconds
+  };
+}
+
+async function fetchTodayRoster(activeListeners, ledgerResult, evaluatedMs, fetchImpl, deadline) {
+  const ledger = await ledgerResult;
+  if (!ledger || ledger.truncated) return null;
   const lowerBound = dayStart(dayKey(evaluatedMs)) - PLAYBACK_SUPPORT_MS;
   const rows = [];
   const rowIds = new Set();
@@ -336,21 +387,24 @@ async function fetchTodayRoster(activeListeners, activeCards, evaluatedMs, fetch
     if (!grouped.has(row.device_id)) grouped.set(row.device_id, []);
     grouped.get(row.device_id).push(row);
   }
-  const cardsById = new Map((await activeCards).map(card => [card.id, card]));
-  const activeById = new Map(activeListeners.map(listener => [listener.user_id, cardsById.get(
-    createHash('sha256').update(`core2-listener-v1:${listener.user_id}`).digest('hex').slice(0, 24))]));
+  const activeIds = new Set(activeListeners.map(listener => listener.user_id));
   for (const listener of activeListeners) {
     if (!grouped.has(listener.user_id)) grouped.set(listener.user_id, []);
   }
-  const roster = [...grouped.entries()].map(([deviceId, history]) => {
+  const rosterById = new Map();
+  for (const [deviceId, history] of grouped) {
     const ended = summarizeEndedToday(history, evaluatedMs);
-    const active = activeById.get(deviceId);
-    return {
-      id: createHash('sha256').update(`core2-listener-v1:${deviceId}`).digest('hex').slice(0, 24),
-      today_seconds: activeById.has(deviceId) ? active?.today_seconds ?? null : ended.today_seconds,
-      first_seen_at: ended.first_seen_at ?? (activeById.has(deviceId) ? evaluatedMs : null)
-    };
-  }).filter(entry => entry.first_seen_at !== null).sort((left, right) => {
+    if (ended.first_seen_at === null && !activeIds.has(deviceId)) continue;
+    const id = createHash('sha256').update(`core2-listener-v1:${deviceId}`).digest('hex').slice(0, 24);
+    rosterById.set(id, { id, today_seconds: ledger.byId.get(id) ?? null,
+      first_seen_at: ended.first_seen_at ?? evaluatedMs });
+  }
+  // Some observed listeners have no analytics events. Their ledger identity is
+  // already filtered on the server and must remain part of the daily roster.
+  for (const [id, today_seconds] of ledger.byId) {
+    if (!rosterById.has(id)) rosterById.set(id, { id, today_seconds, first_seen_at: evaluatedMs });
+  }
+  const roster = [...rosterById.values()].sort((left, right) => {
     const leftSeconds = left.today_seconds ?? -1;
     const rightSeconds = right.today_seconds ?? -1;
     return rightSeconds - leftSeconds || left.first_seen_at - right.first_seen_at || left.id.localeCompare(right.id);
@@ -405,6 +459,7 @@ async function buildResponse(fetchImpl = globalThis.fetch, now = Date.now, timeo
       }))
     };
   }
+  const ledgerPromise = fetchTodayLedger(evaluated, fetchImpl, deadline);
   const listenersPromise = Promise.all(activeListeners.map(async listener => {
     const [history, firstSeen] = await Promise.all([
       fetchHistory(listener, evaluated, fetchImpl, deadline),
@@ -419,8 +474,9 @@ async function buildResponse(fetchImpl = globalThis.fetch, now = Date.now, timeo
       first_seen: firstSeen
     };
   }));
-  const todayPromise = fetchTodayRoster(snapshot.active_listeners, listenersPromise, evaluated, fetchImpl, deadline);
-  const [listeners, today] = await Promise.all([listenersPromise, todayPromise]);
+  const todayPromise = fetchTodayRoster(snapshot.active_listeners, ledgerPromise, evaluated, fetchImpl, deadline);
+  const [rawListeners, today, ledger] = await Promise.all([listenersPromise, todayPromise, ledgerPromise]);
+  const listeners = rawListeners.map(card => withLedgerToday(card, ledger));
   if (valid <= now()) throw new Error('Listener snapshot expired');
   return {
     evaluated_at: snapshot.evaluated_at,
@@ -429,6 +485,10 @@ async function buildResponse(fetchImpl = globalThis.fetch, now = Date.now, timeo
     total_count: snapshot.active_count,
     listeners,
     today_date: dayKey(evaluated),
+    today_source: 'observation_ledger',
+    today_ledger_evaluated_at: ledger?.evaluated_at ?? null,
+    today_ledger_total_seconds: ledger?.total_seconds ?? null,
+    today_unattributed_seconds: ledger?.unattributed_seconds ?? null,
     today_total_count: today?.total_count ?? null,
     today_listeners: today?.listeners ?? null
   };
@@ -454,4 +514,4 @@ async function handler(req, res) {
   catch { finish(res, 502, 'Listener details unavailable'); }
 }
 module.exports = handler;
-module.exports._test = { buildResponse, summarizeHistory, summarizeEndedToday, fetchHistory, fetchTodayRoster, dayStart, dayKey, weekKey, lastHereLabel, fetchFirstSeen, mergeIntervals, supportedIntervals, requestJSON, DETAILS_PATH, TODAY_EVENTS_PATH, PAGE_SIZE, MAX_PAGES };
+module.exports._test = { buildResponse, summarizeHistory, summarizeEndedToday, fetchHistory, fetchTodayRoster, fetchTodayLedger, withLedgerToday, dayStart, dayKey, weekKey, lastHereLabel, fetchFirstSeen, mergeIntervals, supportedIntervals, requestJSON, DETAILS_PATH, TODAY_EVENTS_PATH, TODAY_LEDGER_PATH, PAGE_SIZE, MAX_PAGES };

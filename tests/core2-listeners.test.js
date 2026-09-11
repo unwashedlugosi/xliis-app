@@ -3,7 +3,7 @@ const test = require('node:test');
 const { createHash } = require('node:crypto');
 const opaqueId = id => createHash('sha256').update(`core2-listener-v1:${id}`).digest('hex').slice(0, 24);
 const handler = require('../api/core2-listeners');
-const { buildResponse, summarizeHistory, summarizeEndedToday, fetchTodayRoster, dayStart, dayKey, requestJSON, PAGE_SIZE, supportedIntervals, weekKey, lastHereLabel, fetchFirstSeen } = handler._test;
+const { buildResponse, summarizeHistory, summarizeEndedToday, fetchTodayRoster, dayStart, dayKey, requestJSON, PAGE_SIZE, supportedIntervals, weekKey, lastHereLabel, fetchFirstSeen, fetchTodayLedger } = handler._test;
 const ASOF = Date.parse('2026-09-10T16:00:00Z');
 const iso = ms => new Date(ms).toISOString();
 const listener = (id = 'xlii-current') => ({ user_id: id, show_identifier: 'gd1973-06-24', track_name: 'Looks Like Rain', show_date: '1973-06-24', show_venue: 'Portland', started_at: '2026-09-10T15:00:00Z', updated_at: '2026-09-10T15:59:00Z' });
@@ -11,6 +11,16 @@ const event = (id, at, duration, device = 'xlii-current', name = 'session_end') 
 const envelope = (listeners = [listener()]) => [{ active_count: listeners.length, evaluated_at: iso(ASOF), valid_until: iso(ASOF + 30_000), active_listeners: listeners }];
 const json = (data, headers = {}, status = 200) => new Response(JSON.stringify(data), { status, headers });
 function todayPage(rows, total = rows.length, offset = 0) { return json([{ evaluated_at: iso(ASOF), total_count: total, page_offset: offset, page_limit: PAGE_SIZE, events: rows }]); }
+function ledgerSnapshot(entries = [['xlii-current', 1800]], overrides = {}) {
+  const listeners = entries.map(([id, today_seconds]) => ({ id: opaqueId(id), today_seconds }));
+  return { requested_as_of: iso(ASOF), local_date: '2026-09-10', evaluated_at: iso(ASOF + 1000),
+    total_seconds: listeners.reduce((sum, row) => sum + row.today_seconds, 0), unattributed_seconds: 0,
+    listener_count: listeners.length, truncated: false, listeners, ...overrides };
+}
+function ledgerModel(entries = []) {
+  const data = ledgerSnapshot(entries);
+  return { ...data, byId: new Map(data.listeners.map(row => [row.id, row.today_seconds])) };
+}
 function recorder() { return { headers: {}, setHeader(k, v) { this.headers[k.toLowerCase()] = v; }, end(body) { this.body = body; } }; }
 
 test('active scope returns only opaque current identities without history requests', async () => {
@@ -38,13 +48,13 @@ test('ended daily time uses playback-supported intervals and clips at Eastern mi
   assert.equal(summary.today_seconds, 600 + 900);
 });
 
-test('today roster includes inactive listeners, prefers active duration, and exposes no raw identity', async () => {
+test('today roster includes inactive listeners, uses ledger duration, and exposes no raw identity', async () => {
   const rows = [
     event(1, '2026-09-10T15:00:00Z', 3360, 'bear-device'),
     event(2, '2026-09-10T15:10:00Z', undefined, 'bear-device', 'track_play'),
     event(3, '2026-09-10T14:00:00Z', 600, 'fox-device')
   ];
-  const roster = await fetchTodayRoster([listener('fox-device')], [{ id: opaqueId('fox-device'), today_seconds: 3720 }], ASOF,
+  const roster = await fetchTodayRoster([listener('fox-device')], ledgerModel([['fox-device', 3720], ['bear-device', 1800]]), ASOF,
     async () => todayPage(rows), Date.now() + 1000);
   assert.equal(roster.total_count, 2);
   assert.equal(roster.listeners[0].today_seconds, 3720);
@@ -109,6 +119,7 @@ test('history GET filters exact identity and returns bounded opaque live cards w
   let historyURL;
   const response = await buildResponse(async (url, options) => {
     if (url.endsWith('/rpc/get_xlii_current_listener_details')) return json(envelope());
+    if (url.endsWith('/rpc/get_xlii_core2_today_ledger')) return json([ledgerSnapshot()]);
     if (new URL(url).searchParams.get('limit') === '1') return json([]);
     if (!new URL(url).searchParams.has('device_id')) return json([], { 'Content-Range': '*/0' });
     historyURL = new URL(url);
@@ -128,6 +139,7 @@ test('pagination uses all pages and rejects another identity even when show matc
   let pages = 0;
   const result = await buildResponse(async url => {
     if (url.endsWith('/rpc/get_xlii_current_listener_details')) return json(envelope());
+    if (url.endsWith('/rpc/get_xlii_core2_today_ledger')) return json([ledgerSnapshot()]);
     if (new URL(url).searchParams.get('limit') === '1') return json([]);
     if (!new URL(url).searchParams.has('device_id')) return json([], { 'Content-Range': '*/0' });
     pages++;
@@ -135,12 +147,13 @@ test('pagination uses all pages and rejects another identity even when show matc
     return json([event(250, '2026-09-10T15:30:00Z', 1800, 'wrong-device')], { 'Content-Range': '250-250/251' });
   }, () => ASOF);
   assert.equal(pages, 2);
-  assert.equal(result.listeners[0].today_seconds, null);
+  assert.equal(result.listeners[0].today_seconds, 1800); // Ledger survives invalid history.
 });
 test('bounded descending pagination retains month totals when older history exceeds cap', async () => {
   let pages = 0;
   const result = await buildResponse(async url => {
     if (url.endsWith('/rpc/get_xlii_current_listener_details')) return json(envelope());
+    if (url.endsWith('/rpc/get_xlii_core2_today_ledger')) return json([ledgerSnapshot()]);
     if (new URL(url).searchParams.get('limit') === '1') return json([]);
     if (!new URL(url).searchParams.has('device_id')) return json([], { 'Content-Range': '*/0' });
     const offset = pages++ * PAGE_SIZE;
@@ -165,10 +178,12 @@ test('cap eight cards, preserve total count, and bound UTF8 fields', async () =>
   const result = await buildResponse(async url => {
     if (url.endsWith('/rpc/get_xlii_current_listener_details')) return json(envelope(current));
     requests++;
+    if (url.endsWith('/rpc/get_xlii_core2_today_ledger')) return json([ledgerSnapshot(current.map(row => [row.user_id, 1800]))]);
+    if (url.endsWith('/rpc/get_xlii_core2_today_events')) return todayPage([]);
     if (!new URL(url).searchParams.has('device_id')) return json([], { 'Content-Range': '*/0' });
     return json([], { 'Content-Range': '*/0' });
   }, () => ASOF);
-  assert.equal(requests, 17);
+  assert.equal(requests, 18);
   assert.equal(result.total_count, 10);
   assert.equal(result.listeners.length, 8);
   assert.equal(Buffer.byteLength(result.listeners[0].show_venue), 96);
@@ -319,6 +334,7 @@ test('first recorded and recent history fail independently without losing curren
   for (const historyFails of [true, false]) {
     const result = await buildResponse(async url => {
       if (url.endsWith('/rpc/get_xlii_current_listener_details')) return json(envelope());
+    if (url.endsWith('/rpc/get_xlii_core2_today_ledger')) return json([ledgerSnapshot()]);
       if (new URL(url).searchParams.get('limit') === '1') {
         return historyFails ? json([{ device_id: 'xlii-current', created_at: '2025-01-02T03:00:00Z' }]) : json([], {}, 500);
       }
@@ -331,32 +347,31 @@ test('first recorded and recent history fail independently without losing curren
 });
 
 
-test('daily carry-in playback support crosses Eastern midnight without adding yesterday-only listeners', async () => {
+test('daily carry-in membership crosses Eastern midnight without adding yesterday-only listeners', async () => {
   const rows = [event(1, '2026-09-10T03:40:00Z', undefined, 'fox-device', 'track_play'),
     event(2, '2026-09-10T04:20:00Z', 7200, 'fox-device'),
     event(3, '2026-09-10T03:40:00Z', undefined, 'yesterday-device', 'track_play')];
-  const roster = await fetchTodayRoster([], [], ASOF, async () => todayPage(rows), Date.now() + 1000);
+  const roster = await fetchTodayRoster([], ledgerModel(), ASOF, async () => todayPage(rows), Date.now() + 1000);
   assert.equal(roster.total_count, 1);
-  assert.equal(roster.listeners[0].today_seconds, 600);
+  assert.equal(roster.listeners[0].today_seconds, null); // No authoritative ledger row; no session-end fallback.
 });
 test('unknown active history does not become an incomplete ended-only daily total', async () => {
   const rows = [event(1, '2026-09-10T14:00:00Z', 1800, 'fox-device')];
-  const roster = await fetchTodayRoster([listener('fox-device')], [{ id: opaqueId('fox-device'), today_seconds: null }], ASOF,
+  const roster = await fetchTodayRoster([listener('fox-device')], ledgerModel(), ASOF,
     async () => todayPage(rows), Date.now() + 1000);
   assert.equal(roster.total_count, 1);
   assert.equal(roster.listeners[0].today_seconds, null);
 });
 test('daily roster includes all known active identities even beyond the rich card cap', async () => {
   const active = Array.from({ length: 10 }, (_, i) => listener(`xlii-${i}`));
-  const cards = active.slice(0, 8).map(row => ({ id: opaqueId(row.user_id), today_seconds: 1000 }));
-  const roster = await fetchTodayRoster(active, cards, ASOF, async () => todayPage([]), Date.now() + 1000);
+  const roster = await fetchTodayRoster(active, ledgerModel(active.map(row => [row.user_id, 1000])), ASOF, async () => todayPage([]), Date.now() + 1000);
   assert.equal(roster.total_count, 10);
   assert.equal(roster.listeners.length, 8);
 });
 test('malformed and out-of-window daily rows fail closed', async () => {
   for (const row of [{ ...event(1, 'bad', 1) }, { ...event(1, iso(ASOF + 1), 1) },
     { ...event(1, iso(ASOF), 1), event: 'unknown' }, { ...event(1, iso(ASOF), 1), device_id: 'bad identity' }]) {
-    assert.equal(await fetchTodayRoster([], [], ASOF, async () => todayPage([row]), Date.now() + 1000), null);
+    assert.equal(await fetchTodayRoster([], ledgerModel(), ASOF, async () => todayPage([row]), Date.now() + 1000), null);
   }
 });
 test('active scope checks its lease again before serving and route rejects invalid scope', async () => {
@@ -369,7 +384,7 @@ test('active scope checks its lease again before serving and route rejects inval
 
 test('daily roster reads only sanitized RPC with exact bounded page and snapshot parameters', async () => {
   let request;
-  const roster = await fetchTodayRoster([], [], ASOF, async (url, options) => {
+  const roster = await fetchTodayRoster([], ledgerModel(), ASOF, async (url, options) => {
     request = { url, options };
     return todayPage([]);
   }, Date.now() + 1000);
@@ -380,7 +395,7 @@ test('daily roster reads only sanitized RPC with exact bounded page and snapshot
 });
 test('missing sanitized RPC fails closed without unfiltered analytics fallback', async () => {
   let calls = 0;
-  const result = await fetchTodayRoster([], [], ASOF, async url => {
+  const result = await fetchTodayRoster([], ledgerModel(), ASOF, async url => {
     calls++;
     assert.match(url, /\/rpc\/get_xlii_core2_today_events$/);
     return json({ error: 'not installed' }, {}, 404);
@@ -391,10 +406,10 @@ test('missing sanitized RPC fails closed without unfiltered analytics fallback',
 test('daily paging rejects unbound snapshots, page identities, changing totals and truncation', async () => {
   for (const wrong of [{ evaluated_at: iso(ASOF - 1) }, { page_offset: 250 }, { page_limit: 100 }, { total_count: -1 }]) {
     const page = { evaluated_at: iso(ASOF), total_count: 0, page_offset: 0, page_limit: PAGE_SIZE, events: [], ...wrong };
-    assert.equal(await fetchTodayRoster([], [], ASOF, async () => json([page]), Date.now() + 1000), null);
+    assert.equal(await fetchTodayRoster([], ledgerModel(), ASOF, async () => json([page]), Date.now() + 1000), null);
   }
   let calls = 0;
-  const result = await fetchTodayRoster([], [], ASOF, async (_url, options) => {
+  const result = await fetchTodayRoster([], ledgerModel(), ASOF, async (_url, options) => {
     const offset = JSON.parse(options.body).p_offset;
     calls++;
     return todayPage(Array.from({ length: 250 }, (_, i) => event(offset + i, iso(ASOF), 1)), 1001, offset);
@@ -402,7 +417,7 @@ test('daily paging rejects unbound snapshots, page identities, changing totals a
   assert.equal(result, null);
   assert.equal(calls, 4);
   let pages = 0;
-  assert.equal(await fetchTodayRoster([], [], ASOF, async () => {
+  assert.equal(await fetchTodayRoster([], ledgerModel(), ASOF, async () => {
     const offset = pages++ * 250;
     return todayPage(Array.from({ length: 250 }, (_, i) => event(offset + i, iso(ASOF), 1)), 501 + offset, offset);
   }, Date.now() + 1000), null);
@@ -414,6 +429,7 @@ test('malformed optional daily objects leave valid current cards available', asy
     [{ evaluated_at: iso(ASOF), total_count: 1, page_offset: 0, page_limit: 250, events: [{ ...event(1, iso(ASOF), 1), id: {} }] }]]) {
     const result = await buildResponse(async url => {
       if (url.endsWith('/rpc/get_xlii_current_listener_details')) return json(envelope());
+    if (url.endsWith('/rpc/get_xlii_core2_today_ledger')) return json([ledgerSnapshot()]);
       if (url.endsWith('/rpc/get_xlii_core2_today_events')) return json(bad);
       if (new URL(url).searchParams.get('limit') === '1') return json([]);
       return json([], { 'Content-Range': '*/0' });
@@ -424,4 +440,120 @@ test('malformed optional daily objects leave valid current cards available', asy
     assert.equal(result.today_total_count, null);
     assert.equal(result.today_listeners, null);
   }
+});
+
+function fullFetch({ current = [listener()], entries = [['xlii-current', 2700]], rows = [], overrides = {}, ledgerFailure = false } = {}) {
+  return async url => {
+    if (url.endsWith('/rpc/get_xlii_current_listener_details')) return json(envelope(current));
+    if (url.endsWith('/rpc/get_xlii_core2_today_ledger')) return ledgerFailure ? json({}, {}, 503) : json([ledgerSnapshot(entries, overrides)]);
+    if (url.endsWith('/rpc/get_xlii_core2_today_events')) return todayPage(rows);
+    if (new URL(url).searchParams.get('limit') === '1') return json([]);
+    return json([], { 'Content-Range': '*/0' });
+  };
+}
+
+test('production responses retain observed time after departure without a session_end', async () => {
+  const rows = [event(1, '2026-09-10T15:20:00Z', undefined, 'xlii-current', 'track_play')];
+  const active = await buildResponse(fullFetch({ rows }), () => ASOF);
+  const departed = await buildResponse(fullFetch({ current: [], rows }), () => ASOF);
+  assert.equal(active.listeners[0].today_seconds, 2700);
+  assert.deepEqual(active.today_listeners, [{ id: opaqueId('xlii-current'), today_seconds: 2700 }]);
+  assert.deepEqual(departed.today_listeners, active.today_listeners);
+  assert.equal(departed.total_count, 0);
+  assert.equal(departed.today_total_count, 1);
+  assert.equal(active.today_source, 'observation_ledger');
+  assert.equal(active.today_ledger_total_seconds, 2700);
+  // A later sampler watermark is included in the same read; it does not erase the earlier day's seconds.
+  assert.equal(active.today_ledger_evaluated_at, iso(ASOF + 1000));
+});
+
+test('all eleven audited ledger rows reconcile to 56438 seconds even when only eight are visible', async () => {
+  const seconds = [17518, 14936, 14599, 5129, 1336, 1287, 979, 422, 94, 78, 60];
+  const entries = seconds.map((value, i) => [`ledger-${i + 1}`, value]);
+  const result = await buildResponse(fullFetch({ current: [listener('ledger-1')], entries }), () => ASOF);
+  assert.equal(result.today_total_count, 11);
+  assert.equal(result.today_listeners.length, 8);
+  assert.deepEqual(result.today_listeners.map(row => row.today_seconds), seconds.slice(0, 8));
+  assert.equal(result.listeners[0].today_seconds, 17518);
+  assert.equal(result.today_ledger_total_seconds, 56438);
+  assert.equal(result.today_unattributed_seconds, 0);
+  assert.equal(result.today_listeners.reduce((sum, row) => sum + row.today_seconds, 0) + seconds.slice(8).reduce((sum, n) => sum + n, 0), 56438);
+  assert.doesNotMatch(JSON.stringify(result), /ledger-1|user_id|device_id/);
+});
+
+test('ledger-only TODAY never falls back to wall-clock estimates or makes historical totals impossible', async () => {
+  const rows = [event(1, '2026-09-10T15:00:00Z', 20000)];
+  const result = await buildResponse(fullFetch({ rows, entries: [['xlii-current', 10000]] }), () => ASOF);
+  assert.equal(result.listeners[0].today_seconds, 10000);
+  assert.equal(result.listeners[0].week_seconds, null);
+  assert.equal(result.listeners[0].month_seconds, null);
+  assert.equal(result.listeners[0].week_days, 1);
+  assert.equal(result.listeners[0].month_days, 1);
+  const missing = await buildResponse(fullFetch({ rows, entries: [] }), () => ASOF);
+  assert.equal(missing.listeners[0].today_seconds, null);
+  assert.equal(missing.today_listeners[0].today_seconds, null);
+  assert.equal(missing.listeners[0].week_seconds, 1800);
+  const failed = await buildResponse(fullFetch({ rows, ledgerFailure: true }), () => ASOF);
+  assert.equal(failed.listeners[0].today_seconds, null);
+  assert.equal(failed.today_listeners, null);
+  assert.equal(failed.today_ledger_total_seconds, null);
+});
+
+test('baseline and excluded aggregate remains unassigned while zero is a real known duration', async () => {
+  const result = await buildResponse(fullFetch({ entries: [['xlii-current', 0]], overrides: { total_seconds: 1900, unattributed_seconds: 1900 } }), () => ASOF);
+  assert.equal(result.listeners[0].today_seconds, 0);
+  assert.equal(result.today_listeners[0].today_seconds, 0);
+  assert.equal(result.today_ledger_total_seconds, 1900);
+  assert.equal(result.today_unattributed_seconds, 1900);
+  assert.equal(result.today_total_count, 1);
+});
+
+test('ledger reader validates exact request binding, date, bounds, identities and reconciliation', async () => {
+  const base = ledgerSnapshot();
+  const malformed = [null, [], { requested_as_of: iso(ASOF - 1) }, { local_date: '2026-09-09' },
+    { evaluated_at: iso(ASOF - 5001) }, { evaluated_at: iso(ASOF + 60001) },
+    { total_seconds: 1799 }, { total_seconds: 1801 }, { total_seconds: -1 },
+    { unattributed_seconds: -1 }, { unattributed_seconds: 1801 }, { listener_count: 2 },
+    { truncated: true }, { listeners: [null] }, { listeners: [{ id: 'raw-device', today_seconds: 1800 }] },
+    { listeners: [{ id: opaqueId('xlii-current'), today_seconds: -1 }] },
+    { listeners: [{ id: opaqueId('xlii-current'), today_seconds: 1.5 }] },
+    { listeners: [{ id: opaqueId('xlii-current'), today_seconds: 100000001 }], total_seconds: 100000001 },
+    { listeners: [base.listeners[0], base.listeners[0]], listener_count: 2, total_seconds: 3600 }];
+  for (const change of malformed) {
+    const value = change === null || Array.isArray(change) ? change : { ...base, ...change };
+    const result = await fetchTodayLedger(ASOF, async () => json([value]), Date.now() + 1000);
+    assert.equal(result, null, JSON.stringify(change));
+  }
+  let request;
+  const valid = await fetchTodayLedger(ASOF, async (url, options) => {
+    request = { url, options };
+    return json([base]);
+  }, Date.now() + 1000);
+  assert.equal(valid.byId.get(opaqueId('xlii-current')), 1800);
+  assert.match(request.url, /\/rpc\/get_xlii_core2_today_ledger$/);
+  assert.deepEqual(JSON.parse(request.options.body), { p_as_of: iso(ASOF) });
+});
+
+test('midnight-crossing ledger read fails closed even when only a second newer', async () => {
+  const at = Date.parse('2026-09-10T03:59:59.500Z');
+  const snapshot = ledgerSnapshot([], { requested_as_of: iso(at), local_date: '2026-09-09', evaluated_at: iso(at + 1000) });
+  assert.equal(await fetchTodayLedger(at, async () => json([snapshot]), Date.now() + 1000), null);
+});
+
+test('truncated ledger cannot claim a complete roster but retains positively matched active time', async () => {
+  const entries = [['xlii-current', 42], ...Array.from({ length: 255 }, (_, i) => [`extra-${i}`, 1])];
+  const result = await buildResponse(fullFetch({ entries, overrides: { truncated: true, listener_count: 257, total_seconds: 298 } }), () => ASOF);
+  assert.equal(result.listeners[0].today_seconds, 42);
+  assert.equal(result.today_total_count, null);
+  assert.equal(result.today_listeners, null);
+  assert.equal(result.today_ledger_total_seconds, 298);
+});
+
+test('eight escaped non-ASCII rich cards plus roster and ledger audit fields fit the firmware body cap', async () => {
+  const current = Array.from({ length: 8 }, (_, i) => ({ ...listener(`escaped-${i}`),
+    track_name: '\u0001"\\é'.repeat(100), show_venue: '\u0001"\\é'.repeat(100) }));
+  const result = await buildResponse(fullFetch({ current, entries: current.map(row => [row.user_id, 100000000]) }), () => ASOF);
+  assert.equal(result.listeners.length, 8);
+  assert.equal(result.today_listeners.length, 8);
+  assert.ok(Buffer.byteLength(JSON.stringify(result)) < 12288);
 });
