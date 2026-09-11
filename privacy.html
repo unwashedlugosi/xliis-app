@@ -87,26 +87,37 @@
 <div class="container">
 
   <h1>XLIIs — Privacy</h1>
-  <p class="date">Effective March 10, 2026</p>
+  <p class="date">Effective September 11, 2026</p>
 
   <div class="section-label">The Short Version</div>
-  <p>XLIIs doesn't collect personal data. No accounts, no ads, no sign-ups.</p>
+  <p>XLIIs has no accounts, sign-ups, or advertising. Your personal Index is built on your phone. You can separately choose to contribute listening summaries to Census. The app also sends playback information and usage events to run the service and understand how it is used.</p>
 
-  <div class="section-label">What's Stored on Your Device</div>
-  <p>Your listening history, favorites, and playback position are saved locally on your phone.</p>
+  <div class="section-label">Your Personal Index</div>
+  <p>The detailed history that powers your Index stays on your iPhone: listening time, shows and songs heard, and progress through them. Index works without joining Census. Favorites, playback position, and other settings also have local copies; some of that information is exchanged with the cloud separately.</p>
 
-  <div class="section-label">What's Sent to the Cloud</div>
-  <p>To let you resume where you left off, the app saves your playback position to a cloud database (Supabase). This is tied to a randomly generated ID — not your name, not your email, nothing personal.</p>
-  <p>The app also logs basic usage data — which collections and shows are played. This helps us understand which collections people are listening to. Each entry is tied to a random ID, not to you personally.</p>
+  <div class="section-label">Playback and Usage Information</div>
+  <p>Separate from Census, XLIIs sends information to Supabase about app openings, collections and shows played, track names and playback actions, approximate session duration, favorites actions, use of liner notes and J-cards, and app announcements displayed. Some events include the app platform and a short description of the device software.</p>
+  <p>Usage events and current-playback updates use a randomly generated identifier for your app installation. Current-playback updates include the show, track, collection, and timestamps. A separate listening log records show details and when a show was played. These records help us understand app use and display current listening activity. A random identifier can connect events from the same installation even though we do not ask for your name.</p>
+  <p>The app also exchanges playback position, show and track details, and favorites with Supabase for playback and CarPlay features. These cloud settings are shared across installations rather than stored as private per-user backups.</p>
 
-  <div class="section-label">What the App Connects To</div>
-  <p>XLIIs streams audio from archive.org and syncs data through Supabase. No personal information is included in these requests.</p>
+  <div class="section-label">Optional Census</div>
+  <p>Contributing to Census is off until you turn it on. You can read available Census facts without contributing. If you join, the app sends the calendar day in UTC, the year a show was performed, and credited listening seconds for that day and year. Only listening accumulated after you join is included; earlier history is not added.</p>
+  <p>Census contributions do not include song titles, show identifiers, names, email addresses, or the app's separate usage identifier. A separate random credential lets your installation update its contribution and request removal. This credential is excluded from device backups. Public Census facts combine contributions; individual contributions and participation counts are not shown.</p>
 
-  <div class="section-label">What We Don't Do</div>
-  <p>No advertising. No third-party tracking. No data sold or shared. No data collection from children under 13.</p>
+  <div class="section-label">Retention and Your Controls</div>
+  <p>Census uses the preceding 30 complete UTC days. Daily maintenance removes contributions older than that window. Published editions expire after seven UTC calendar dates, including their publication date. Limited security records are retained to prevent old requests from restoring removed contributions; they contain no daily listening totals.</p>
+  <p>Turning Census contribution off stops new contributions and requests removal of your installation's daily summaries. If you are offline, removal stays pending and retries when the app can connect. The app reports when removal cannot be confirmed. Keep the app installed until a pending removal finishes; an uninstalled app cannot send the request.</p>
+  <p>Erasing Index history also turns off Census contribution and requests removal of its daily summaries. It does not erase favorites, separate service records, or facts already combined into a published Census edition. Those editions expire on the schedule above.</p>
+  <p>Turning Census off or erasing Index history does not turn off the separate playback and usage reporting described above. The app does not set an automatic deletion schedule for those service records or shared cloud settings. The Census retention periods do not apply to them, or to hosting-provider connection logs and backups.</p>
 
-  <div class="section-label">Contact</div>
-  <p>Questions? Email <a href="mailto:hello@xliis.app">hello@xliis.app</a>.</p>
+  <div class="section-label">Services We Use</div>
+  <p>Internet Archive supplies recordings and show information. Supabase provides cloud settings, service records, and Census storage. The app can also request supporting files from the XLIIs website, and App Store links connect to Apple. This website loads its typeface from Google Fonts.</p>
+  <p>These services receive network information needed to handle requests, including IP addresses and request times. Their connection logs and backups are separate from the app's listening records and are handled under the providers' own practices.</p>
+
+  <div class="section-label">Advertising and Contact</div>
+  <p>We do not sell this information or use it for advertising. If you email us, we receive your email address and the information you choose to include.</p>
+
+  <p>For questions about this policy or requests concerning your information, email <a href="mailto:hello@xliis.app">hello@xliis.app</a>.</p>
 
   <a href="/" class="back">Back to XLIIs</a>
 
