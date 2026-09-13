@@ -30,7 +30,7 @@ test('active scope returns only opaque current identities without history reques
     assert.match(url, /\/rpc\//);
     return json(envelope([listener('fox-device'), listener('bear-device')]));
   }, () => ASOF, 6000, 'active');
-  assert.equal(requests, 1);
+  assert.equal(requests, 2);
   assert.equal(response.total_count, 2);
   assert.equal(response.listeners.length, 2);
   assert.deepEqual(Object.keys(response.listeners[0]), ['id']);
@@ -183,7 +183,7 @@ test('cap eight cards, preserve total count, and bound UTF8 fields', async () =>
     if (!new URL(url).searchParams.has('device_id')) return json([], { 'Content-Range': '*/0' });
     return json([], { 'Content-Range': '*/0' });
   }, () => ASOF);
-  assert.equal(requests, 18);
+  assert.equal(requests, 19);
   assert.equal(result.total_count, 10);
   assert.equal(result.listeners.length, 8);
   assert.equal(Buffer.byteLength(result.listeners[0].show_venue), 96);
@@ -556,4 +556,19 @@ test('eight escaped non-ASCII rich cards plus roster and ledger audit fields fit
   assert.equal(result.listeners.length, 8);
   assert.equal(result.today_listeners.length, 8);
   assert.ok(Buffer.byteLength(JSON.stringify(result)) < 12288);
+});
+
+test('shared names decorate exact identities and fail independently of listener truth', async () => {
+ const names = {schema_version:1,taxonomy_version:2,revision:19,generated_at:iso(ASOF),names:[{id:opaqueId('xlii-current'),name:'Mr. Fox'}]};
+ const fetcher = async url => json(url.endsWith('/get_xlii_listener_names') ? names : envelope());
+ const active = await buildResponse(fetcher,()=>ASOF,6000,'active');
+ assert.equal(active.listeners[0].nickname,'Mr. Fox');
+ assert.equal(active.total_count,1);
+ names.names.push({...names.names[0], name:'Mr. Bear'});
+ const invalid = await buildResponse(fetcher,()=>ASOF,6000,'active');
+ assert.equal(invalid.listeners[0].nickname,undefined);
+ assert.equal(invalid.total_count,1);
+ const missing = await buildResponse(async url => {if(url.endsWith('/get_xlii_listener_names'))throw Error('offline');return json(envelope());},()=>ASOF,6000,'active');
+ assert.equal(missing.listeners[0].nickname,undefined);
+ assert.equal(missing.total_count,1);
 });

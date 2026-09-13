@@ -415,6 +415,34 @@ async function fetchTodayRoster(activeListeners, ledgerResult, evaluatedMs, fetc
   };
 }
 
+// Names are optional decoration; a registry outage must not hide listener truth.
+async function fetchNames(fetchImpl, now, deadline) {
+  try {
+    const remaining = Math.min(1500, deadline - Date.now());
+    if (remaining <= 0) return new Map();
+    const { data } = await requestJSON(`${SUPABASE_URL}/rest/v1/rpc/get_xlii_listener_names`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}'
+    }, fetchImpl, remaining);
+    const generated = timestamp(data?.generated_at);
+    if (data?.schema_version !== 1 || data.taxonomy_version !== 2 ||
+        !Number.isSafeInteger(data.revision) || data.revision < 0 ||
+        !Number.isFinite(generated) || generated > now() + 5000 || generated < now() - 120000 ||
+        !Array.isArray(data.names) || data.names.length > 5000) return new Map();
+    const names = new Map(); const used = new Set();
+    for (const row of data.names) {
+      if (!/^[0-9a-f]{24}$/.test(row.id) || typeof row.name !== 'string' ||
+          !/^Mr\. [A-Za-z][A-Za-z -]*(?: [1-9][0-9]*)?$/.test(row.name) || row.name.length > 32 ||
+          names.has(row.id) || used.has(row.name)) return new Map();
+      names.set(row.id, row.name); used.add(row.name);
+    }
+    return names;
+  } catch { return new Map(); }
+}
+function named(row, names) {
+  const nickname = names.get(row.id);
+  return nickname ? { ...row, nickname } : row;
+}
+
 async function buildResponse(fetchImpl = globalThis.fetch, now = Date.now, timeoutMs = 6000, scope = 'all') {
   if (!VALID_SCOPES.has(scope)) throw new Error('Invalid listener scope');
   const deadline = Date.now() + timeoutMs;
@@ -447,16 +475,18 @@ async function buildResponse(fetchImpl = globalThis.fetch, now = Date.now, timeo
   }
   const activeListeners = snapshot.active_listeners.slice()
     .sort((a, b) => a.user_id.localeCompare(b.user_id)).slice(0, MAX_LISTENERS);
+  const namesPromise = fetchNames(fetchImpl, now, deadline);
   if (scope === 'active') {
+    const names = await namesPromise;
     if (valid <= now()) throw new Error('Listener snapshot expired');
     return {
       evaluated_at: snapshot.evaluated_at,
       valid_until: snapshot.valid_until,
       naming_month: dayKey(evaluated).slice(0, 7),
       total_count: snapshot.active_count,
-      listeners: activeListeners.map(listener => ({
+      listeners: activeListeners.map(listener => named({
         id: createHash('sha256').update(`core2-listener-v1:${listener.user_id}`).digest('hex').slice(0, 24)
-      }))
+      }, names))
     };
   }
   const ledgerPromise = fetchTodayLedger(evaluated, fetchImpl, deadline);
@@ -475,8 +505,8 @@ async function buildResponse(fetchImpl = globalThis.fetch, now = Date.now, timeo
     };
   }));
   const todayPromise = fetchTodayRoster(snapshot.active_listeners, ledgerPromise, evaluated, fetchImpl, deadline);
-  const [rawListeners, today, ledger] = await Promise.all([listenersPromise, todayPromise, ledgerPromise]);
-  const listeners = rawListeners.map(card => withLedgerToday(card, ledger));
+  const [rawListeners, today, ledger, names] = await Promise.all([listenersPromise, todayPromise, ledgerPromise, namesPromise]);
+  const listeners = rawListeners.map(card => named(withLedgerToday(card, ledger), names));
   if (valid <= now()) throw new Error('Listener snapshot expired');
   return {
     evaluated_at: snapshot.evaluated_at,
@@ -490,7 +520,7 @@ async function buildResponse(fetchImpl = globalThis.fetch, now = Date.now, timeo
     today_ledger_total_seconds: ledger?.total_seconds ?? null,
     today_unattributed_seconds: ledger?.unattributed_seconds ?? null,
     today_total_count: today?.total_count ?? null,
-    today_listeners: today?.listeners ?? null
+    today_listeners: today?.listeners.map(row => named(row, names)) ?? null
   };
 }
 function finish(res, code, body) {
@@ -514,4 +544,4 @@ async function handler(req, res) {
   catch { finish(res, 502, 'Listener details unavailable'); }
 }
 module.exports = handler;
-module.exports._test = { buildResponse, summarizeHistory, summarizeEndedToday, fetchHistory, fetchTodayRoster, fetchTodayLedger, withLedgerToday, dayStart, dayKey, weekKey, lastHereLabel, fetchFirstSeen, mergeIntervals, supportedIntervals, requestJSON, DETAILS_PATH, TODAY_EVENTS_PATH, TODAY_LEDGER_PATH, PAGE_SIZE, MAX_PAGES };
+module.exports._test = { fetchNames, named, buildResponse, summarizeHistory, summarizeEndedToday, fetchHistory, fetchTodayRoster, fetchTodayLedger, withLedgerToday, dayStart, dayKey, weekKey, lastHereLabel, fetchFirstSeen, mergeIntervals, supportedIntervals, requestJSON, DETAILS_PATH, TODAY_EVENTS_PATH, TODAY_LEDGER_PATH, PAGE_SIZE, MAX_PAGES };
