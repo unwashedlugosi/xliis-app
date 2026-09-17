@@ -1,4 +1,5 @@
 const { randomUUID } = require('node:crypto');
+const { readQrGeolocation } = require('../lib/qr-geolocation');
 
 const DESTINATION_URL = 'https://apps.apple.com/app/xliis/id6761192003';
 const SUPABASE_URL = 'https://dhwllgdxpeucldtmzhme.supabase.co';
@@ -45,7 +46,7 @@ function visitorCookie(visitorId) {
   return `${COOKIE_NAME}=${encodeURIComponent(visitorId)}; Max-Age=${COOKIE_MAX_AGE}; Path=/; Secure; HttpOnly; SameSite=Lax`;
 }
 
-async function recordScan(visitor, fetchImpl = globalThis.fetch, timeoutMs = ANALYTICS_TIMEOUT_MS) {
+async function recordScan(visitor, fetchImpl = globalThis.fetch, timeoutMs = ANALYTICS_TIMEOUT_MS, geo = null) {
   const controller = new AbortController();
   let timer;
   const timeout = new Promise((_, reject) => {
@@ -56,7 +57,12 @@ async function recordScan(visitor, fetchImpl = globalThis.fetch, timeoutMs = ANA
   });
 
   try {
-    const request = fetchImpl(`${SUPABASE_URL}/rest/v1/xlii_analytics`, {
+    const publicScan = {
+      event: 'car_magnet_qr_scan',
+      device_id: visitor.id,
+      metadata: { ...CAMPAIGN_METADATA, repeat: visitor.repeat }
+    };
+    const post = (path, body) => fetchImpl(`${SUPABASE_URL}/rest/v1/${path}`, {
       method: 'POST',
       headers: {
         apikey: SUPABASE_ANON_KEY,
@@ -64,14 +70,23 @@ async function recordScan(visitor, fetchImpl = globalThis.fetch, timeoutMs = ANA
         'Content-Type': 'application/json',
         Prefer: 'return=minimal'
       },
-      body: JSON.stringify({
-        event: 'car_magnet_qr_scan',
-        device_id: visitor.id,
-        metadata: { ...CAMPAIGN_METADATA, repeat: visitor.repeat }
-      }),
+      body: JSON.stringify(body),
       signal: controller.signal
     });
-
+    const request = (async () => {
+      if (!geo) return post('xlii_analytics', publicScan);
+      const result = await post('rpc/capture_xlii_qr_scan', {
+        p_event: publicScan.event, p_visitor_id: visitor.id,
+        p_repeat: visitor.repeat, p_geo: geo
+      });
+      if (result.status === 404) {
+        // Only PostgREST's missing-function response proves no scan executed.
+        // Never replay an ambiguous timeout/network/server failure.
+        const error = await result.json();
+        if (!controller.signal.aborted && error && error.code === 'PGRST202') return post('xlii_analytics', publicScan);
+      }
+      return result;
+    })();
     const response = await Promise.race([request, timeout]);
     if (!response.ok) throw new Error(`Analytics request failed with HTTP ${response.status}`);
   } finally {
@@ -106,7 +121,7 @@ async function handler(req, res) {
   res.setHeader('Set-Cookie', visitorCookie(visitor.id));
 
   try {
-    await recordScan(visitor);
+    await recordScan(visitor, globalThis.fetch, ANALYTICS_TIMEOUT_MS, readQrGeolocation(req.headers));
   } catch {
     // Analytics must never prevent a visitor from reaching the app.
   }
