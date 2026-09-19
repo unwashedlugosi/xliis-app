@@ -176,6 +176,10 @@ test('Vercel config contains both the existing /bc rewrite and the new /car rewr
       source: '/firmware/core2/manifest.json',
       destination: '/api/core2-manifest'
     },
+    {
+      source: '/firmware/cores3/manifest.json',
+      destination: '/api/cores3-manifest'
+    },
     { source: '/bc', destination: '/api/bc' },
     { source: '/car', destination: '/api/car' }
   ]);

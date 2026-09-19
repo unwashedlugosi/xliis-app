@@ -5,6 +5,10 @@
       "destination": "/api/core2-manifest"
     },
     {
+      "source": "/firmware/cores3/manifest.json",
+      "destination": "/api/cores3-manifest"
+    },
+    {
       "source": "/bc",
       "destination": "/api/bc"
     },
@@ -29,6 +33,32 @@
     },
     {
       "source": "/firmware/core2/releases/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/octet-stream"
+        }
+      ]
+    },
+    {
+      "source": "/firmware/cores3/manifest.json",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, max-age=0"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/firmware/cores3/releases/(.*)",
       "headers": [
         {
           "key": "Cache-Control",
