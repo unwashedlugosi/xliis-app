@@ -33,7 +33,13 @@ async function fetchState(fetchImpl = globalThis.fetch, timeoutMs = UPSTREAM_TIM
       body: '{}',
       signal: controller.signal
     });
-    return await Promise.race([request, timeout]);
+    // Headers alone do not complete a state request. Keep the deadline active
+    // through body delivery, including transports which ignore cancellation.
+    const complete = request.then(async upstream => ({
+      ok: upstream.ok,
+      body: upstream.ok ? await upstream.text() : ''
+    }));
+    return await Promise.race([complete, timeout]);
   } finally {
     clearTimeout(timer);
   }
@@ -56,12 +62,11 @@ async function handler(req, res) {
 
   try {
     const upstream = await fetchState();
-    const body = await upstream.text();
     if (!upstream.ok) {
       finish(res, 502, 'Listener service unavailable');
       return;
     }
-    finish(res, 200, body, 'application/json; charset=utf-8');
+    finish(res, 200, upstream.body, 'application/json; charset=utf-8');
   } catch {
     finish(res, 504, 'Listener service unavailable');
   }
