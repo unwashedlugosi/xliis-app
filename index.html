@@ -42,6 +42,7 @@
   /* NAV */
   nav {
     display: flex;
+    align-items: center;
     justify-content: center;
     gap: 24px;
     padding: 20px 24px;
@@ -49,11 +50,42 @@
     letter-spacing: 2px;
   }
   nav a {
+    display: inline-flex;
+    align-items: center;
+    height: 18px;
+    line-height: 18px;
     color: #1a6a1a;
     text-decoration: none;
     transition: color 0.2s;
   }
   nav a:hover, nav a.active { color: #33ff33; }
+  nav > span {
+    display: inline-flex;
+    align-items: center;
+    height: 18px;
+    line-height: 18px;
+  }
+  nav .pigpen-nav {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 18px;
+    opacity: 0.6;
+    transform: translateY(-1px);
+    transition: opacity 0.2s, filter 0.2s;
+  }
+  nav .pigpen-nav:hover,
+  nav .pigpen-nav:focus-visible {
+    opacity: 1;
+    filter: drop-shadow(0 0 5px rgba(51, 255, 51, 0.45));
+  }
+  nav .pigpen-nav img {
+    display: block;
+    width: 26px;
+    height: 18px;
+    object-fit: contain;
+  }
 
   .container {
     max-width: 720px;
@@ -63,6 +95,7 @@
 
   /* HERO */
   .hero {
+    position: relative;
     text-align: center;
     margin-bottom: 56px;
   }
@@ -71,10 +104,9 @@
     height: 180px;
     border-radius: 20px;
     margin: 0 auto 24px;
-    overflow: hidden;
     box-shadow: 0 8px 32px rgba(51, 255, 51, 0.12), 0 2px 8px rgba(0,0,0,0.5);
   }
-  .hero-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .hero-image > img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: inherit; }
   h1 {
     font-size: 72px;
     letter-spacing: 6px;
@@ -271,6 +303,14 @@
     border-top: 1px solid rgba(51, 255, 51, 0.1);
     border-bottom: 1px solid rgba(51, 255, 51, 0.1);
   }
+  .collection-future {
+    margin: 18px 0 0;
+    color: #1a8a1a;
+    font-size: 17px;
+    letter-spacing: 2px;
+    text-align: center;
+    text-transform: uppercase;
+  }
   .num-value {
     font-size: 36px;
     color: #33ff33;
@@ -311,14 +351,26 @@
     .features { grid-template-columns: 1fr; }
     .numbers { gap: 20px; }
     .num-value { font-size: 28px; }
-    nav { gap: 10px; font-size: 12px; flex-wrap: wrap; justify-content: center; }
+    nav { gap: 0; padding: 24px 10px 16px; font-size: 11px; flex-wrap: nowrap; justify-content: center; }
+    nav a { letter-spacing: 1.25px; }
+    nav span { margin-inline: 5px; }
+    nav .pigpen-nav { width: 26px; flex: 0 0 26px; }
+  }
+  @media (max-width: 350px) {
+    nav { padding-inline: 6px; font-size: 10px; }
+    nav a { letter-spacing: 0.8px; }
+    nav span { margin-inline: 3px; }
+    nav .pigpen-nav, nav .pigpen-nav img { width: 22px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    body, .cursor { animation: none; }
   }
 </style>
 </head>
 <body>
 
 <nav>
-  <a href="/" class="active">HOME</a> <span style="color:#1a3a1a;">|</span> <a href="/app.html">APP</a> <span style="color:#1a3a1a;">|</span> <a href="/#collections">COLLECTIONS</a> <span style="color:#1a3a1a;">|</span> <a href="/artist.html">ARTIST</a> <span style="color:#1a3a1a;">|</span> <a href="/about.html">ABOUT</a> <span style="color:#1a3a1a;">|</span> <a href="/contact.html">CONTACT</a>
+  <a href="/" class="active">HOME</a> <span style="color:#1a3a1a;">|</span> <a href="/app.html">APP</a> <span style="color:#1a3a1a;">|</span> <a href="/#collections">COLLECTIONS</a> <span style="color:#1a3a1a;">|</span> <a href="/artist.html">ARTIST</a> <span style="color:#1a3a1a;">|</span> <a href="/contact.html">CONTACT</a> <span style="color:#1a3a1a;">|</span> <a class="pigpen-nav" href="https://pigpenlives.com/" aria-label="Pigpen Lives" title="Pigpen Lives"><img src="assets/pigpen-bird.png" width="512" height="512" alt=""></a>
 </nav>
 
 <div class="container">
@@ -337,7 +389,7 @@
 
   <!-- STAMP ROW -->
   <div class="stamp-row">
-    <svg viewBox="0 0 2759 800" role="img" aria-label="The Spring 2026 collections">
+    <svg viewBox="0 0 2759 800" role="img" aria-label="The four XLIIs collections">
       <defs>
         <clipPath id="stamp-edge-crop">
           <rect x="0" y="20" width="2759" height="740" />
@@ -365,15 +417,15 @@
 
   <!-- WHAT WE DO -->
   <div class="what-we-do">
-    <p>Each season, XLIIs acquires four collections of Grateful Dead live recordings on loan from collectors around the world. Each show comes with a historical write-up. Each collector's original cassettes and J-card inserts are photographed.</p>
+    <p>XLIIs holds four collections of Grateful Dead live recordings on loan from collectors around the world. Each show comes with a historical write-up. Each collector's original cassettes and J-card inserts are photographed.</p>
   </div>
 
   <!-- NOW PLAYING -->
   <div class="now-showing" id="collections">
     <div class="season-header">
       <div class="season-tag">NOW PLAYING</div>
-      <div class="season-name">SPRING 2026</div>
-      <div class="season-dates">Current season</div>
+      <div class="season-name">THE COLLECTIONS</div>
+      <div class="season-dates">170 shows</div>
     </div>
 
     <div class="collection-grid">
@@ -476,10 +528,11 @@
       <div class="num-label">COLLECTIONS</div>
     </div>
     <div>
-      <div class="num-value">NEXT</div>
-      <div class="num-label">EXPECTED SEPTEMBER</div>
+      <div class="num-value">500</div>
+      <div class="num-label">HOURS OF MUSIC</div>
     </div>
   </div>
+  <p class="collection-future">Additional collections coming soon.</p>
 
   <!-- FOOTER -->
   <footer>
@@ -492,6 +545,7 @@
 <!-- XLIIs Analytics -->
 <script>
 (function(){
+  if (location.hostname !== "xliis.app" && location.hostname !== "www.xliis.app") return;
   var SB="https://dhwllgdxpeucldtmzhme.supabase.co/rest/v1";
   var KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRod2xsZ2R4cGV1Y2xkdG16aG1lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMzI2NTMsImV4cCI6MjA4NTgwODY1M30.PmDxpoWXP0zA2sJLgRxAfODH1JcjdFOoRMdnGZwJYLE";
   var vid=localStorage.getItem("xlii_vid");

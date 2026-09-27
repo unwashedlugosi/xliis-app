@@ -368,6 +368,7 @@ function showLightbox(src) {
 <!-- XLIIs Analytics -->
 <script>
 (function(){
+  if (location.hostname !== "xliis.app" && location.hostname !== "www.xliis.app") return;
   var SB="https://dhwllgdxpeucldtmzhme.supabase.co/rest/v1";
   var KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRod2xsZ2R4cGV1Y2xkdG16aG1lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMzI2NTMsImV4cCI6MjA4NTgwODY1M30.PmDxpoWXP0zA2sJLgRxAfODH1JcjdFOoRMdnGZwJYLE";
   var vid=localStorage.getItem("xlii_vid");
