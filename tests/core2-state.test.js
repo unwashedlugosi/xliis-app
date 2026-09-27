@@ -91,6 +91,48 @@ test('upstream request has a hard timeout', async () => {
   assert.ok(Date.now() - startedAt < 250);
 });
 
+test('deadline includes a stalled body even if transport ignores abort', async () => {
+  let signal;
+  let finishBody;
+  const request = fetchState(async (_, options) => {
+    signal = options.signal;
+    return { ok: true, text: () => new Promise(resolve => { finishBody = resolve; }) };
+  }, 20);
+  await assert.rejects(request, /timed out/);
+  assert.equal(signal.aborted, true);
+  finishBody('late state must not revive the timed-out request');
+  await assert.rejects(request, /timed out/);
+});
+
+test('completed body clears deadline and preserves exact response', async () => {
+  let signal;
+  const result = await fetchState(async (_, options) => {
+    signal = options.signal;
+    return { ok: true, text: async () => '[{"listener":{"active_count":2}}]' };
+  }, 20);
+  assert.equal(result.body, '[{"listener":{"active_count":2}}]');
+  await new Promise(resolve => setTimeout(resolve, 40));
+  assert.equal(signal.aborted, false);
+});
+
+test('failed upstream need not consume its potentially stalled private body', async () => {
+  const result = await fetchState(async () => ({
+    ok: false,
+    text: () => { throw new Error('must not consume private failure body'); }
+  }), 20);
+  assert.deepEqual(result, { ok: false, body: '' });
+});
+
+test('body transport failure becomes unavailable rather than an empty count', async () => {
+  await withFetch(async () => ({ ok: true, text: async () => { throw new Error('body lost'); } }), async () => {
+    const res = responseRecorder();
+    await handler({ method: 'GET' }, res);
+    assert.equal(res.statusCode, 504);
+    assert.equal(res.body, 'Listener service unavailable');
+    assert.equal(res.headers['cache-control'], 'private, no-store, max-age=0');
+  });
+});
+
 test('bundled public client key is scoped to the production Supabase project', () => {
   const [, payload] = supabaseKey().split('.');
   const claims = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'));
