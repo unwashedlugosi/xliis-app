@@ -120,7 +120,7 @@ test('history GET filters exact identity and returns bounded opaque live cards w
   const response = await buildResponse(async (url, options) => {
     if (url.endsWith('/rpc/get_xlii_current_listener_details')) return json(envelope());
     if (url.endsWith('/rpc/get_xlii_core2_today_ledger')) return json([ledgerSnapshot()]);
-    if (new URL(url).searchParams.get('limit') === '1') return json([]);
+    if (['1', '2'].includes(new URL(url).searchParams.get('limit'))) return json([]);
     if (!new URL(url).searchParams.has('device_id')) return json([], { 'Content-Range': '*/0' });
     historyURL = new URL(url);
     assert.equal(options.headers.Range, '0-249');
@@ -140,7 +140,7 @@ test('pagination uses all pages and rejects another identity even when show matc
   const result = await buildResponse(async url => {
     if (url.endsWith('/rpc/get_xlii_current_listener_details')) return json(envelope());
     if (url.endsWith('/rpc/get_xlii_core2_today_ledger')) return json([ledgerSnapshot()]);
-    if (new URL(url).searchParams.get('limit') === '1') return json([]);
+    if (['1', '2'].includes(new URL(url).searchParams.get('limit'))) return json([]);
     if (!new URL(url).searchParams.has('device_id')) return json([], { 'Content-Range': '*/0' });
     pages++;
     if (pages === 1) return json(Array.from({ length: PAGE_SIZE }, (_, i) => event(i, '2026-09-10T15:30:00Z', 1800)), { 'Content-Range': '0-249/251' });
@@ -154,7 +154,7 @@ test('bounded descending pagination retains month totals when older history exce
   const result = await buildResponse(async url => {
     if (url.endsWith('/rpc/get_xlii_current_listener_details')) return json(envelope());
     if (url.endsWith('/rpc/get_xlii_core2_today_ledger')) return json([ledgerSnapshot()]);
-    if (new URL(url).searchParams.get('limit') === '1') return json([]);
+    if (['1', '2'].includes(new URL(url).searchParams.get('limit'))) return json([]);
     if (!new URL(url).searchParams.has('device_id')) return json([], { 'Content-Range': '*/0' });
     const offset = pages++ * PAGE_SIZE;
     return json(Array.from({ length: PAGE_SIZE }, (_, i) => event(offset + i, '2026-08-19T15:30:00Z', 1800)),
@@ -183,7 +183,7 @@ test('cap eight cards, preserve total count, and bound UTF8 fields', async () =>
     if (!new URL(url).searchParams.has('device_id')) return json([], { 'Content-Range': '*/0' });
     return json([], { 'Content-Range': '*/0' });
   }, () => ASOF);
-  assert.equal(requests, 19);
+  assert.equal(requests, 27);
   assert.equal(result.total_count, 10);
   assert.equal(result.listeners.length, 8);
   assert.equal(Buffer.byteLength(result.listeners[0].show_venue), 96);
@@ -431,7 +431,7 @@ test('malformed optional daily objects leave valid current cards available', asy
       if (url.endsWith('/rpc/get_xlii_current_listener_details')) return json(envelope());
     if (url.endsWith('/rpc/get_xlii_core2_today_ledger')) return json([ledgerSnapshot()]);
       if (url.endsWith('/rpc/get_xlii_core2_today_events')) return json(bad);
-      if (new URL(url).searchParams.get('limit') === '1') return json([]);
+      if (['1', '2'].includes(new URL(url).searchParams.get('limit'))) return json([]);
       return json([], { 'Content-Range': '*/0' });
     }, () => ASOF);
     assert.equal(result.total_count, 1);
@@ -447,7 +447,7 @@ function fullFetch({ current = [listener()], entries = [['xlii-current', 2700]],
     if (url.endsWith('/rpc/get_xlii_current_listener_details')) return json(envelope(current));
     if (url.endsWith('/rpc/get_xlii_core2_today_ledger')) return ledgerFailure ? json({}, {}, 503) : json([ledgerSnapshot(entries, overrides)]);
     if (url.endsWith('/rpc/get_xlii_core2_today_events')) return todayPage(rows);
-    if (new URL(url).searchParams.get('limit') === '1') return json([]);
+    if (['1', '2'].includes(new URL(url).searchParams.get('limit'))) return json([]);
     return json([], { 'Content-Range': '*/0' });
   };
 }

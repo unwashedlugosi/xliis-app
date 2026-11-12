@@ -70,5 +70,7 @@
         }
       ]
     }
-  ]
+  ],
+  "buildCommand": "node tools/check-firmware-pair.js",
+  "outputDirectory": "."
 }

@@ -1,3 +1,4 @@
+const { fetchHorns } = require('./core2-horns');
 const { createHash } = require('node:crypto');
 const { SUPABASE_URL, supabaseKey } = require('./core2-state')._test;
 
@@ -251,6 +252,40 @@ async function fetchHistory(listener, evaluatedMs, fetchImpl, deadline) {
   } catch { /* A card can remain live when its history is unavailable. */ }
   return unknownHistory();
 }
+// Native observations are captured at use, not at delayed server delivery.
+// Missing/old evidence must never imply that the entry bird is absent.
+function appVersionObservation(rows, deviceId, evaluatedMs) {
+  if (!Array.isArray(rows) || !rows.length || rows.length > 2) return null;
+  const row = rows[0];
+  if (row.device_id !== deviceId || row.event !== 'app_version_report') return null;
+  const version = row.metadata?.app_version, build = row.metadata?.app_build;
+  const at = timestamp(row.created_at), received = timestamp(row.received_at);
+  if (typeof version !== 'string' || !/^\d{1,6}\.\d{1,6}\.\d{1,6}$/.test(version) ||
+      typeof build !== 'string' || !/^\d{1,20}$/.test(build) ||
+      !Number.isFinite(at) || !Number.isFinite(received) ||
+      at > evaluatedMs || received > evaluatedMs || at > received + 5000 ||
+      evaluatedMs - at >= 86400000) return null;
+  // Contradictory observations captured at exactly the same instant are unknown.
+  if (rows[1] && (rows[1].device_id !== deviceId ||
+      timestamp(rows[1].created_at) > at ||
+      (timestamp(rows[1].created_at) === at &&
+       (rows[1].metadata?.app_version !== version || rows[1].metadata?.app_build !== build)))) return null;
+  return { version, reported_at: row.created_at, fresh_until: new Date(at + 86400000).toISOString() };
+}
+async function fetchAppVersion(listener, evaluatedMs, fetchImpl, deadline) {
+  const params = new URLSearchParams({
+    select: 'device_id,event,metadata,created_at,received_at', device_id: `eq.${listener.user_id}`,
+    event: 'eq.app_version_report', order: 'created_at.desc,id.desc', limit: '2'
+  });
+  try {
+    const remaining = Math.min(1500, deadline - Date.now());
+    if (remaining <= 0) return null;
+    const { data } = await requestJSON(`${SUPABASE_URL}/rest/v1/xlii_analytics?${params}`,
+      { method: 'GET' }, fetchImpl, remaining, 4096);
+    return appVersionObservation(data, listener.user_id, evaluatedMs);
+  } catch { return null; }
+}
+
 async function fetchFirstSeen(listener, evaluatedMs, fetchImpl, deadline) {
   const params = new URLSearchParams({
     select: 'device_id,created_at', device_id: `eq.${listener.user_id}`,
@@ -443,7 +478,7 @@ function named(row, names) {
   return nickname ? { ...row, nickname } : row;
 }
 
-async function buildResponse(fetchImpl = globalThis.fetch, now = Date.now, timeoutMs = 6000, scope = 'all') {
+async function buildResponse(fetchImpl = globalThis.fetch, now = Date.now, timeoutMs = 6000, scope = 'all', includeHorns = false) {
   if (!VALID_SCOPES.has(scope)) throw new Error('Invalid listener scope');
   const deadline = Date.now() + timeoutMs;
   const { data } = await requestJSON(`${SUPABASE_URL}${DETAILS_PATH}`, {
@@ -476,24 +511,31 @@ async function buildResponse(fetchImpl = globalThis.fetch, now = Date.now, timeo
   const activeListeners = snapshot.active_listeners.slice()
     .sort((a, b) => a.user_id.localeCompare(b.user_id)).slice(0, MAX_LISTENERS);
   const namesPromise = fetchNames(fetchImpl, now, deadline);
+  // Core2 opt-in only. Both views receive the same retained playback predicate.
+  // Independent census identities are intentionally never joined here.
+  const hornsPromise = includeHorns ? Promise.all(activeListeners.map(listener =>
+    fetchHorns(listener, evaluated, fetchImpl, deadline, requestJSON, SUPABASE_URL))) : Promise.resolve([]);
+
   if (scope === 'active') {
-    const names = await namesPromise;
+    const [names, horns] = await Promise.all([namesPromise, hornsPromise]);
     if (valid <= now()) throw new Error('Listener snapshot expired');
     return {
       evaluated_at: snapshot.evaluated_at,
       valid_until: snapshot.valid_until,
       naming_month: dayKey(evaluated).slice(0, 7),
       total_count: snapshot.active_count,
-      listeners: activeListeners.map(listener => named({
+      listeners: activeListeners.map((listener, index) => named({
+        ...(includeHorns ? { horns_1973_listened: horns[index] } : {}),
         id: createHash('sha256').update(`core2-listener-v1:${listener.user_id}`).digest('hex').slice(0, 24)
       }, names))
     };
   }
   const ledgerPromise = fetchTodayLedger(evaluated, fetchImpl, deadline);
   const listenersPromise = Promise.all(activeListeners.map(async listener => {
-    const [history, firstSeen] = await Promise.all([
+    const [history, firstSeen, appVersion] = await Promise.all([
       fetchHistory(listener, evaluated, fetchImpl, deadline),
-      fetchFirstSeen(listener, evaluated, fetchImpl, deadline)
+      fetchFirstSeen(listener, evaluated, fetchImpl, deadline),
+      fetchAppVersion(listener, evaluated, fetchImpl, deadline)
     ]);
     return {
       id: createHash('sha256').update(`core2-listener-v1:${listener.user_id}`).digest('hex').slice(0, 24),
@@ -501,12 +543,14 @@ async function buildResponse(fetchImpl = globalThis.fetch, now = Date.now, timeo
       show_date: clippedText(listener.show_date, 16),
       show_venue: clippedText(listener.show_venue, 96),
       ...history,
-      first_seen: firstSeen
+      first_seen: firstSeen,
+      app_version: appVersion
     };
   }));
   const todayPromise = fetchTodayRoster(snapshot.active_listeners, ledgerPromise, evaluated, fetchImpl, deadline);
-  const [rawListeners, today, ledger, names] = await Promise.all([listenersPromise, todayPromise, ledgerPromise, namesPromise]);
-  const listeners = rawListeners.map(card => named(withLedgerToday(card, ledger), names));
+  const [rawListeners, today, ledger, names, horns] = await Promise.all([listenersPromise, todayPromise, ledgerPromise, namesPromise, hornsPromise]);
+  const listeners = rawListeners.map((card, index) => named(withLedgerToday({ ...card,
+    ...(includeHorns ? { horns_1973_listened: horns[index] } : {}) }, ledger), names));
   if (valid <= now()) throw new Error('Listener snapshot expired');
   return {
     evaluated_at: snapshot.evaluated_at,
@@ -540,8 +584,8 @@ async function handler(req, res) {
     finish(res, 400, 'Invalid listener scope');
     return;
   }
-  try { finish(res, 200, JSON.stringify(await buildResponse(globalThis.fetch, Date.now, 6000, scope))); }
+  try { finish(res, 200, JSON.stringify(await buildResponse(globalThis.fetch, Date.now, 6000, scope, req.query?.horns === '1'))); }
   catch { finish(res, 502, 'Listener details unavailable'); }
 }
 module.exports = handler;
-module.exports._test = { fetchNames, named, buildResponse, summarizeHistory, summarizeEndedToday, fetchHistory, fetchTodayRoster, fetchTodayLedger, withLedgerToday, dayStart, dayKey, weekKey, lastHereLabel, fetchFirstSeen, mergeIntervals, supportedIntervals, requestJSON, DETAILS_PATH, TODAY_EVENTS_PATH, TODAY_LEDGER_PATH, PAGE_SIZE, MAX_PAGES };
+module.exports._test = { appVersionObservation, fetchAppVersion, fetchNames, named, buildResponse, summarizeHistory, summarizeEndedToday, fetchHistory, fetchTodayRoster, fetchTodayLedger, withLedgerToday, dayStart, dayKey, weekKey, lastHereLabel, fetchFirstSeen, mergeIntervals, supportedIntervals, requestJSON, DETAILS_PATH, TODAY_EVENTS_PATH, TODAY_LEDGER_PATH, PAGE_SIZE, MAX_PAGES };
