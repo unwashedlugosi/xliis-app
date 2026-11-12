@@ -53,4 +53,87 @@ async function fetchHorns(listener, evaluatedMs, fetchImpl, deadline, requestJSO
   } catch { return null; }
 }
 
-module.exports = { SHOWS, PAGE_SIZE, MAX_PAGES, qualifies, fetchHorns };
+// This optional Core2 route accepts bounded opaque identities supplied by
+// the device. Raw installation IDs stay server-side. Scanning starts at the first
+// possible Horns evidence, so repeat sessions cannot hide an earlier earned badge.
+const { createHash } = require('node:crypto');
+const BADGE_PAGE_SIZE = 128, BADGE_MAX_PAGES = 16, MAX_BADGE_IDS = 8;
+function badgeIds(value) {
+  if (typeof value !== 'string') return null;
+  const ids = value.split(',');
+  return ids.length && ids.length <= MAX_BADGE_IDS &&
+    ids.every(id => /^[a-f0-9]{24}$/.test(id)) && new Set(ids).size === ids.length ? ids : null;
+}
+function opaqueId(deviceId) {
+  return createHash('sha256').update(`core2-listener-v1:${deviceId}`).digest('hex').slice(0, 24);
+}
+function badgeOffset(value) {
+  if (value === undefined) return 0;
+  if (typeof value !== 'string' || !/^(0|[1-9][0-9]{0,7})$/.test(value)) return null;
+  const offset = Number(value);
+  return Number.isSafeInteger(offset) && offset <= 10000000 && offset % BADGE_PAGE_SIZE === 0 ? offset : null;
+}
+async function fetchHornsByIds(ids, evaluatedMs, fetchImpl, deadline, requestJSON, baseUrl, startOffset = 0) {
+  // null means no retained proof was found, never a claim of lifetime absence.
+  // Devices retain previously confirmed positives across unknown responses.
+  const found = new Map(ids.map(id => [id, null]));
+  let nextOffset = startOffset;
+  const params = new URLSearchParams({
+    select: 'device_id,event,show_id,created_at,collection,metadata',
+    show_id: `in.(${SHOWS.join(',')})`, event: 'eq.session_end',
+    created_at: `lte.${new Date(evaluatedMs).toISOString()}`,
+    order: 'created_at.asc,id.asc', limit: String(BADGE_PAGE_SIZE)
+  });
+  params.append('created_at', `gte.${new Date(FIRST_CATALOG_AT).toISOString()}`);
+  try {
+    for (let page = 0; page < BADGE_MAX_PAGES; page++) {
+      const remaining = deadline - Date.now();
+      if (remaining <= 0) break;
+      params.set('offset', String(startOffset + page * BADGE_PAGE_SIZE));
+      const { data } = await requestJSON(`${baseUrl}/rest/v1/xlii_analytics?${params}`,
+        { method: 'GET' }, fetchImpl, remaining, 262144);
+      if (!Array.isArray(data) || data.length > BADGE_PAGE_SIZE) break;
+      for (const row of data) {
+        if (typeof row?.device_id !== 'string' || !/^[A-Za-z0-9_-]{1,128}$/.test(row.device_id)) continue;
+        const id = opaqueId(row.device_id);
+        if (found.has(id) && qualifies(row, row.device_id, evaluatedMs)) found.set(id, true);
+      }
+      if ([...found.values()].every(value => value === true) || data.length < BADGE_PAGE_SIZE) {
+        nextOffset = null; break;
+      }
+      // Continue the same requested batch on its next poll, rather than scan
+      // the same prefix forever when retained history outgrows one request.
+      nextOffset = startOffset + (page + 1) * BADGE_PAGE_SIZE;
+      if (nextOffset > 10000000) { nextOffset = 0; break; }
+    }
+  } catch { /* Keep proved positives; never replace missing evidence with false. */ }
+  const rows = ids.map(listener_id => ({ listener_id, horns_1973_listened: found.get(listener_id) }));
+  Object.defineProperty(rows, 'next_offset', { value: nextOffset });
+  return rows;
+}
+function finishBadges(res, status, body) {
+  res.statusCode = status;
+  res.setHeader('Cache-Control', 'private, no-store, max-age=0');
+  res.setHeader('Content-Type', status === 200 ? 'application/json; charset=utf-8' : 'text/plain; charset=utf-8');
+  res.end(body);
+}
+async function handler(req, res) {
+  if ((req.method || 'GET').toUpperCase() !== 'GET') {
+    res.setHeader('Allow', 'GET'); finishBadges(res, 405, 'Method Not Allowed'); return;
+  }
+  const ids = badgeIds(req.query?.ids);
+  const offset = badgeOffset(req.query?.offset);
+  if (!ids || offset === null) { finishBadges(res, 400, 'Invalid listener identities'); return; }
+  // Load lazily: core2-listeners also uses the legacy single-listener helper.
+  const { requestJSON } = require('./core2-listeners')._test;
+  const { SUPABASE_URL } = require('./core2-state')._test;
+  const evaluated = Date.now();
+  const listeners = await fetchHornsByIds(ids, evaluated, globalThis.fetch,
+    evaluated + 4000, requestJSON, SUPABASE_URL, offset);
+  finishBadges(res, 200, JSON.stringify({ schema_version: 1,
+    evaluated_at: new Date(evaluated).toISOString(),
+    valid_until: new Date(evaluated + 30000).toISOString(), listeners, next_offset: listeners.next_offset }));
+}
+module.exports = handler;
+Object.assign(module.exports, { SHOWS, PAGE_SIZE, MAX_PAGES, qualifies, fetchHorns,
+  fetchHornsByIds, opaqueId, badgeIds, badgeOffset, BADGE_PAGE_SIZE, BADGE_MAX_PAGES, MAX_BADGE_IDS });
