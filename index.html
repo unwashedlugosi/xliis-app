@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>XLIIs — Grateful Dead Bootleg Collections</title>
-<meta name="description" content="Four collections of Grateful Dead live recordings on loan from collectors around the world. 170 shows. Documented.">
+<meta name="description" content="Four permanent collections of Grateful Dead live recordings, plus Les Petites Collections: smaller collections updated frequently.">
 <meta property="og:title" content="XLIIs — Grateful Dead Bootleg Collections">
-<meta property="og:description" content="Four collections of Grateful Dead live recordings on loan from collectors around the world. Every show documented.">
+<meta property="og:description" content="Four permanent collections of Grateful Dead live recordings, plus Les Petites Collections: smaller collections updated frequently.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://xliis.app">
 <meta property="og:image" content="https://xliis.app/icon.png">
@@ -261,6 +261,47 @@
   }
   .collection-card:hover .card-link { opacity: 1; }
 
+  /* PETITE COLLECTIONS */
+  .petite-collections {
+    margin: 64px 0 56px;
+    padding: 24px;
+    border: 1px solid rgba(174, 60, 48, 0.45);
+    border-radius: 12px;
+    background: rgba(174, 60, 48, 0.035);
+  }
+  .petite-heading {
+    font-size: 28px;
+    color: #d76554;
+    letter-spacing: 3px;
+    margin-bottom: 8px;
+  }
+  .petite-intro {
+    font-size: 18px;
+    color: #b84d40;
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+  .petite-card {
+    max-width: 340px;
+    border-color: rgba(174, 60, 48, 0.38);
+    background: rgba(174, 60, 48, 0.025);
+  }
+  .petite-card:hover { border-color: rgba(215, 101, 84, 0.8); }
+  .petite-card .card-artwork { aspect-ratio: 1; }
+  .petite-card .card-name, .petite-card .card-link { color: #d76554; }
+  .petite-card .card-collector,
+  .petite-card .card-desc,
+  .petite-card .card-meta { color: #a94a3f; }
+  .petite-coming-soon {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(174, 60, 48, 0.22);
+    color: #a94a3f;
+    font-size: 16px;
+    letter-spacing: 2px;
+    text-align: center;
+  }
+
   /* THE APP */
   .the-app {
     margin-bottom: 56px;
@@ -348,6 +389,8 @@
     .tagline { font-size: 19px; }
     .hero-image { width: 140px; height: 140px; }
     .collection-grid { grid-template-columns: 1fr; }
+    .petite-collections { margin-top: 48px; padding: 20px; }
+    .petite-card { max-width: none; }
     .features { grid-template-columns: 1fr; }
     .numbers { gap: 20px; }
     .num-value { font-size: 28px; }
@@ -417,14 +460,14 @@
 
   <!-- WHAT WE DO -->
   <div class="what-we-do">
-    <p>XLIIs holds four collections of Grateful Dead live recordings on loan from collectors around the world. Each show comes with a historical write-up. Each collector's original cassettes and J-card inserts are photographed.</p>
+    <p>XLIIs holds four permanent collections of Grateful Dead live recordings on loan from collectors around the world, plus a growing series of Petite Collections. Each show comes with a historical write-up. Each permanent collector's original cassettes and J-card inserts are photographed.</p>
   </div>
 
   <!-- NOW PLAYING -->
   <div class="now-showing" id="collections">
     <div class="season-header">
       <div class="season-tag">NOW PLAYING</div>
-      <div class="season-name">THE COLLECTIONS</div>
+      <div class="season-name">THE PERMANENT COLLECTIONS</div>
       <div class="season-dates">170 shows</div>
     </div>
 
@@ -489,6 +532,26 @@
     </div>
   </div>
 
+  <!-- PETITE COLLECTIONS -->
+  <section class="petite-collections" aria-labelledby="petite-heading">
+    <div class="season-tag">NEW IN XLIIs</div>
+    <h2 class="petite-heading" id="petite-heading">LES PETITES COLLECTIONS</h2>
+    <p class="petite-intro">Smaller collections built around a short run, an experiment, or a single idea. New Petite Collections will be added frequently.</p>
+
+    <a href="/horns-1973.html" class="collection-card petite-card">
+      <img src="collection-artwork/horns_1973.png" alt="Horns ’73" class="card-artwork">
+      <div class="card-body">
+        <div class="card-name">HORNS ’73</div>
+        <div class="card-collector">Étienne Lambert, Belgium</div>
+        <div class="card-meta">8 shows · September 1973</div>
+        <div class="card-desc">A brief, unusual horn-section experiment.</div>
+        <div class="card-link">View collection →</div>
+      </div>
+    </a>
+
+    <p class="petite-coming-soon">NEW PETITE COLLECTIONS COMING SOON.</p>
+  </section>
+
   <!-- THE APP -->
   <div class="the-app">
     <div class="section-label">The App</div>
@@ -499,7 +562,7 @@
       </div>
       <div class="feature">
         <div class="feature-title">J-Cards</div>
-        <div class="feature-desc">Every J-card from every tape case has been photographed and is in the app.</div>
+        <div class="feature-desc">Permanent-collection J-cards are photographed. Petite Collections include a landscape card for each show.</div>
       </div>
       <div class="feature">
         <div class="feature-title">Full Shows</div>
@@ -521,18 +584,18 @@
   <div class="numbers">
     <div>
       <div class="num-value">170</div>
-      <div class="num-label">SHOWS</div>
+      <div class="num-label">PERMANENT SHOWS</div>
     </div>
     <div>
       <div class="num-value">FOUR</div>
-      <div class="num-label">COLLECTIONS</div>
+      <div class="num-label">PERMANENT COLLECTIONS</div>
     </div>
     <div>
       <div class="num-value">500</div>
       <div class="num-label">HOURS OF MUSIC</div>
     </div>
   </div>
-  <p class="collection-future">Additional collections coming soon.</p>
+  <p class="collection-future">One Petite Collection · Eight shows · More coming soon.</p>
 
   <!-- FOOTER -->
   <footer>

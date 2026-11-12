@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XLIIs — HORNS ’73</title>
+<meta name="description" content="HORNS ’73 — eight shows from the Grateful Dead's brief September 1973 horn-section experiment.">
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0a14;
+    color: #33ff33;
+    font-family: 'VT323', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px);
+    pointer-events: none;
+    z-index: 1000;
+  }
+  @keyframes flicker {
+    0%, 100% { opacity: 1; }
+    92% { opacity: 1; }
+    93% { opacity: 0.96; }
+    94% { opacity: 1; }
+  }
+  body { animation: flicker 4s infinite; }
+
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    padding: 20px 24px;
+    font-size: 16px;
+    letter-spacing: 2px;
+  }
+  nav a { color: #1a6a1a; text-decoration: none; transition: color 0.2s; }
+  nav a:hover, nav a:focus-visible { color: #33ff33; }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 20px 24px 40px;
+  }
+  .back {
+    display: inline-block;
+    font-size: 16px;
+    color: #1a6a1a;
+    text-decoration: none;
+    letter-spacing: 1px;
+    margin-bottom: 24px;
+    transition: color 0.2s;
+  }
+  .back:hover, .back:focus-visible { color: #33ff33; }
+  .back::before { content: '← '; }
+
+  .artwork-frame {
+    max-width: 520px;
+    margin: 0 auto 28px;
+    border: 1px solid rgba(174, 60, 48, 0.42);
+    border-radius: 12px;
+    overflow: hidden;
+    background: #e8dfcf;
+  }
+  .artwork { width: 100%; display: block; }
+  .collection-title {
+    font-size: 36px;
+    letter-spacing: 3px;
+    text-shadow: 0 0 12px rgba(51, 255, 51, 0.4);
+    margin-bottom: 6px;
+  }
+  .collection-meta {
+    font-size: 18px;
+    color: #1a8a1a;
+    letter-spacing: 2px;
+    margin-bottom: 28px;
+  }
+  .petite-label {
+    display: inline-block;
+    margin-bottom: 8px;
+    color: #b84d40;
+    font-size: 14px;
+    letter-spacing: 3px;
+  }
+
+  .section-label {
+    font-size: 14px;
+    color: #1a6a1a;
+    letter-spacing: 3px;
+    margin: 36px 0 14px;
+    text-transform: uppercase;
+    position: relative;
+    padding-left: 18px;
+  }
+  .section-label::before { content: '>'; position: absolute; left: 0; }
+  .collector-identity { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+  .collector-flag { font-size: 22px; line-height: 1; }
+  .collector-name { font-size: 24px; color: #33ff33; letter-spacing: 1px; }
+  .collector-location { font-size: 17px; color: #1a8a1a; margin-bottom: 14px; }
+  .fiction-note {
+    font-size: 15px;
+    color: #176f17;
+    line-height: 1.45;
+    margin-bottom: 12px;
+    padding-left: 12px;
+    border-left: 2px solid rgba(51, 255, 51, 0.15);
+  }
+  .bio, .music-context {
+    font-size: 19px;
+    color: #22bb22;
+    line-height: 1.65;
+    margin-bottom: 20px;
+  }
+  .music-context { color: #1e9e1e; }
+  .music-context + .music-context { margin-top: -6px; }
+  .pick {
+    border: 1px solid rgba(51, 255, 51, 0.1);
+    border-radius: 8px;
+    padding: 16px 18px;
+    margin-bottom: 20px;
+    background: rgba(51, 255, 51, 0.01);
+  }
+  .pick-label { font-size: 14px; color: #1a6a1a; letter-spacing: 2px; margin-bottom: 8px; }
+  .pick-quote { font-size: 19px; color: #1a8a1a; line-height: 1.55; font-style: italic; }
+
+  .jcard-note { font-size: 18px; color: #1e9e1e; margin-bottom: 8px; line-height: 1.5; }
+  .jcard-row { display: flex; gap: 8px; margin: 12px 0 24px; overflow-x: auto; padding-bottom: 8px; }
+  .jcard-thumb {
+    flex: 0 0 auto;
+    width: 140px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: transform 0.2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  }
+  .jcard-thumb:hover, .jcard-thumb:focus-visible { transform: scale(1.05); }
+  .lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    padding: 24px;
+    background: rgba(0,0,0,0.92);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  }
+  .lightbox.visible { display: flex; }
+  .lightbox img { max-height: 85vh; max-width: 90vw; border-radius: 8px; }
+
+  .shows-list { margin-top: 12px; }
+  .show-row {
+    font-size: 17px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(51, 255, 51, 0.05);
+    display: flex;
+    gap: 12px;
+  }
+  .show-row:last-child { border-bottom: none; }
+  .show-date { color: #33ff33; white-space: nowrap; min-width: 110px; }
+  .show-venue { color: #1a8a1a; }
+  .page-cta {
+    text-align: center;
+    margin: 40px 0 20px;
+    padding: 24px;
+    border: 1px solid rgba(51, 255, 51, 0.12);
+    border-radius: 10px;
+  }
+  .page-cta p { font-size: 20px; color: #22bb22; margin-bottom: 16px; }
+  .badge-link { display: inline-block; transition: transform 0.2s; }
+  .badge-link:hover { transform: scale(1.05); }
+  .badge-link img { height: 48px; }
+  footer {
+    padding-top: 24px;
+    margin-top: 40px;
+    border-top: 1px solid rgba(51, 255, 51, 0.15);
+    font-size: 16px;
+    color: #1a7a1a;
+    text-align: center;
+  }
+  footer a { color: #1a7a1a; text-decoration: none; margin: 0 12px; }
+  footer a:hover, footer a:focus-visible { color: #33ff33; }
+
+  @media (max-width: 480px) {
+    .container { padding: 16px 20px 32px; }
+    .collection-title { font-size: 28px; }
+    .bio, .music-context { font-size: 17px; }
+    .show-row { font-size: 15px; flex-direction: column; gap: 0; }
+    .show-date { min-width: auto; }
+    nav { gap: 10px; font-size: 12px; flex-wrap: wrap; justify-content: center; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    body, .jcard-thumb { animation: none; transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/">HOME</a> <span style="color:#1a3a1a;">|</span> <a href="/app.html">APP</a> <span style="color:#1a3a1a;">|</span> <a href="/#collections">COLLECTIONS</a> <span style="color:#1a3a1a;">|</span> <a href="/artist.html">ARTIST</a> <span style="color:#1a3a1a;">|</span> <a href="/about.html">ABOUT</a> <span style="color:#1a3a1a;">|</span> <a href="/contact.html">CONTACT</a>
+</nav>
+
+<main class="container">
+  <a href="/#collections" class="back">All Collections</a>
+
+  <div class="artwork-frame">
+    <img src="collection-artwork/horns_1973.png" alt="Horns ’73 collection artwork" class="artwork">
+  </div>
+
+  <div class="petite-label">LES PETITES COLLECTIONS</div>
+  <h1 class="collection-title">HORNS ’73</h1>
+  <div class="collection-meta">8 shows · September 1973</div>
+
+  <div class="section-label">The Collector</div>
+  <div class="collector-identity">
+    <span class="collector-flag" role="img" aria-label="Belgium">🇧🇪</span>
+    <div class="collector-name">Étienne Lambert</div>
+  </div>
+  <div class="collector-location">Liège, Belgium</div>
+  <p class="fiction-note">The collector portrait is part of XLIIs’ fictional lending-library frame.</p>
+  <p class="bio">Étienne Lambert is a retired conservatory brass teacher who first came across the September 1973 dates on a photocopied tape list at a Brussels record fair in 1994. He was drawn less to rarity than to process: eight shows in which the Dead tried a horn section, adjusted it in public, and then moved on. This Petite Collection follows the experiment from Williamsburg to Buffalo, one night at a time.</p>
+
+  <div class="section-label">The Music</div>
+  <p class="music-context">In September 1973, the Grateful Dead took a horn section on tour. They had never done it before, and they never did it again. With no known advance announcement, Martin Fierro’s saxophone and Joe Ellis’s trumpet joined the band for eight East Coast shows.</p>
+  <p class="music-context">You can hear them finding their way into Eyes of the World, Weather Report Suite and the long improvisations of the second sets. Sometimes the horns follow the song; sometimes they open up another conversation. The experiment lasted just over two weeks.</p>
+
+  <div class="pick">
+    <div class="pick-label">IN HIS OWN WORDS:</div>
+    <div class="pick-quote" lang="fr">Ce que j’aime, c’est entendre une idée se chercher. D’un soir à l’autre, les cuivres trouvent une autre place — puis l’expérience s’arrête.</div>
+  </div>
+
+  <div class="section-label">The J-Cards</div>
+  <p class="jcard-note">The app includes a landscape J-card for each of these eight shows.</p>
+  <div class="jcard-row" aria-label="Horns ’73 J-cards">
+    <img src="jcards/gd1973-09-11.152009.sbd.gems.flac16.jpg" alt="September 11, 1973 J-card" class="jcard-thumb" tabindex="0" loading="lazy" onclick="showLightbox(this.src)" onkeydown="openWithKeyboard(event, this.src)">
+    <img src="jcards/gd73-09-12.sbd.sly.14010.sbeok.shnf.jpg" alt="September 12, 1973 J-card" class="jcard-thumb" tabindex="0" loading="lazy" onclick="showLightbox(this.src)" onkeydown="openWithKeyboard(event, this.src)">
+    <img src="jcards/gd73-09-15.aud-sbd.cotsman.16174.sbeok.shnf.jpg" alt="September 15, 1973 J-card" class="jcard-thumb" tabindex="0" loading="lazy" onclick="showLightbox(this.src)" onkeydown="openWithKeyboard(event, this.src)">
+    <img src="jcards/gd1973-09-17.150977.sbd.patched.miller.flac1644.jpg" alt="September 17, 1973 J-card" class="jcard-thumb" tabindex="0" loading="lazy" onclick="showLightbox(this.src)" onkeydown="openWithKeyboard(event, this.src)">
+    <img src="jcards/gd73-09-20.aud-sbd.cotsman.11618.sbeok.shnf.jpg" alt="September 20, 1973 J-card" class="jcard-thumb" tabindex="0" loading="lazy" onclick="showLightbox(this.src)" onkeydown="openWithKeyboard(event, this.src)">
+    <img src="jcards/gd1973-09-21.145131.sbd.boswell.smith.sirmick.flac1644.jpg" alt="September 21, 1973 J-card" class="jcard-thumb" tabindex="0" loading="lazy" onclick="showLightbox(this.src)" onkeydown="openWithKeyboard(event, this.src)">
+    <img src="jcards/gd73-09-24.sbd-aud.cotsman.11620.sbeok.shnf.jpg" alt="September 24, 1973 J-card" class="jcard-thumb" tabindex="0" loading="lazy" onclick="showLightbox(this.src)" onkeydown="openWithKeyboard(event, this.src)">
+    <img src="jcards/gd1973-09-26.sbd-repatched.miller.80198.sbeok.flac16.jpg" alt="September 26, 1973 J-card" class="jcard-thumb" tabindex="0" loading="lazy" onclick="showLightbox(this.src)" onkeydown="openWithKeyboard(event, this.src)">
+  </div>
+
+  <div class="section-label">The Shows</div>
+  <div class="shows-list">
+    <div class="show-row"><span class="show-date">Sep 11, 1973</span> <span class="show-venue">William and Mary Hall, Williamsburg, VA</span></div>
+    <div class="show-row"><span class="show-date">Sep 12, 1973</span> <span class="show-venue">William and Mary Hall, Williamsburg, VA</span></div>
+    <div class="show-row"><span class="show-date">Sep 15, 1973</span> <span class="show-venue">Providence Civic Center, Providence, RI</span></div>
+    <div class="show-row"><span class="show-date">Sep 17, 1973</span> <span class="show-venue">Onondaga County War Memorial, Syracuse, NY</span></div>
+    <div class="show-row"><span class="show-date">Sep 20, 1973</span> <span class="show-venue">The Spectrum, Philadelphia, PA</span></div>
+    <div class="show-row"><span class="show-date">Sep 21, 1973</span> <span class="show-venue">The Spectrum, Philadelphia, PA</span></div>
+    <div class="show-row"><span class="show-date">Sep 24, 1973</span> <span class="show-venue">Civic Arena, Pittsburgh, PA</span></div>
+    <div class="show-row"><span class="show-date">Sep 26, 1973</span> <span class="show-venue">Buffalo Memorial Auditorium, Buffalo, NY</span></div>
+  </div>
+
+  <div class="page-cta">
+    <p>Listen to Horns ’73 in the XLIIs app.</p>
+    <a href="https://apps.apple.com/app/xliis/id6761192003" class="badge-link">
+      <img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83" alt="Download on the App Store">
+    </a>
+  </div>
+
+  <footer>
+    <a href="/app.html">App</a>
+    <a href="/#collections">Collections</a>
+    <a href="/about.html">About</a>
+    <a href="/privacy.html">Privacy</a>
+    <a href="/contact.html">Contact</a>
+  </footer>
+</main>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Full-size J-card" onclick="closeLightbox()">
+  <img id="lightbox-img" src="" alt="Full-size J-card">
+</div>
+<script>
+function showLightbox(src) {
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox').classList.add('visible');
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('visible');
+}
+function openWithKeyboard(event, src) {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    showLightbox(src);
+  }
+}
+document.addEventListener('keydown', function(event) {
+  if (event.key === 'Escape') closeLightbox();
+});
+</script>
+<!-- XLIIs Analytics -->
+<script>
+(function(){
+  if (location.hostname !== "xliis.app" && location.hostname !== "www.xliis.app") return;
+  var SB="https://dhwllgdxpeucldtmzhme.supabase.co/rest/v1";
+  var KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRod2xsZ2R4cGV1Y2xkdG16aG1lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMzI2NTMsImV4cCI6MjA4NTgwODY1M30.PmDxpoWXP0zA2sJLgRxAfODH1JcjdFOoRMdnGZwJYLE";
+  var vid=localStorage.getItem("xlii_vid");
+  if(!vid){vid=Math.random().toString(36).substr(2,12);localStorage.setItem("xlii_vid",vid);}
+  fetch(SB+"/xlii_web_analytics",{method:"POST",headers:{"apikey":KEY,"Authorization":"Bearer "+KEY,"Content-Type":"application/json","Prefer":"return=minimal"},body:JSON.stringify({page:location.pathname,visitor_id:vid,referrer:document.referrer||"",user_agent:navigator.userAgent})}).catch(function(){});
+})();
+</script>
+</body>
+</html>
