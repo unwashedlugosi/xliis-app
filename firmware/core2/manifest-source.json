@@ -1,15 +1,15 @@
 {
   "schema": 1,
-  "version": 2026111101,
-  "user_version": "2.81",
-  "cipher_size": 4336976,
-  "plain_size": 4336976,
-  "sha256": "01cc65259c26d5116dfe94a713cb6c4e470d483dae2ed46509376c50c46a4c91",
-  "md5": "a910a249e9189d51a83515acf3aacc93",
-  "nonce": "c4Dgx9xzmSesWHLq",
-  "tag": "0d/B0x/N//mN4NiPcF60AQ==",
-  "url": "https://xliis.app/firmware/core2/releases/2026111101.enc",
-  "signature": "UdtWdCesfGqgd+ajZTQoMqGk5BZISWHSCb/5VKEAfAfXWLZtVTD3jyqDmo9w3MFt8Q4SVGsuYLvAR5JOa/oLk0P7nI+WF9KE/Jo0wNICrc3K140IJo7T1Twz4ZyDM6m+5vyCxOYzCNzVD5NMeWPKWGPvSLWENjrKdwwQntlpuF7LhI6wB6AGTfzqX6Y5N7YUNE3j9c8uivFEKn0zd5O1F+7wrmYNuqzmmRYXN1QQPAFFglOaTfFAl3TG2naqFId7eaWBoqQBmc65g/gYhaXa1kv7Il1/XBnMjf5rttFEbWo4H1cqGctETlpr1FWN5CHWG/ou1NO6SkTtgNOebk07vA==",
-  "cipher_sha256": "7f858b32cf26e500681d1cad6424607e12e00b06e239b764d19cbf01e671f3da",
-  "package_signature": "cwUqteLs00VN33PsO9aDywzjrqKnB4e/96TiLyoupODERgoWK+IlR0e/ysM80YfhUrTjDzpIx8nTJwKRQS+1ehX8JPHHIGu+Up1IMfArz105DWm96DFl01Ew7qxV921eJNVUVfeX/PkoR/caI+/j9/EHt37DWXtbil/Kq9fJtdYkvY0lRXQgNnCXQ4i/MhzYo0ioISuEya5F7j4Ph1CEdEGCEzh6LO/+ssk+DOfslY9JXV1fN/xjYLMPPm20uQLVVP/5q5CpHUOuuptjDX99TMumKaTK+36nwlCw9xODx2hvpDuBBiTHHA1+1zH9pSerE9PuImVjr29KAxSimyKRhA=="
+  "version": 2026111203,
+  "user_version": "2.84",
+  "cipher_size": 4346192,
+  "plain_size": 4346192,
+  "sha256": "fc5b4d968a76153a6fa694ad05bc69761b8c1467ea1d6cab3684efc185b8889c",
+  "md5": "ea27e59dbdbf9cfd76a747044eb4fbb0",
+  "nonce": "vLKjgTcrPdaEPinP",
+  "tag": "dbG9APsVR1gExbEAqmhwhQ==",
+  "url": "https://xliis.app/firmware/core2/releases/2026111203.enc",
+  "signature": "lgiT2Jd/3L6/7kPqxCWgJHDe3K5CDST+ALnN7WnbmsiS4/LDeTF4+7dro26/DtWzrRkiv8gMhKT9hEC/jEVmXA0AcBFgm/hqM1DO7CN6DQ15iEXrUxahQvjcYpS0AytRL/N3XmI6yfZqGAx4HO9sNnx7sVynnUrq74gw6MuXniTXaHICIfuvPYsDRc1d9Pvvhipu9mPr9toKnLYWqn8iXQwDPPZr9wS+6CIYTfn3+j4Db3ks3TQNGqK82CO4nZqenQTpevWd9e4ALe3Yk3BTL5TsHEP0t5Dw2dPuTToereJVv81P5rTx6Yz0V7LPC/81YSjYxWPLxZpBbZNQ694tYQ==",
+  "cipher_sha256": "605f03c358ce56b3ad6c2f064f03a2cc39a9988ea3ed18ae515e83f3f8ce16f9",
+  "package_signature": "jQ3i1Eal37tp93ueX1QWfJLz+EX7+gEyhNnYwFjlaubgOlzVEnn7Cq8gDXoziezlT8pRl1itoyubgwTxjlaDNbS20NvpJHjQ9Pgg2Sqgjg4nD6xshKwafLGzTN/IUb4o4N6JH8dO8mlf44Zq/L0XSorQlLX8wcfE5T4wSfyabhU745TmsD9GLeQd4ROntvPe3D1KYKCfDMJxokdPSkbu5LZX8W0dfIR0wOwnIVK6Ys/KsNiAuQ0fQdIWxg2p+tSYSg+Jr6WwOvJdE9ZZ0QilXNvpU1YhfzqSmZ/29opogiPcvqNr+KMoLQCyRoNuWqy5dKVeMDigDImtbgGwqKP9sw=="
 }

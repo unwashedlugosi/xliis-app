@@ -1,9 +1,9 @@
 {
   "schema": 1,
   "mode": "core2-only",
-  "core2_manifest_sha256": "c59db4cf2da46599ef552be0290501e0e92e70fff2bf54f3b274bcf59cfd49d6",
-  "core2_cipher_sha256": "7f858b32cf26e500681d1cad6424607e12e00b06e239b764d19cbf01e671f3da",
+  "core2_manifest_sha256": "8bd0b0b08d43fec01af0dc661845db260f5e7af36809ea774452050022518b72",
+  "core2_cipher_sha256": "605f03c358ce56b3ad6c2f064f03a2cc39a9988ea3ed18ae515e83f3f8ce16f9",
   "cores3_manifest_sha256": "8e83a0a35c9c262e04e33ef320785314ea11324e1dd25727713b3cc6458a1f8f",
   "cores3_cipher_sha256": "33e3f0d692d3e89dce90ef9efb438c9391314df49a7cfd6c0c58f6bd085b7007",
-  "signature": "fHXRmefCfI1MRWGt03qNF+PbrwcpH/F5WQG0XbTq4J0Q++CxNoux5jhebp1X6DZCSq5Dg+JXIDtRCSUaAg8QxkynqZVLyWnXN+OrAlh/a0I31hKCB67b/N/n/lFCH255DjHfsBAjwSqdnLFTRF70jsRwxQVe9qXcX45IF7Q6v8suYolGPlkWMIUy5XSmEGOhEgJNlEoLswIAxIAgKYbnqB813NVmAR40hzP2i6mkrzI3oaMXdc4SfNdCOel/neiQk2j3je/BJrB2VFxpigBBWMCNfgtZIphc7/UtfrnAS3lgAydMl/MqOzZYVFxxAuWxD60rHuEVPKoIum+VPQqp5A=="
+  "signature": "PvqVu1H7L3Tyra5m08zW6R0MT/2DcuFWy9kGqc6Jjtl0oLOkTOksWL7Occt66wtHOFGVT4E0lBUNGFUxxrBmymkacxqlmwQx5y32hVP9+H4HBDtpHVGzirEcKDY9JZCFCNpRKVQQniF29EHaERcuspFflOOKDkCdvNeC1nbiNEY8RS4uwTEbXvftZnekRWSB/SJ1KQtYAlD99jV5h6iHY1rJGLhhNhWX/TCrR7xqboTTShZbqKOgNDhYE/e4Znn2KSYdOb4FQy4/Rm8VFcGqofJpO0K+O4XkT8gOg0Jb6iI6lD1Pq7RsoTwfCVtWEiu3ZzG1BFgiO3o+IH4D03KsoQ=="
 }
